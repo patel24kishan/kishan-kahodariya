@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Build order and decisions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1240px; height: 900px; box-sizing: border-box; padding: 64px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; background: #0a0a0a; color: #ffffff; font-family: Inter, sans-serif; font-size: 14px; line-height: 1.45">
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 700; margin-bottom: 8px">Build order</div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">1</div><div><b>Branch and scaffold</b><br><span style="color: #cccccc">Branch redesign/v2 in your repo, Vite + React + TypeScript. Live site untouched.</span></div></div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">2</div><div><b>Content files, sign-in, migration</b><br><span style="color: #cccccc">Content as files in the repo, import everything from constants.js, GitHub sign-in for /admin, prove a save without your account is rejected.</span></div></div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">3</div><div><b>Design system</b><br><span style="color: #cccccc">Colour tokens, type, light and dark, shared components (card, tabs, nav, footer).</span></div></div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">4</div><div><b>Public pages</b><br><span style="color: #cccccc">Game page (at / and /gamedev), /softdev, tab links and the media viewer.</span></div></div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">5</div><div><b>Admin dashboard</b><br><span style="color: #cccccc">Add / edit / delete / reorder, publish toggle, screenshots, hover text, per-page preview.</span></div></div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">6</div><div><b>Deploy</b><br><span style="color: #cccccc">The site rebuilds and deploys itself on every dashboard save and every push. No secret keys in the site bundle.</span></div></div>
+<div style="display: flex; gap: 14px; padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><div style="font-weight: 700; color: #888888">7</div><div><b>Verify</b><br><span style="color: #cccccc">Hard refresh on every link, security test, mobile, light / dark, Lighthouse, Web Interface Guidelines review.</span></div></div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 24px; font-weight: 700; margin-bottom: 8px">Decided</div>
+<div style="padding: 10px 14px; border: 1px solid #22c55e; border-radius: 8px"><b>Repo</b> <span style="color: #cccccc">— branch redesign/v2 from Deploy in the existing repo</span></div>
+<div style="padding: 10px 14px; border: 1px solid #f59e0b; border-radius: 8px"><b>Hosting — to confirm</b> <span style="color: #cccccc">— GitHub Pages recommended. Netlify's free plan allows about 20 publishes a month, and every dashboard save is a publish.</span></div>
+<div style="padding: 10px 14px; border: 1px solid #22c55e; border-radius: 8px"><b>Content</b> <span style="color: #cccccc">— files in the repo, edited from the dashboard, no database</span></div>
+<div style="padding: 10px 14px; border: 1px solid #22c55e; border-radius: 8px"><b>Cost</b> <span style="color: #cccccc">— nothing paid, anywhere</span></div>
+<div style="padding: 10px 14px; border: 1px solid #22c55e; border-radius: 8px"><b>Missing work</b> <span style="color: #cccccc">— Unbreaded, Volta Effect, IBM digital twins added in admin later</span></div>
+<div style="padding: 10px 14px; border: 1px solid #22c55e; border-radius: 8px"><b>Design</b> <span style="color: #cccccc">— these sketches: black canvas, yellow game, blue software, row-style skills, accent footer</span></div>
+<div style="font-size: 24px; font-weight: 700; margin: 16px 0 8px">Defaults unless you object</div>
+<div style="padding: 10px 14px; border: 1px solid #3a3a3a; border-radius: 8px"><b>Gameplay videos</b> <span style="color: #cccccc">— YouTube links, played inside the viewer</span></div>
+<div style="padding: 10px 14px; border: 1px solid #3a3a3a; border-radius: 8px"><b>Repo button</b> <span style="color: #cccccc">— plain link that opens in a new tab</span></div>
+<div style="padding: 10px 14px; border: 1px solid #3a3a3a; border-radius: 8px"><b>Certificate text</b> <span style="color: #cccccc">— imported empty; the old placeholder text is dropped and listed for you</span></div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1240,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

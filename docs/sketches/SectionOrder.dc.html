@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section order per page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1240px; height: 900px; box-sizing: border-box; padding: 64px; display: flex; flex-direction: column; gap: 24px; background: #0a0a0a; color: #ffffff; font-family: Inter, sans-serif; font-size: 14px; line-height: 1.45">
+<div style="font-size: 24px; font-weight: 700">Section order, top to bottom, on each page</div>
+<div style="display: grid; grid-template-columns: 48px repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="padding: 10px 0; font-size: 13px; color: #888888">#</div>
+<div style="padding: 10px 14px; font-weight: 700; color: #faff69; border-bottom: 2px solid #faff69">/  and  /gamedev</div>
+<div style="padding: 10px 14px; font-weight: 700; color: #7cb2ff; border-bottom: 2px solid #7cb2ff">/softdev</div>
+
+<div style="padding: 12px 0; color: #888888">1</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Nav</b><br><span style="color: #cccccc">Section links, light / dark toggle, yellow accent</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Nav</b><br><span style="color: #cccccc">Same links and toggle, blue accent</span></div>
+
+<div style="padding: 12px 0; color: #888888">2</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Hero and summary</b><br><span style="color: #cccccc">Game headline, game resume, itch.io</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Hero and summary</b><br><span style="color: #cccccc">Software headline, software resume</span></div>
+
+<div style="padding: 12px 0; color: #888888">3</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Projects</b><br><span style="color: #cccccc">4 tabs, opens on Unity3D (or Unreal by link)</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Projects</b><br><span style="color: #cccccc">4 tabs, opens on Web Apps</span></div>
+
+<div style="padding: 12px 0; color: #888888">4</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Experience</b><br><span style="color: #cccccc">Game jobs first, game bullets</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Experience</b><br><span style="color: #cccccc">Software jobs first, software bullets</span></div>
+
+<div style="padding: 12px 0; color: #888888">5</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Skills</b><br><span style="color: #cccccc">Game Dev and Programming first</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Skills</b><br><span style="color: #cccccc">Backend and Cloud first</span></div>
+
+<div style="padding: 12px 0; color: #888888">6</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Education</b><br><span style="color: #cccccc">Dalhousie, GTU</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border: 1px solid #7cb2ff; border-radius: 8px"><b>Certificates</b><br><span style="color: #cccccc">Moved up: AWS certificates first</span></div>
+
+<div style="padding: 12px 0; color: #888888">7</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Certificates</b><br><span style="color: #cccccc">Unity certificate first</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border: 1px solid #7cb2ff; border-radius: 8px"><b>Education</b><br><span style="color: #cccccc">Dalhousie, GTU</span></div>
+
+<div style="padding: 12px 0; color: #888888">8</div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Footer</b><br><span style="color: #cccccc">Nav links, social links marked game or both, toggle bottom right</span></div>
+<div style="padding: 12px 14px; background: #1a1a1a; border-radius: 8px"><b>Footer</b><br><span style="color: #cccccc">Nav links, social links marked software or both, toggle bottom right</span></div>
+</div>
+<div style="color: #cccccc">The bare address / shows the game page; there is no separate neutral home. Both pages share one layout. What changes: the summary, the resume button, the tab that opens first, and the order of items inside each section. The only section that moves is Certificates on /softdev.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1240,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

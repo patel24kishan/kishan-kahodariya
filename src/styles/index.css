@@ -1,0 +1,5 @@
+/*
+ * CONTRACT (architect): the single global stylesheet entry. The app entry imports this file
+ * and nothing else global. Placeholder — the design agent (phase 1) fills it (tokens, base,
+ * fonts) and may @import other files from src/styles/.
+ */

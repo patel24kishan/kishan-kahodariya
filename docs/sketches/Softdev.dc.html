@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Software track page sketch</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#cccccc;text-decoration:none}a:hover{color:#ffffff}
+.shot{cursor:pointer}
+.shot .ov{opacity:0;transition:opacity .2s}
+.shot:hover .ov,.shot:focus-visible .ov,.cards>div:first-child .ov{opacity:1}
+button:focus-visible,a:focus-visible{outline:2px solid #7cb2ff;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.shot .ov{transition:none}}
+</style>
+</helmet>
+<div style="width: 760px; height: 2200px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 40px; background: #0a0a0a; color: #ffffff; font-family: Inter, sans-serif; font-size: 14px; line-height: 1.5">
+
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+<div style="font-size: 12px; color: #888888">Link</div>
+<div style="padding: 6px 14px; border: 1px solid #7cb2ff; border-radius: 999px; font-size: 13px; color: #7cb2ff">/softdev</div>
+<div style="padding: 6px 14px; border: 1px solid #3a3a3a; border-radius: 999px; font-size: 13px; color: #cccccc">/softdev/unity etc. also work → same page, that tab open</div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #2a2a2a">
+<div style="font-weight: 700; font-size: 18px">KK</div>
+<div style="display: flex; gap: 16px; font-size: 13px; color: #cccccc">
+<div>About</div><div>Projects</div><div>Experience</div><div>Skills</div><div>Education</div>
+</div>
+<button aria-label="Switch to light mode" style="width: 80px; height: 44px; padding: 4px 0; flex-shrink: 0; background: none; border: none; cursor: pointer"><svg aria-hidden="true"width="80" height="36" viewBox="0 0 80 36"><defs><clipPath id="tg-pill"><rect x="2" y="2" width="76" height="32" rx="16"/></clipPath></defs><rect x="1" y="1" width="78" height="34" rx="17" fill="#0f1b33" stroke="#5a6a8a" stroke-width="2"/><g clip-path="url(#tg-pill)"><circle cx="60" cy="18" r="34" fill="#ffffff" opacity="0.06"/><circle cx="60" cy="18" r="26" fill="#ffffff" opacity="0.07"/><circle cx="60" cy="18" r="19" fill="#ffffff" opacity="0.08"/><path d="M14 9 L15 12 L18 13 L15 14 L14 17 L13 14 L10 13 L13 12 Z" fill="#ffffff"/><path d="M28 21 L28.8 23.2 L31 24 L28.8 24.8 L28 27 L27.2 24.8 L25 24 L27.2 23.2 Z" fill="#ffffff"/><circle cx="24" cy="10" r="1" fill="#ffffff"/><circle cx="12" cy="26" r="1" fill="#ffffff"/><circle cx="36" cy="14" r="1" fill="#ffffff"/></g><circle cx="60" cy="18" r="12" fill="#b8bcc4"/><circle cx="56" cy="14" r="3" fill="#8e939c"/><circle cx="64" cy="20" r="2.5" fill="#8e939c"/><circle cx="57" cy="23" r="1.8" fill="#8e939c"/></svg></button>
+</div>
+
+<div style="display: flex; gap: 32px; align-items: center">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; color: #7cb2ff">Hero · software track</div>
+<div style="font-size: 44px; font-weight: 700; line-height: 1.05; letter-spacing: -1.5px">Kishan Kahodariya</div>
+<div style="font-size: 18px; font-weight: 600; color: #7cb2ff">[SOFTWARE HEADLINE — you set this in admin]</div>
+<div style="color: #cccccc">[SOFTWARE SUMMARY — you set this in admin. Starts as your existing bio text.]</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<div style="padding: 12px 16px; background: #7cb2ff; color: #0a0a0a; border-radius: 8px; font-weight: 600">Software Resume</div>
+<div style="padding: 12px 16px; border: 1px solid #3a3a3a; border-radius: 8px">GitHub</div>
+<div style="padding: 12px 16px; border: 1px solid #3a3a3a; border-radius: 8px">LinkedIn</div>
+</div>
+</div>
+<div style="width: 140px; height: 140px; flex-shrink: 0; border: 1px dashed #5a5a5a; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 12px">Photo</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 20px">
+<div style="font-size: 28px; font-weight: 700; letter-spacing: -0.8px; text-align: center">Projects</div>
+<div style="display: flex; justify-content: center">
+<div style="display: flex; border: 1px solid #3a3a3a; border-radius: 8px; overflow: hidden; font-size: 13px">
+<div style="padding: 12px 18px">Unreal</div>
+<div style="padding: 12px 18px">Unity3D</div>
+<div style="padding: 12px 18px; background: #7cb2ff; color: #0a0a0a; font-weight: 600">Web Apps · default</div>
+<div style="padding: 12px 18px">All</div>
+</div>
+</div>
+<div class="cards" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="background: #1a1a1a; border: 1px solid #7cb2ff; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<button type="button" aria-label="View demo and screenshots" style="height: 110px; width: 100%; padding: 0; background: none; font-family: inherit; border: 1px dashed #5a5a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 12px; text-align: center; position: relative; overflow: hidden" class="shot">Project screenshot<span class="ov" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-sizing: border-box; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(10, 10, 10, 0.78); color: #7cb2ff; font-weight: 600; line-height: 1.3"><svg aria-hidden="true"width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="11" cy="11" r="9"/><path d="M9 7 L15 11 L9 15 Z" fill="currentColor"/></svg>View Demo &amp; Screenshots</span></button>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">ReactJs</div><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">NodeJs</div><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">MongoDB</div></div>
+<div style="font-size: 16px; font-weight: 600">Staycation</div>
+<div style="font-size: 12px; color: #888888">Apr 2023 - May 2023</div>
+<div style="font-size: 13px; color: #cccccc">Short description, as on the current site.</div>
+<div style="display: flex; gap: 8px; font-size: 12px"><div style="padding: 8px 12px; border: 1px solid #3a3a3a; border-radius: 8px">View Code</div></div>
+</div>
+<div style="background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<button type="button" aria-label="View demo and screenshots" style="height: 110px; width: 100%; padding: 0; background: none; font-family: inherit; border: 1px dashed #5a5a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 12px; text-align: center; position: relative; overflow: hidden" class="shot">Project screenshot<span class="ov" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-sizing: border-box; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(10, 10, 10, 0.78); color: #7cb2ff; font-weight: 600; line-height: 1.3"><svg aria-hidden="true"width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="11" cy="11" r="9"/><path d="M9 7 L15 11 L9 15 Z" fill="currentColor"/></svg>View Demo &amp; Screenshots</span></button>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">React</div><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">ReactQuery</div></div>
+<div style="font-size: 16px; font-weight: 600">Crypto Tracker</div>
+<div style="font-size: 12px; color: #888888">May 2024</div>
+<div style="font-size: 13px; color: #cccccc">Short description, as on the current site.</div>
+<div style="display: flex; gap: 8px; font-size: 12px"><div style="padding: 8px 12px; border: 1px solid #3a3a3a; border-radius: 8px">View Code</div><div style="padding: 8px 12px; background: #7cb2ff; color: #0a0a0a; border-radius: 8px; font-weight: 600">Live Demo</div></div>
+</div>
+<div style="background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<button type="button" aria-label="View demo and screenshots" style="height: 110px; width: 100%; padding: 0; background: none; font-family: inherit; border: 1px dashed #5a5a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 12px; text-align: center; position: relative; overflow: hidden" class="shot">Project screenshot<span class="ov" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-sizing: border-box; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(10, 10, 10, 0.78); color: #7cb2ff; font-weight: 600; line-height: 1.3"><svg aria-hidden="true"width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="11" cy="11" r="9"/><path d="M9 7 L15 11 L9 15 Z" fill="currentColor"/></svg>View Demo &amp; Screenshots</span></button>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">ReactJs</div><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">AWS</div></div>
+<div style="font-size: 16px; font-weight: 600">My Digital Locker</div>
+<div style="font-size: 12px; color: #888888">Sept 2021 - Dec 2021</div>
+<div style="font-size: 13px; color: #cccccc">Short description, as on the current site.</div>
+<div style="display: flex; gap: 8px; font-size: 12px"><div style="padding: 8px 12px; border: 1px solid #3a3a3a; border-radius: 8px">View Code</div></div>
+</div>
+</div>
+<div style="font-size: 12px; color: #888888; text-align: center">First card shows the hover state; hover the others to see it. Card order on this page = your software-track sort order. Buttons come from each project's links.</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px">Experience · software jobs first, software bullet set</div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 16px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px"><div><b>IBM Canada</b> — Application Developer<br><span style="color: #cccccc; font-size: 13px">Software bullet points · tech tags</span></div><div style="color: #888888; font-size: 12px; white-space: nowrap">Dec 2023 - Feb 2024</div></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 16px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px"><div><b>Achievers</b> — Software Developer Intern<br><span style="color: #cccccc; font-size: 13px">Software bullet points · tech tags</span></div><div style="color: #888888; font-size: 12px; white-space: nowrap">May - August 2022</div></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 14px 16px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px"><div><b>Game studio jobs</b> — shown after, if tagged "both"<br><span style="color: #cccccc; font-size: 13px">Told with their software bullet set</span></div><div style="color: #888888; font-size: 12px; white-space: nowrap">Dates</div></div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px">Skills · software groups first</div>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #2a2a2a">
+<div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700; color: #7cb2ff; padding-top: 5px">Backend</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px"><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">MySQL</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">MongoDB</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">Firebase</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">WebGL</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">Javascript</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">React Js</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">HTML</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">CSS</div></div></div>
+<div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700; color: #7cb2ff; padding-top: 5px">Cloud</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px"><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">AWS (Amazon Web Services)</div><div style="padding: 6px 12px; border: 1px solid #7cb2ff; border-radius: 8px">AZURE</div></div></div>
+<div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700; padding-top: 5px">Programming</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: #cccccc"><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">C#</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">C++</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">.NET</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Python</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Java</div></div></div>
+<div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700; padding-top: 5px">Game Dev</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: #cccccc"><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Unity3D</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Unreal Engine</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">AR/VR</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Netcode</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Photon</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Unity Cloud</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Git</div></div></div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px">Certificates</div>
+<div style="padding: 12px 14px; border: 1px solid #2a2a2a; border-radius: 12px; font-size: 13px"><b>AWS Solution Architect - Associate</b><br><span style="color: #cccccc">Shown first on this track</span></div>
+<div style="padding: 12px 14px; border: 1px solid #2a2a2a; border-radius: 12px; font-size: 13px"><b>AWS Developer - Associate</b><br><span style="color: #cccccc">Credly badge link</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px">Education</div>
+<div style="padding: 12px 14px; border: 1px solid #2a2a2a; border-radius: 12px; font-size: 13px"><b>Dalhousie University</b><br><span style="color: #cccccc">Masters of Applied Computer Science</span></div>
+<div style="padding: 12px 14px; border: 1px solid #2a2a2a; border-radius: 12px; font-size: 13px"><b>G H Patel College of Tech &amp; Engg.</b><br><span style="color: #cccccc">Bachelors of Computer Engineering</span></div>
+</div>
+</div>
+
+<div style="margin: auto -40px -40px; padding: 32px 40px; display: flex; flex-direction: column; gap: 20px; background: #7cb2ff; color: #0a0a0a; font-size: 13px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px">NAVIGATE</div><div style="display: flex; flex-direction: column; gap: 8px; font-weight: 600"><div>About</div><div>Projects</div><div>Experience</div><div>Skills</div><div>Education</div></div></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px">CONNECT</div><div style="display: flex; gap: 8px; flex-wrap: wrap"><div style="padding: 10px 14px; background: #0a0a0a; color: #7cb2ff; border-radius: 8px; font-weight: 600">GitHub</div><div style="padding: 10px 14px; background: #0a0a0a; color: #7cb2ff; border-radius: 8px; font-weight: 600">LinkedIn</div><div style="padding: 10px 14px; background: #0a0a0a; color: #7cb2ff; border-radius: 8px; font-weight: 600">YouTube</div><div style="padding: 10px 14px; background: #0a0a0a; color: #7cb2ff; border-radius: 8px; font-weight: 600">Email</div></div></div>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px"><div style="font-size: 12px">Social links come from admin: the ones marked software or both.</div>
+<button aria-label="Switch to light mode" style="width: 80px; height: 44px; padding: 4px 0; flex-shrink: 0; background: none; border: none; cursor: pointer"><svg aria-hidden="true" width="80" height="36" viewBox="0 0 80 36"><defs><clipPath id="tg-pill-f"><rect x="2" y="2" width="76" height="32" rx="16"/></clipPath></defs><rect x="1" y="1" width="78" height="34" rx="17" fill="#0f1b33" stroke="#5a6a8a" stroke-width="2"/><g clip-path="url(#tg-pill-f)"><circle cx="60" cy="18" r="26" fill="#ffffff" opacity="0.07"/><circle cx="60" cy="18" r="19" fill="#ffffff" opacity="0.08"/><path d="M14 9 L15 12 L18 13 L15 14 L14 17 L13 14 L10 13 L13 12 Z" fill="#ffffff"/><circle cx="24" cy="10" r="1" fill="#ffffff"/><circle cx="30" cy="24" r="1" fill="#ffffff"/></g><circle cx="60" cy="18" r="12" fill="#b8bcc4"/><circle cx="56" cy="14" r="3" fill="#8e939c"/><circle cx="64" cy="20" r="2.5" fill="#8e939c"/></svg></button></div>
+<div style="margin: 12px -40px -32px; padding: 18px 40px; background: #0a0a0a; color: #7cb2ff; text-align: center; font-size: 13px; line-height: 1.6">Developed by Kishan Kahodariya.<br>© All rights reserved.</div></div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":760,"height":2200}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

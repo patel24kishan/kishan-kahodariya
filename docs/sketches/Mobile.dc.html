@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone layout sketch</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 2600px; box-sizing: border-box; padding: 24px 16px; display: flex; flex-direction: column; gap: 32px; background: #0a0a0a; color: #ffffff; font-family: Inter, sans-serif; font-size: 14px; line-height: 1.5">
+
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #2a2a2a">
+<div style="font-weight: 700; font-size: 18px">KK</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<button aria-label="Switch to light mode" style="width: 80px; height: 44px; padding: 4px 0; flex-shrink: 0; background: none; border: none"><svg aria-hidden="true"width="80" height="36" viewBox="0 0 80 36"><defs><clipPath id="tg-pill-m"><rect x="2" y="2" width="76" height="32" rx="16"/></clipPath></defs><rect x="1" y="1" width="78" height="34" rx="17" fill="#0f1b33" stroke="#5a6a8a" stroke-width="2"/><g clip-path="url(#tg-pill-m)"><circle cx="60" cy="18" r="26" fill="#ffffff" opacity="0.07"/><circle cx="60" cy="18" r="19" fill="#ffffff" opacity="0.08"/><path d="M14 9 L15 12 L18 13 L15 14 L14 17 L13 14 L10 13 L13 12 Z" fill="#ffffff"/><circle cx="24" cy="10" r="1" fill="#ffffff"/><circle cx="30" cy="24" r="1" fill="#ffffff"/></g><circle cx="60" cy="18" r="12" fill="#b8bcc4"/><circle cx="56" cy="14" r="3" fill="#8e939c"/><circle cx="64" cy="20" r="2.5" fill="#8e939c"/></svg></button>
+<button aria-label="Open menu" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: 1px solid #3a3a3a; border-radius: 8px; color: #ffffff"><svg aria-hidden="true"width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5 H17 M3 10 H17 M3 15 H17"/></svg></button>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="width: 96px; height: 96px; border: 1px dashed #5a5a5a; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 12px">Photo</div>
+<div style="font-size: 34px; font-weight: 700; line-height: 1.1; letter-spacing: -1px">Kishan Kahodariya</div>
+<div style="font-size: 16px; font-weight: 600; color: #faff69">[GAME HEADLINE — you set this in admin]</div>
+<div style="color: #cccccc">Summary paragraph, full width.</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<div style="padding: 12px 16px; background: #faff69; color: #0a0a0a; border-radius: 8px; font-weight: 600">Game Dev Resume</div>
+<div style="padding: 12px 16px; border: 1px solid #3a3a3a; border-radius: 8px">itch.io</div>
+<div style="padding: 12px 16px; border: 1px solid #3a3a3a; border-radius: 8px">GitHub</div>
+<div style="padding: 12px 16px; border: 1px solid #3a3a3a; border-radius: 8px">LinkedIn</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 24px; font-weight: 700; letter-spacing: -0.5px">Projects</div>
+<div style="display: flex; border: 1px solid #3a3a3a; border-radius: 8px; overflow: hidden; font-size: 13px">
+<div style="flex-grow: 1; padding: 12px 6px; text-align: center">Unreal</div>
+<div style="flex-grow: 1; padding: 12px 6px; text-align: center; background: #faff69; color: #0a0a0a; font-weight: 600">Unity3D</div>
+<div style="flex-grow: 1; padding: 12px 6px; text-align: center">Web Apps</div>
+<div style="flex-grow: 1; padding: 12px 6px; text-align: center">All</div>
+</div>
+<div style="background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; height: 180px; border: 1px dashed #5a5a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 12px">Project screenshot<div style="position: absolute; right: 8px; bottom: 8px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; background: rgba(10, 10, 10, 0.78); border-radius: 999px; color: #ffffff; font-weight: 600"><svg aria-hidden="true"width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 1 L11 6 L2 11 Z"/></svg>View Gameplay &amp; Screenshots</div></div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">Unity</div><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">C#</div><div style="padding: 2px 8px; border: 1px solid #3a3a3a; border-radius: 999px">Photon</div></div>
+<div style="font-size: 16px; font-weight: 600">Scarfall</div>
+<div style="font-size: 12px; color: #888888">2019-2020</div>
+<div style="font-size: 13px; color: #cccccc">Short description, as on the current site.</div>
+<div style="display: flex; gap: 8px; font-size: 13px"><div style="flex-grow: 1; padding: 12px; text-align: center; border: 1px solid #3a3a3a; border-radius: 8px">View Code</div><div style="flex-grow: 1; padding: 12px; text-align: center; background: #faff69; color: #0a0a0a; border-radius: 8px; font-weight: 600">Play</div></div>
+</div>
+<div style="font-size: 12px; color: #888888">Cards stack one per row. No hover on touch, so the label sits on the image as a badge. The viewer opens full screen and supports swipe.</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 20px; font-weight: 700">Experience</div>
+<div style="padding: 14px 16px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px"><b>Astro Game Studio</b><br>Game Developer<br><span style="color: #888888; font-size: 12px">June 2024 - Present</span><br><span style="color: #cccccc; font-size: 13px">Bullet points · tech tags</span></div>
+<div style="padding: 14px 16px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px"><b>HelpUsDefend</b><br>Game Developer<br><span style="color: #888888; font-size: 12px">Dec 2024 - Feb 2025</span><br><span style="color: #cccccc; font-size: 13px">Bullet points · tech tags</span></div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 20px; font-weight: 700">Skills</div>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #2a2a2a">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700; color: #faff69">Game Dev</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px"><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Unity3D</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Unreal Engine</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">AR/VR</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Netcode</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Photon</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Unity Cloud</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Git</div></div></div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700; color: #faff69">Programming</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px"><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">C#</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">C++</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">.NET</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Python</div><div style="padding: 6px 12px; border: 1px solid #faff69; border-radius: 8px">Java</div></div></div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700">Backend</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: #cccccc"><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">MySQL</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">MongoDB</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Firebase</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">WebGL</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">Javascript</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">React Js</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">HTML</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">CSS</div></div></div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-bottom: 1px solid #2a2a2a"><div style="font-weight: 700">Cloud</div><div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: #cccccc"><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">AWS (Amazon Web Services)</div><div style="padding: 6px 12px; border: 1px solid #5a5a5a; border-radius: 8px">AZURE</div></div></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 20px; font-weight: 700">Education</div>
+<div style="padding: 12px 14px; border: 1px solid #2a2a2a; border-radius: 12px; font-size: 13px"><b>Dalhousie University</b><br><span style="color: #cccccc">Masters of Applied Computer Science</span></div>
+<div style="font-size: 20px; font-weight: 700; margin-top: 12px">Certificates</div>
+<div style="padding: 12px 14px; border: 1px solid #2a2a2a; border-radius: 12px; font-size: 13px"><b>AWS Solution Architect - Associate</b><br><span style="color: #cccccc">Credly badge link</span></div>
+</div>
+
+<div style="margin: 0 -16px; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; background: #faff69; color: #0a0a0a; font-size: 13px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px">NAVIGATE</div><div style="display: flex; flex-direction: column; gap: 8px; font-weight: 600"><div>About</div><div>Projects</div><div>Experience</div><div>Skills</div><div>Education</div></div></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.5px">CONNECT</div><div style="display: flex; gap: 8px; flex-wrap: wrap"><div style="padding: 10px 14px; background: #0a0a0a; color: #faff69; border-radius: 8px; font-weight: 600">YouTube</div><div style="padding: 10px 14px; background: #0a0a0a; color: #faff69; border-radius: 8px; font-weight: 600">GitHub</div><div style="padding: 10px 14px; background: #0a0a0a; color: #faff69; border-radius: 8px; font-weight: 600">itch.io</div><div style="padding: 10px 14px; background: #0a0a0a; color: #faff69; border-radius: 8px; font-weight: 600">LinkedIn</div><div style="padding: 10px 14px; background: #0a0a0a; color: #faff69; border-radius: 8px; font-weight: 600">Email</div></div></div>
+</div>
+<button aria-label="Switch to light mode" style="width: 80px; height: 44px; padding: 4px 0; align-self: flex-end; background: none; border: none"><svg aria-hidden="true" width="80" height="36" viewBox="0 0 80 36"><defs><clipPath id="tg-pill-mf"><rect x="2" y="2" width="76" height="32" rx="16"/></clipPath></defs><rect x="1" y="1" width="78" height="34" rx="17" fill="#0f1b33" stroke="#5a6a8a" stroke-width="2"/><g clip-path="url(#tg-pill-mf)"><circle cx="60" cy="18" r="26" fill="#ffffff" opacity="0.07"/><circle cx="60" cy="18" r="19" fill="#ffffff" opacity="0.08"/><path d="M14 9 L15 12 L18 13 L15 14 L14 17 L13 14 L10 13 L13 12 Z" fill="#ffffff"/><circle cx="24" cy="10" r="1" fill="#ffffff"/><circle cx="30" cy="24" r="1" fill="#ffffff"/></g><circle cx="60" cy="18" r="12" fill="#b8bcc4"/><circle cx="56" cy="14" r="3" fill="#8e939c"/><circle cx="64" cy="20" r="2.5" fill="#8e939c"/></svg></button>
+<div style="margin: 4px -16px -24px; padding: 16px; background: #0a0a0a; color: #faff69; text-align: center; font-size: 13px; line-height: 1.6; border-bottom: 1px solid #2a2a2a">Developed by Kishan Kahodariya.<br>© All rights reserved.</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid #3a3a3a; border-radius: 12px; font-size: 13px">
+<div style="font-weight: 700">How the layout adapts</div>
+<div><b>Phone, under 768px</b><br><span style="color: #cccccc">Menu button, 1 card per row, 34px headline</span></div>
+<div><b>Tablet, 768 to 1023px</b><br><span style="color: #cccccc">Full nav, 2 cards per row</span></div>
+<div><b>Desktop, 1024px and up</b><br><span style="color: #cccccc">Full nav, 3 cards per row, 56 to 72px headline</span></div>
+<div style="color: #cccccc">Between these sizes, type and spacing scale smoothly with the screen width. Touch targets are at least 44px.</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2600}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
