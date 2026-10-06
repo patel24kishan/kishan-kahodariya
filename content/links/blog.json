@@ -1,0 +1,11 @@
+{
+  "slug": "blog",
+  "label": "Blog",
+  "url": "https://www.speakless.blog/",
+  "icon": "blog",
+  "audience": "both",
+  "order": 40,
+  "showInHero": false,
+  "showInFooter": true,
+  "published": true
+}

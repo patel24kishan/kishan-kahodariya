@@ -1,5 +1,14 @@
 /*
  * CONTRACT (architect): the single global stylesheet entry. The app entry imports this file
- * and nothing else global. Placeholder — the design agent (phase 1) fills it (tokens, base,
- * fonts) and may @import other files from src/styles/.
+ * and nothing else global. Owned by the design agent.
+ *
+ * Order matters: font faces → tokens → reset → base. Everything component-level lives in a
+ * CSS Module next to its component (src/components/ui/*.module.css, src/theme/*.module.css).
  */
+
+/* Self-hosted Inter Variable (weight axis 100–900, font-display: swap, subset per script). */
+@import '@fontsource-variable/inter/wght.css';
+
+@import './tokens.css';
+@import './reset.css';
+@import './base.css';

@@ -1,0 +1,42 @@
+{
+  "slug": "my-runner",
+  "title": "My Runner",
+  "shortDescription": "Created horizontal endless runner Game for PC, similar to Chrome's Dino jumping game but in 3D.",
+  "longDescription": "",
+  "dateDisplay": "July 2023 - July 2023",
+  "tags": [
+    "Unity",
+    "C#",
+    "Unity Cloud",
+    "Addressables",
+    "Telemetry",
+    "Git"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 130,
+  "orderSoftdev": 130,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.itch.zone/aW1nLzEzNDM3Njc4LnBuZw==/347x500/T9M7B%2B.png",
+      "alt": "My Runner cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/My-Runner",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 6
+}

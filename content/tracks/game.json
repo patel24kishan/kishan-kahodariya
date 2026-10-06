@@ -1,0 +1,15 @@
+{
+  "id": "game",
+  "route": "gamedev",
+  "label": "Game Dev",
+  "headline": "Game Developer",
+  "summary": "As creative developer focused on building engaging gameplay systems and interactive experiences. I’m passionate about creating memorable experiences and exploring new ideas in Gaming as a Services, Cloud Gaming, and AR.",
+  "resumeUrl": "https://drive.google.com/file/d/1S5b_6PfrsLJlioTRo7EZbpLrTOmo26Ma/view?usp=drive_link",
+  "resumeLabel": "Game Dev Resume",
+  "defaultTab": "unity",
+  "photo": "/images/profile.jpg",
+  "photoAlt": "Kishan Kahodariya",
+  "certificatesFirst": false,
+  "metaTitle": "Kishan Kahodariya — Game Developer",
+  "metaDescription": ""
+}

@@ -1,0 +1,42 @@
+{
+  "slug": "my-portfolio",
+  "title": "My Portfolio",
+  "shortDescription": " Current Website was created from scratch using React, material-UI and deployed using GitHub Pages. ",
+  "longDescription": "",
+  "dateDisplay": "2024",
+  "tags": [
+    "ReactJs",
+    "HTML",
+    "CSS",
+    "GitHub",
+    "GitHub Pages",
+    "Material-UI"
+  ],
+  "category": "webapps",
+  "audience": "softdev",
+  "featured": false,
+  "published": true,
+  "orderGame": 190,
+  "orderSoftdev": 190,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://cdni.iconscout.com/illustration/premium/thumb/man-working-on-responsive-web-development-5691624-4759506.png?f=webp",
+      "alt": "My Portfolio cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "",
+      "kind": "code"
+    },
+    {
+      "label": "WEBSITE",
+      "url": "https://patel24kishan.github.io/My-Portfolio/",
+      "kind": "demo"
+    }
+  ],
+  "legacyId": 12
+}

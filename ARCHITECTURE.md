@@ -261,3 +261,67 @@ Cross-area contracts that already exist as placeholders (keep the exports, props
 End with a short report: what you built (files), what you verified and how (commands and
 results, with pass/fail counts), what is not done or not verified, the issues you filed, and
 anything the architect must decide. Be exact; do not round failures up to success.
+
+## 11. Phase 1 results that phase 2 builds on
+
+Verified by the architect on 2026-10-06: `tsc` clean, content valid, dev suite 444 passed / 2
+skipped, build suite 194 passed.
+
+**Content (`@/content`)**
+- 44 files under `/content`: 22 projects (21 published, "Unity Tools" unpublished), 5 experience,
+  4 skill groups, 5 links, 2 education, 3 certificates, 2 tracks, 1 site file.
+- Reading content is forgiving, validating it is strict only where it must be: unknown keys,
+  missing/empty identity fields, bad URLs and bad ids fail (`npm run validate:content`, which
+  blocks a deploy); a missing or `null` optional field gets its default and blank list rows are
+  dropped. `getLinks()` never returns a link with an empty `url`. **Project links can have
+  `url: ""` — renderers must skip those.**
+- One project (`target-shooter`) has a non-standard YouTube address
+  (`https://www.youtube.com/Gameplay?v=…`). The viewer must read the video id from the `v`
+  parameter, `youtu.be/<id>` and `/embed/<id>` forms, and fall back to opening the address in a
+  new tab when no id can be read.
+- Most images are hotlinked from other sites and some will be dead. Every content image needs
+  a graceful fallback when it fails to load, and `referrerpolicy="no-referrer"`.
+- In Node (tests, scripts) read content with `scripts/lib/load-content.ts` and
+  `createContentApi()` from `src/content/selectors.ts`; `@/content` itself only works inside Vite.
+
+**Design system (`@/components/ui`, `@/theme`, `src/styles`)**
+- On the canvas: accent-coloured text uses `--color-accent-ink`, accent borders use
+  `--color-accent-border`; `--color-accent` is a fill and text on it is `--color-on-accent`.
+  On near-black fills (footer buttons, credit strip) use the raw `--color-accent`.
+- Put `data-on-accent` on any accent-filled band (the footer): text tokens and the focus ring
+  turn near-black inside it.
+- Muted text never sits on `--color-surface-raised` (4.4:1).
+- `data-track="game|softdev"` on the page root selects the accent.
+- Primitives: `Button`, `LinkButton`, `buttonClassName()`, `IconButton`, `Chip`,
+  `SegmentedTabs` (links, `renderLink` for the router), `Icon`, `Container`, `Section`,
+  `SkipLink`, `VisuallyHidden`, `MediaOverlayButton`, `cx()`. Read their doc comments.
+  The kit at `/__kit` (dev) shows every one in every state.
+
+**App shell (`src/App.tsx`, `src/routes.tsx`, `src/lib`)**
+- Keep `data-testid="track-page"`, `data-track` and `data-tab` on ONE root element of
+  `TrackPage`; every routing and prerender test reads only that.
+- Tabs and page links: `<Link to={trackPath(track, tabId)}>` from `@/lib/paths`; no scroll props
+  needed (same-page tab changes keep the scroll position, the shell handles it).
+  `TrackPage` stays mounted across tab changes and remounts when the page changes.
+- Content assets: `assetUrl()` once per value; `isExternalUrl()` decides `target="_blank"`.
+- Do not render `<title>` or `<meta>`; `src/lib/head.ts` owns the head.
+- No `lazy()` / `<Suspense>` in anything rendered on first load (the prerender fails the build).
+- Never read the theme, `window`, `document` or `localStorage` during render — the dev
+  hydration test renders every route as a dark and as a light visitor and fails on a mismatch.
+- `public/admin/**` is copied to `dist/admin/` and served at `/My-Portfolio/admin/`.
+  `scripts/serve-pages.ts` (the GitHub Pages emulator used by the build suite) serves `.yml`.
+- Canonical URLs: `/` for the game default view, `/softdev` for the software default view.
+- Production branch: `master` (named once, in `.github/workflows/deploy.yml`). The CMS branch
+  must be the same.
+
+**Testing**
+- Playwright output folders are per port (`test-results/dev-<port>`, `test-results/build-<port>`).
+- Build suite: `PW_BUILD_PORT=<port> npx playwright test -c playwright.build.config.ts`
+  (it runs `npm run build` first; `PW_SKIP_BUILD=1` reuses an existing `dist/`).
+- Git Bash rewrites env values that start with `/`; use `MSYS_NO_PATHCONV=1` when passing paths
+  such as `PAGES_BASE_PATH=/My-Portfolio`.
+
+**Phase 2 isolation:** the `pages` and `admin` agents each work in their own git worktree, so
+one agent's edits cannot reload another's dev server. Inside its worktree an agent runs
+`npm ci` first, may run the build suite, and commits its own work on its worktree branch
+(no push). The architect merges the branches.

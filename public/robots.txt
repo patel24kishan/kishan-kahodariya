@@ -1,3 +1,6 @@
-# https://www.robotstxt.org/robotstxt.html
+# Everything is public except the admin dashboard.
+# Paths here are written relative to the site; the build (scripts/prerender.ts) prefixes
+# them with the base path in dist/robots.txt, because crawlers read them from the host root.
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/

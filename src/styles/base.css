@@ -1,0 +1,126 @@
+/* Base element styles: typography, focus, anchors, motion. Everything else is a CSS Module. */
+
+html {
+  background: var(--color-canvas);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-body);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 400;
+  overflow-x: clip; /* belt-and-braces against sub-pixel overflow; layouts must still fit 320px */
+}
+
+/* Headings: Inter 700, negative tracking (DESIGN.md "display weights stay at 700"). */
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+h1 {
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+
+h2 {
+  font-size: var(--text-heading);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+h3 {
+  font-size: var(--text-title-md);
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
+  font-weight: 600;
+}
+
+h4 {
+  font-size: var(--text-title-sm);
+  line-height: var(--leading-tight);
+  font-weight: 600;
+}
+
+strong,
+b {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+small {
+  font-size: var(--text-caption);
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+a {
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  color: var(--color-ink);
+}
+
+/* Interactive elements: no 300ms tap delay, no grey tap flash. */
+a,
+button,
+[role='button'],
+input,
+select,
+textarea,
+summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus ring: 2px, offset, in the accent border colour (near-black inside data-on-accent). */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Anchored sections land below the sticky nav. */
+[id] {
+  scroll-margin-top: calc(var(--nav-height) + var(--space-4));
+}
+
+/* Tabular figures wherever numbers line up. */
+time,
+[data-numeric] {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* Reduced motion: no animation, no smooth scrolling, transitions end immediately. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

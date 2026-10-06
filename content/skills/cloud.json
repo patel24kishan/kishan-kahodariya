@@ -1,0 +1,12 @@
+{
+  "slug": "cloud",
+  "title": "Cloud",
+  "skills": [
+    "AWS (Amazon Web Services)",
+    "AZURE"
+  ],
+  "emphasis": "softdev",
+  "orderGame": 40,
+  "orderSoftdev": 20,
+  "published": true
+}

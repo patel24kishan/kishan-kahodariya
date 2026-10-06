@@ -1,0 +1,36 @@
+{
+  "slug": "third-person-shooter",
+  "title": "Third Person Shooter",
+  "shortDescription": "A console-ready shooting Chaos offering dynamic movements, fluid combat, and reactive AI.",
+  "longDescription": "",
+  "dateDisplay": "2025",
+  "tags": [
+    "Unreal",
+    "C++",
+    "Blueprint",
+    "AnimGraph/BlendSpace",
+    "AI"
+  ],
+  "category": "unreal",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 40,
+  "orderSoftdev": 40,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://gameassetsfree.com/assets/105953-invector-shooter-cover-add-on-0-8-unity/105953-invector-shooter-cover-add-on-0-8-unity.webp",
+      "alt": "Third Person Shooter cover image"
+    }
+  ],
+  "videoUrl": "https://youtu.be/x_k_9Ft1_pk",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://gitlab.com/kishan24patel/third_person_shooter",
+      "kind": "code"
+    }
+  ],
+  "legacyId": -2
+}

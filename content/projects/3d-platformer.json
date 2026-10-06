@@ -1,0 +1,39 @@
+{
+  "slug": "3d-platformer",
+  "title": "3D Platformer",
+  "shortDescription": "Learned level design with fun obstacles and engaging gameplay. ",
+  "longDescription": "",
+  "dateDisplay": "2025",
+  "tags": [
+    "Unreal",
+    "C++",
+    "Blueprint"
+  ],
+  "category": "unreal",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 10,
+  "orderSoftdev": 10,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://assetstorev1-prd-cdn.unity3d.com/package-screenshot/7b14ef24-483c-43a6-a0a8-e6b3acd3a75c_scaled.jpg",
+      "alt": "3D Platformer cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://gitlab.com/kishan24patel/3d-platformer",
+      "kind": "code"
+    },
+    {
+      "label": "Gameplay",
+      "url": "",
+      "kind": "video"
+    }
+  ],
+  "legacyId": -4
+}

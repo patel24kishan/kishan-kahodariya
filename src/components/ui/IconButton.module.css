@@ -1,0 +1,18 @@
+.iconButton {
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+.lg {
+  width: 52px;
+  min-width: 52px;
+  min-height: 52px;
+}
+
+.circle,
+.circle::before,
+.circle:focus-visible {
+  border-radius: var(--radius-pill);
+}

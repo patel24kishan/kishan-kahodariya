@@ -1,0 +1,18 @@
+{
+  "slug": "backend",
+  "title": "Backend",
+  "skills": [
+    "MySQL",
+    "MongoDB",
+    "Firebase",
+    "WebGL",
+    "Javascript",
+    "React Js",
+    "HTML",
+    "CSS"
+  ],
+  "emphasis": "softdev",
+  "orderGame": 30,
+  "orderSoftdev": 10,
+  "published": true
+}

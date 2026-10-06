@@ -1,0 +1,125 @@
+.nav {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* The scroller owns overflow; its padding keeps focus rings inside the scrollable area. */
+.scroller {
+  display: flex;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 4px;
+  margin: -4px;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-inline: auto;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: var(--radius-sm);
+}
+
+.item {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.link {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
+  color: var(--color-body);
+  font-size: var(--text-nav);
+  font-weight: 500;
+  line-height: 1.25;
+  text-decoration: none;
+  white-space: nowrap;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--button-tint);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-ink);
+  }
+
+  .link:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Round the outer corners of the first and last link so the fill matches the frame. */
+.item:first-child .link {
+  border-start-start-radius: 7px;
+  border-end-start-radius: 7px;
+}
+
+.item:last-child .link {
+  border-start-end-radius: 7px;
+  border-end-end-radius: 7px;
+}
+
+.link[aria-current='page'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .link[aria-current='page']:hover {
+    color: var(--color-on-accent);
+  }
+}
+
+.link:focus-visible {
+  border-radius: 6px;
+  outline-offset: -3px;
+  z-index: 1;
+}
+
+.link[aria-current='page']:focus-visible {
+  outline-color: var(--color-on-accent);
+}
+
+/* Phones: fill the row; overflow still scrolls. */
+@media (max-width: 767px) {
+  .list {
+    min-width: 100%;
+  }
+
+  .item {
+    flex: 1 1 0;
+  }
+
+  .link {
+    width: 100%;
+    padding-inline: var(--space-3);
+  }
+}

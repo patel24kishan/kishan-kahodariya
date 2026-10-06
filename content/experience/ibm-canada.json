@@ -1,0 +1,30 @@
+{
+  "slug": "ibm-canada",
+  "company": "IBM Canada",
+  "role": "Application Developer",
+  "location": "",
+  "remote": false,
+  "startDate": "2023-12",
+  "endDate": "2024-02",
+  "present": false,
+  "dateDisplay": "December 2023 - February 2024",
+  "logo": "https://www.svgrepo.com/show/349407/ibm.svg",
+  "bullets": [
+    "Working on the frontend of the web application using ReactJS, Redux, and Material UI."
+  ],
+  "bulletsGame": [],
+  "bulletsSoftdev": [],
+  "tags": [
+    "ReactJS",
+    "AWS",
+    "Java",
+    "Springboot",
+    "Unit testing",
+    "Junit",
+    "Mockito"
+  ],
+  "audience": "softdev",
+  "orderGame": 30,
+  "orderSoftdev": 30,
+  "published": true
+}

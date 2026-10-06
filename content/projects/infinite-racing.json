@@ -1,0 +1,40 @@
+{
+  "slug": "infinite-racing",
+  "title": "Infinite Racing",
+  "shortDescription": "Vertical mobile 2D Unity game reminiscent of classic endless traffic racers.",
+  "longDescription": "",
+  "dateDisplay": "2018",
+  "tags": [
+    "Unity",
+    "C#",
+    "UI Builder",
+    "Photoshop"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 160,
+  "orderSoftdev": 160,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.itch.zone/aW1nLzk2NjA0NzYucG5n/347x500/eTpBn%2F.png",
+      "alt": "Infinite Racing cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/infiniteracing",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/infinite-racing",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 9
+}

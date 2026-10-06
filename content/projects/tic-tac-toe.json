@@ -1,0 +1,40 @@
+{
+  "slug": "tic-tac-toe",
+  "title": "Tic Tac Toe",
+  "shortDescription": "Simple TicTacToe for mobile 2D game, with single and vs. Computer mode.",
+  "longDescription": "",
+  "dateDisplay": "July 2019",
+  "tags": [
+    "Unity",
+    "C#",
+    "UI Builder",
+    "Photoshop"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 140,
+  "orderSoftdev": 140,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://hd.wallpaperswide.com/thumbs/tic_tac_toe_game-t2.jpg",
+      "alt": "Tic Tac Toe cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/tictactoe",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/tictactoe",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 7
+}

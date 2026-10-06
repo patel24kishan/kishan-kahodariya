@@ -1,0 +1,40 @@
+{
+  "slug": "tile-breaker",
+  "title": "Tile Breaker",
+  "shortDescription": "Built from scratch, Timeless 2D tile-breaking game for mobile with powerups",
+  "longDescription": "",
+  "dateDisplay": "2018",
+  "tags": [
+    "Unity",
+    "C#",
+    "UI Builder",
+    "Photoshop"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 170,
+  "orderSoftdev": 170,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.itch.zone/aW1nLzk2NjA0MTUucG5n/347x500/Avrkam.png",
+      "alt": "Tile Breaker cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/tilebreaker",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/tilebreaker",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 10
+}

@@ -1,0 +1,15 @@
+{
+  "slug": "programming",
+  "title": "Programming",
+  "skills": [
+    "C#",
+    "C++",
+    ".NET",
+    "Python",
+    "Java"
+  ],
+  "emphasis": "game",
+  "orderGame": 20,
+  "orderSoftdev": 30,
+  "published": true
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Kishan Kahodariya",
+  "monogram": "KK",
+  "email": "kishankahodariya.work@gmail.com",
+  "credit": [
+    "Developed by Kishan Kahodariya.",
+    "© All rights reserved."
+  ],
+  "roles": [
+    "a Game Developer",
+    "a Software Engineer",
+    "Cloud Engineer",
+    "Freelancer"
+  ],
+  "allTabLabel": "All",
+  "categories": [
+    {
+      "id": "unreal",
+      "label": "Unreal",
+      "order": 10,
+      "hoverWithVideo": "View Gameplay & Screenshots",
+      "hoverWithoutVideo": "View Screenshots"
+    },
+    {
+      "id": "unity",
+      "label": "Unity3D",
+      "order": 20,
+      "hoverWithVideo": "View Gameplay & Screenshots",
+      "hoverWithoutVideo": "View Screenshots"
+    },
+    {
+      "id": "webapps",
+      "label": "Web Apps",
+      "order": 30,
+      "hoverWithVideo": "View Demo & Screenshots",
+      "hoverWithoutVideo": "View Screenshots"
+    }
+  ]
+}

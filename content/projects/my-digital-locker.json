@@ -1,0 +1,44 @@
+{
+  "slug": "my-digital-locker",
+  "title": "My Digital Locker",
+  "shortDescription": "Developed multi-cloud digital locker application that supports MFA for users login, to access funds and highlight its transaction with dashboard.",
+  "longDescription": "",
+  "dateDisplay": "Sept 2021 - Dec 2021",
+  "tags": [
+    "JavaScript",
+    "ReactJs",
+    "Python",
+    "Git",
+    "GitLab",
+    "Heroku",
+    "AWS",
+    "Google Cloud"
+  ],
+  "category": "webapps",
+  "audience": "softdev",
+  "featured": false,
+  "published": true,
+  "orderGame": 210,
+  "orderSoftdev": 210,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.freepik.com/free-vector/cloud-network-system-background-vector-social-media-banner_53876-111850.jpg",
+      "alt": "My Digital Locker cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/Digital-Locker",
+      "kind": "code"
+    },
+    {
+      "label": "More",
+      "url": "",
+      "kind": "other"
+    }
+  ],
+  "legacyId": 14
+}

@@ -1,0 +1,42 @@
+{
+  "slug": "ship-simulator",
+  "title": "Ship Simulator",
+  "shortDescription": "Enhanced existing 3D mobile project with upgrades and optimized game performance with in-game sorting logic utilizing Quicksort algorithm.",
+  "longDescription": "",
+  "dateDisplay": "Dec 2023 - Jan 2024",
+  "tags": [
+    "Unity",
+    "C#",
+    "Cinemachine",
+    "Photoshop",
+    "Git",
+    "Unity Input System"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 100,
+  "orderSoftdev": 100,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://static.vecteezy.com/system/resources/previews/000/451/918/non_2x/vector-isometric-models-of-ships.jpg",
+      "alt": "Ship Simulator cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "",
+      "kind": "code"
+    },
+    {
+      "label": "Play Store",
+      "url": "https://play.google.com/store/apps/details?id=com.gcg.bigCruiseShip_GCG",
+      "kind": "store"
+    }
+  ],
+  "legacyId": 3
+}

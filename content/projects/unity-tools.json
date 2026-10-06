@@ -1,0 +1,37 @@
+{
+  "slug": "unity-tools",
+  "title": "Unity Tools",
+  "shortDescription": "Acquiring Unity tool proficiency :- Unity cloud save and Addressable.",
+  "longDescription": "",
+  "dateDisplay": "Dec 2023 - Jan 2024",
+  "tags": [
+    "Unity",
+    "C#",
+    "Unity Cloud",
+    "Addressables",
+    "Telemetry",
+    "Git"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": false,
+  "orderGame": 120,
+  "orderSoftdev": 120,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.itch.zone/aW1nLzYwNjU4MDUuanBn/original/%2BMEce%2B.jpg",
+      "alt": "Unity Tools cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/Unity-Tool-Demo",
+      "kind": "code"
+    }
+  ],
+  "legacyId": 5
+}

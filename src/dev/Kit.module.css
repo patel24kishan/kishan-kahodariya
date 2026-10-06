@@ -1,0 +1,713 @@
+/* Dev kit layout. Mirrors the real nav / footer shapes so the primitives are seen in context. */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  min-height: var(--nav-height);
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.topbarInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-height: var(--nav-height);
+  padding-block: var(--space-2);
+}
+
+.monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding-inline: var(--space-1);
+  color: var(--color-ink);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-title);
+  text-decoration: none;
+}
+
+.topnav {
+  display: none;
+  gap: var(--space-1);
+  flex: 1 1 auto;
+}
+
+.topnav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-body);
+  font-size: var(--text-nav);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  .topnav {
+    display: flex;
+  }
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-inline-start: auto;
+  min-width: 0;
+}
+
+.trackSwitch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: var(--radius-sm);
+}
+
+.legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.trackOption {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: 7px;
+  color: var(--color-body);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.trackOption:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.trackOptionActive {
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+}
+
+/* The input covers its label, so the whole 44px label is the hit target of the radio itself. */
+.trackInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.main {
+  padding-block-end: var(--section-gap);
+}
+
+.main:focus {
+  outline: none;
+}
+
+/* ---- Intro ----------------------------------------------------------------------------- */
+
+.eyebrow {
+  margin-block-end: var(--space-3);
+  color: var(--color-accent-ink);
+  font-size: var(--text-caption-upper);
+  font-weight: 600;
+  letter-spacing: var(--tracking-upper);
+  text-transform: uppercase;
+}
+
+.kitTitle {
+  max-width: 18ch;
+}
+
+.lede {
+  max-width: 60ch;
+  margin-block-start: var(--space-5);
+  font-size: var(--text-body-lg);
+}
+
+/* ---- Demos ----------------------------------------------------------------------------- */
+
+.demo {
+  padding-block: var(--space-5);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.demo:first-of-type {
+  border-top: 0;
+  padding-block-start: 0;
+}
+
+.demoLabel {
+  margin-block-end: var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.demoBody {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.demoStack {
+  display: block;
+}
+
+.row {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 420px;
+}
+
+.row > * {
+  min-width: 0;
+}
+
+.bandInline {
+  display: inline-flex;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+}
+
+.note {
+  margin-block-start: var(--space-5);
+  max-width: 70ch;
+  color: var(--color-body);
+  font-size: var(--text-body-sm);
+}
+
+.centerText {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.subhead {
+  margin-block: var(--space-8) var(--space-3);
+}
+
+.caption {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.mutedText {
+  color: var(--color-muted);
+}
+
+.accentText {
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+
+/* ---- Colours --------------------------------------------------------------------------- */
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.swatchFill {
+  display: block;
+  height: 56px;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+}
+
+.swatchName {
+  color: var(--color-ink);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+
+.swatchValue {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: var(--text-body-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-hairline);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: var(--color-ink);
+  font-weight: 600;
+  background: var(--color-surface);
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.hex {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.pass {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.fail {
+  color: var(--color-ink);
+  font-weight: 700;
+  text-decoration: underline wavy;
+}
+
+/* ---- Typography ------------------------------------------------------------------------ */
+
+.typeList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.typeRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.typeMeta {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.typeRow > span:last-child {
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.sampleDisplay {
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+
+.sampleHeading {
+  font-size: var(--text-heading);
+  font-weight: 700;
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+.sampleTitleLg {
+  font-size: var(--text-title-lg);
+  font-weight: 700;
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
+}
+
+.sampleTitleMd {
+  font-size: var(--text-title-md);
+  font-weight: 600;
+  line-height: var(--leading-title);
+}
+
+.sampleBodyLg {
+  font-size: var(--text-body-lg);
+  color: var(--color-body) !important;
+}
+
+.sampleBody {
+  font-size: var(--text-body);
+  color: var(--color-body) !important;
+}
+
+.sampleBodySm {
+  font-size: var(--text-body-sm);
+  color: var(--color-body) !important;
+}
+
+.sampleCaption {
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-muted) !important;
+}
+
+.sampleCaptionUpper {
+  font-size: var(--text-caption-upper);
+  font-weight: 600;
+  letter-spacing: var(--tracking-upper);
+  text-transform: uppercase;
+}
+
+/* ---- Spacing --------------------------------------------------------------------------- */
+
+.spaceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.spaceRow {
+  display: grid;
+  grid-template-columns: 7rem 1fr 4rem;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.spaceName {
+  font-size: var(--text-caption);
+  color: var(--color-ink);
+}
+
+.spaceBar {
+  display: block;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+.spaceValue {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.radii {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-6);
+}
+
+.radiusBox {
+  display: inline-flex;
+  align-items: center;
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-hairline-strong);
+  color: var(--color-ink);
+  font-size: var(--text-caption);
+}
+
+.radiusSm {
+  border-radius: var(--radius-sm);
+}
+
+.radiusMd {
+  border-radius: var(--radius-md);
+}
+
+.radiusPill {
+  border-radius: var(--radius-pill);
+}
+
+.surfaces {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-block-start: var(--space-6);
+}
+
+.surfaceCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.surfaceFeatured {
+  border-color: var(--color-accent-border);
+}
+
+.surfaceRaised {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  font-size: var(--text-body-sm);
+}
+
+/* ---- Chips / skills -------------------------------------------------------------------- */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  padding: 0;
+  margin: 0;
+}
+
+.chipWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.skillRows {
+  margin-block-start: var(--space-6);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.skillRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+@media (min-width: 768px) {
+  .skillRow {
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+.skillName {
+  padding-block-start: 5px;
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.skillNameAccent {
+  color: var(--color-accent-ink);
+}
+
+/* ---- Icons ----------------------------------------------------------------------------- */
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-2);
+}
+
+.iconCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-size: var(--text-caption);
+}
+
+/* ---- Media / cards --------------------------------------------------------------------- */
+
+.mediaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .mediaGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .mediaGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  min-width: 0;
+}
+
+.cardFeatured {
+  border-color: var(--color-accent-border);
+}
+
+.cardTitle {
+  margin: 0;
+}
+
+.cardText {
+  font-size: var(--text-body-sm);
+}
+
+/* ---- Toggle ---------------------------------------------------------------------------- */
+
+.toggleRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.toggleCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.toggleCellSurface {
+  background: var(--color-surface);
+}
+
+.toggleCellAccent {
+  background: var(--color-accent);
+  border-color: transparent;
+}
+
+.toggleCellAccent .caption {
+  color: var(--color-on-accent);
+}
+
+/* ---- Footer band ----------------------------------------------------------------------- */
+
+.footerSection {
+  padding-block-end: 0;
+}
+
+.footerContainer {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.band {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.bandInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-8);
+}
+
+.bandColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-8);
+}
+
+.bandColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bandHeading {
+  margin: 0;
+  font-size: var(--text-caption-upper);
+  font-weight: 700;
+  letter-spacing: var(--tracking-upper);
+  text-transform: uppercase;
+}
+
+.bandLinks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bandLink {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.bandLink:hover {
+  text-decoration: underline;
+}
+
+.bandButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.bandBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.bandMuted {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.bandToggle {
+  margin-inline-start: auto;
+}
+
+.credit {
+  padding-block: var(--space-5);
+  background: var(--color-on-accent);
+  color: var(--color-accent);
+  text-align: center;
+  font-size: var(--text-caption);
+  line-height: 1.6;
+}

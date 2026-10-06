@@ -1,0 +1,11 @@
+{
+  "slug": "itchio",
+  "label": "itch.io",
+  "url": "https://ghosts24.itch.io/",
+  "icon": "itchio",
+  "audience": "game",
+  "order": 10,
+  "showInHero": true,
+  "showInFooter": true,
+  "published": true
+}

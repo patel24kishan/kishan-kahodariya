@@ -1,0 +1,124 @@
+/* Sun / moon pill switch. Only transform and opacity animate; the ring colour snaps. */
+
+.toggle {
+  --toggle-ring: #5a6a8a; /* 3.6:1 on the dark canvas */
+  --knob-shift: 44px;     /* 80 − 2·(5 + 2) − 26 → knob travels from x=5 to x=49 */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 44px;
+  padding: 4px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+:global([data-theme='light']) .toggle {
+  --toggle-ring: #2f7bd0; /* 4.0:1 on the light canvas */
+}
+
+/* Inside an accent band the ring goes near-black so the pill stays separated on yellow and blue. */
+:global([data-on-accent]) .toggle {
+  --toggle-ring: var(--color-on-accent);
+}
+
+.pill {
+  position: relative;
+  display: block;
+  width: 80px;
+  height: 36px;
+  overflow: hidden;
+  border: 2px solid var(--toggle-ring);
+  border-radius: var(--radius-pill);
+  background: #0f1b33;
+  isolation: isolate;
+}
+
+.sky {
+  position: absolute;
+  inset: -2px; /* cover the border box so the sky reaches the ring */
+  display: block;
+  transition: opacity var(--duration-slow) var(--ease);
+}
+
+.sky svg {
+  width: 100%;
+  height: 100%;
+}
+
+.night {
+  background: #0f1b33;
+  opacity: 1;
+}
+
+.day {
+  background: #4a9eea;
+  opacity: 0;
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  display: block;
+  border-radius: 50%;
+  transform: translateX(var(--knob-shift));
+  transition: transform var(--duration-slow) var(--ease);
+  will-change: transform;
+}
+
+.moon,
+.sun {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--duration-slow) var(--ease);
+}
+
+.moon {
+  opacity: 1;
+}
+
+.sun {
+  opacity: 0;
+}
+
+/* Day state */
+.toggle[aria-checked='true'] .night {
+  opacity: 0;
+}
+
+.toggle[aria-checked='true'] .day {
+  opacity: 1;
+}
+
+.toggle[aria-checked='true'] .knob {
+  transform: translateX(0);
+}
+
+.toggle[aria-checked='true'] .moon {
+  opacity: 0;
+}
+
+.toggle[aria-checked='true'] .sun {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .toggle:hover .knob {
+    transform: translateX(var(--knob-shift)) scale(1.08);
+  }
+
+  .toggle[aria-checked='true']:hover .knob {
+    transform: translateX(0) scale(1.08);
+  }
+}

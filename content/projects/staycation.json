@@ -1,0 +1,44 @@
+{
+  "slug": "staycation",
+  "title": "Staycation",
+  "shortDescription": " Interactive full-stack web application which helps user to booking their desired house rentals from list of alternatives at affordable prices",
+  "longDescription": "",
+  "dateDisplay": "Apr 2023 - May 2023",
+  "tags": [
+    "ReactJs",
+    "HTML",
+    "CSS",
+    "NodeJs",
+    "MongoDB",
+    "REST API",
+    "Git",
+    "Heroku"
+  ],
+  "category": "webapps",
+  "audience": "softdev",
+  "featured": false,
+  "published": true,
+  "orderGame": 180,
+  "orderSoftdev": 180,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://cdn.vectorstock.com/i/preview-1x/26/55/house-rental-word-concepts-banner-vector-29112655.jpg",
+      "alt": "Staycation cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/kishan-web-backend",
+      "kind": "code"
+    },
+    {
+      "label": "More",
+      "url": "",
+      "kind": "other"
+    }
+  ],
+  "legacyId": 11
+}

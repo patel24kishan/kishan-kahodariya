@@ -1,0 +1,84 @@
+# Builds the site and publishes it to GitHub Pages.
+#
+# Nothing is published until BOTH of these are true (see README.md, "Go-live checklist"):
+#   1. this file is on the production branch named below, and
+#   2. the repository's Pages source is "GitHub Actions"
+#      (Settings > Pages > Build and deployment > Source).
+name: Deploy
+
+on:
+  push:
+    # ---------------------------------------------------------------------------------
+    # PRODUCTION BRANCH — the one place it is named.
+    # A push to this branch rebuilds and publishes the site; saving in /admin is such a
+    # push. Pushes to any other branch (redesign/v2 included) do nothing here. At go-live
+    # the owner merges redesign/v2 into master; until this file is on master and the Pages
+    # source is "GitHub Actions", nothing is published.
+    # ---------------------------------------------------------------------------------
+    branches: [master]
+  # Manual run: Actions > Deploy > Run workflow.
+  workflow_dispatch:
+
+# Least privilege: each job asks for exactly what it needs.
+permissions: {}
+
+# One deployment at a time. A run that is already publishing finishes; if several saves
+# arrive meanwhile, only the newest waits its turn, so the last save always wins.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read # check out the repository
+      pages: read # read the Pages URL of this repository
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Read the Pages settings
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Install dependencies
+        run: npm ci
+
+      # validate content > type-check > client build > prerender every route.
+      # A content file that fails validation, or a route that fails to render, stops here
+      # and the live site stays as it was.
+      - name: Build
+        run: npm run build
+        env:
+          # Canonical and Open Graph URLs use the real origin of the Pages site.
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
+          # The build fails if its base path is not the path Pages serves this repo under.
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write # publish to GitHub Pages
+      id-token: write # prove to Pages that the artifact comes from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

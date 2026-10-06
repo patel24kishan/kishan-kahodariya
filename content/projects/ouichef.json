@@ -1,0 +1,42 @@
+{
+  "slug": "ouichef",
+  "title": "OuiChef",
+  "shortDescription": "Multiplayer cookoff with single palyer mode offering time-based challenges for PC.",
+  "longDescription": "",
+  "dateDisplay": "Dec 2023 - Mar 2024",
+  "tags": [
+    "Unity",
+    "C#",
+    "Cinemachine",
+    "Netcode",
+    "Unity Cloud",
+    "Addressables"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 80,
+  "orderSoftdev": 80,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://files.ably.io/ghost/prod/2022/06/multiplayer-unity-game-with-ably.png",
+      "alt": "OuiChef cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/OuiChef-SinglePlayer",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/oui-chef",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 1
+}

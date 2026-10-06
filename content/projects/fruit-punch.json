@@ -1,0 +1,42 @@
+{
+  "slug": "fruit-punch",
+  "title": "Fruit-Punch",
+  "shortDescription": "3D endless game similar to Fruit Ninja's gameplay mechanics with crate replacing fruits.",
+  "longDescription": "",
+  "dateDisplay": "Sept 2023 - Nov 2023",
+  "tags": [
+    "Unity",
+    "C#",
+    "Cinemachine",
+    "Photoshop",
+    "Git",
+    "Unity Input System"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 90,
+  "orderSoftdev": 90,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://www.freevector.com/uploads/vector/preview/30763/SummerFoods_10.jpg",
+      "alt": "Fruit-Punch cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/Crate-Ninja",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/fruit-punch",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 2
+}

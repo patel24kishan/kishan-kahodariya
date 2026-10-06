@@ -1,0 +1,11 @@
+{
+  "slug": "linkedin",
+  "label": "LinkedIn",
+  "url": "https://www.linkedin.com/in/kkishan2409/",
+  "icon": "linkedin",
+  "audience": "both",
+  "order": 30,
+  "showInHero": true,
+  "showInFooter": true,
+  "published": true
+}

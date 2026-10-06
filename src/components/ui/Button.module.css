@@ -1,0 +1,141 @@
+/*
+ * Button look. Hover and active states are an opacity-only tint layer (::before) so no colour
+ * transitions are needed; borders and text snap. Disabled buttons drop the tint.
+ */
+
+.button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-button);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  max-width: 100%;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--button-tint);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .button:hover::before {
+    opacity: 1;
+  }
+
+  .button:hover {
+    color: var(--color-ink);
+  }
+}
+
+.button:active::before {
+  opacity: 1;
+}
+
+.button:focus-visible {
+  border-radius: var(--radius-sm);
+}
+
+.label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-inline-start: -2px;
+}
+
+.iconEnd {
+  margin-inline-start: 0;
+  margin-inline-end: -2px;
+}
+
+/* ---- Variants -------------------------------------------------------------------------- */
+
+.accent {
+  background: var(--color-accent);
+  border-color: var(--color-accent-border);
+  color: var(--color-on-accent);
+  --button-tint: rgba(10, 10, 10, 0.1);
+}
+
+@media (hover: hover) {
+  .accent:hover {
+    color: var(--color-on-accent);
+  }
+}
+
+.outline {
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+
+.onAccent {
+  background: var(--color-on-accent);
+  border-color: var(--color-on-accent);
+  color: var(--color-accent);
+  --button-tint: rgba(255, 255, 255, 0.14);
+}
+
+@media (hover: hover) {
+  .onAccent:hover {
+    color: var(--color-accent);
+  }
+}
+
+.ghost {
+  color: var(--color-body);
+  font-weight: 500;
+}
+
+/* ---- Sizes ----------------------------------------------------------------------------- */
+
+.lg {
+  min-height: 52px;
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.9375rem;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+/* ---- Disabled -------------------------------------------------------------------------- */
+
+.button:disabled,
+.button[aria-disabled='true'] {
+  background: var(--color-surface-raised);
+  border-color: transparent;
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.button:disabled::before,
+.button[aria-disabled='true']::before {
+  display: none;
+}

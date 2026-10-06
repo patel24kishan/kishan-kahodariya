@@ -1,0 +1,11 @@
+{
+  "slug": "email",
+  "label": "Email",
+  "url": "mailto:kishankahodariya.work@gmail.com",
+  "icon": "email",
+  "audience": "both",
+  "order": 50,
+  "showInHero": false,
+  "showInFooter": true,
+  "published": true
+}

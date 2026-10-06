@@ -1,0 +1,35 @@
+{
+  "slug": "target-shooter",
+  "title": "Target Shooter",
+  "shortDescription": "Built First-Person Shooter using Unreal Engine and Blueprint, designing game mechanics utilized Chaos Physics to enhance user experience",
+  "longDescription": "",
+  "dateDisplay": "2024",
+  "tags": [
+    "Unreal Engine",
+    "C++",
+    "Blueprint",
+    "Chaos Physics"
+  ],
+  "category": "unreal",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 50,
+  "orderSoftdev": 50,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.freepik.com/free-photo/3d-rendering-arrow-hitting-target_23-2151266483.jpg",
+      "alt": "Target Shooter cover image"
+    }
+  ],
+  "videoUrl": "https://www.youtube.com/Gameplay?v=Lp46QFgKyKM",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://gitlab.com/kishan24patel/target-shooter",
+      "kind": "code"
+    }
+  ],
+  "legacyId": -1
+}

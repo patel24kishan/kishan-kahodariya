@@ -1,0 +1,29 @@
+{
+  "slug": "helpupdefend",
+  "company": "HelpUpDefend",
+  "role": "Game Developer",
+  "location": "",
+  "remote": false,
+  "startDate": "2024-12",
+  "endDate": "2025-02",
+  "present": false,
+  "dateDisplay": "Dec 2024 - Feb 2025",
+  "logo": "https://helpusdefend.com/wp-content/uploads/2023/05/cropped-DEFEND_3D_logo_with_glow-1.png",
+  "bullets": [
+    "Worked in fully remote team environment developing gamified AR activities for their Unity-based social media platform, 65Square, serving 1,000+ Android/iOS users."
+  ],
+  "bulletsGame": [],
+  "bulletsSoftdev": [],
+  "tags": [
+    "Unity",
+    "C#",
+    "Agora SDK",
+    "Git",
+    "Zenject",
+    "Postman"
+  ],
+  "audience": "game",
+  "orderGame": 20,
+  "orderSoftdev": 20,
+  "published": true
+}

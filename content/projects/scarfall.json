@@ -1,0 +1,40 @@
+{
+  "slug": "scarfall",
+  "title": "Scarfall",
+  "shortDescription": "Developed scalable cloud-backed services and gameplay systems for ScarFall 2.0 Mobile title.",
+  "longDescription": "",
+  "dateDisplay": "2019-2020",
+  "tags": [
+    "Unity",
+    "C#",
+    "Photon",
+    "Unity Cloud"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 60,
+  "orderSoftdev": 60,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://static.wixstatic.com/media/5e090e_76eb56db0ec04d30a913efe32280fe61~mv2.jpg/v1/fill/w_196,h_196,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/scarfall-logo.jpg",
+      "alt": "Scarfall cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://scarfall.in/",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 0
+}

@@ -1,0 +1,40 @@
+{
+  "slug": "galaxy-shooter",
+  "title": "Galaxy Shooter",
+  "shortDescription": "A classic 2D Unity PC game featuring enemy shooting mechanics and engaging power-ups for player enjoyment.",
+  "longDescription": "",
+  "dateDisplay": "2018",
+  "tags": [
+    "Unity",
+    "C#",
+    "UI Builder",
+    "Photoshop"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 150,
+  "orderSoftdev": 150,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://img.itch.zone/aW1nLzIyNzEwMDIucG5n/347x500/JMUHKM.png",
+      "alt": "Galaxy Shooter cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/GALAXY-SHOOTER",
+      "kind": "code"
+    },
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/galaxyshooter",
+      "kind": "play"
+    }
+  ],
+  "legacyId": 8
+}

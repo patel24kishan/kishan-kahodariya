@@ -1,12 +1,48 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <script>
+      /*
+       * No-flash theme. Runs before the stylesheet and before first paint.
+       * Contract (ARCHITECTURE.md section 5, shared with ThemeProvider in src/theme):
+       *   localStorage["kk-theme"] = "dark" | "light"  → the visitor's explicit choice
+       *   otherwise                                    → the system setting
+       *   result                                       → <html data-theme="dark|light">
+       * The two colours below are --color-canvas of each theme (src/styles/tokens.css).
+       */
+      (function () {
+        var theme = '';
+        try {
+          var stored = window.localStorage.getItem('kk-theme');
+          if (stored === 'dark' || stored === 'light') theme = stored;
+        } catch (storageBlocked) {}
+        if (!theme) {
+          try {
+            theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          } catch (noMatchMedia) {
+            theme = 'dark';
+          }
+        }
+        try {
+          document.documentElement.dataset.theme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'light' ? '#f7f7f5' : '#0a0a0a');
+        } catch (ignored) {}
+      })();
+    </script>
+    <!--kk:head-->
     <title>Kishan Kahodariya</title>
+    <!--/kk:head-->
+    <link rel="icon" type="image/png" sizes="64x64" href="%BASE_URL%favicon-64.png" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icon-192.png" />
+    <link rel="manifest" href="%BASE_URL%manifest.json" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><!--kk:app--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

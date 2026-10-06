@@ -1,0 +1,11 @@
+{
+  "slug": "github",
+  "label": "GitHub",
+  "url": "https://github.com/patel24kishan",
+  "icon": "github",
+  "audience": "both",
+  "order": 20,
+  "showInHero": true,
+  "showInFooter": true,
+  "published": true
+}

@@ -1,0 +1,40 @@
+{
+  "slug": "hospital-management-system",
+  "title": "Hospital Management System",
+  "shortDescription": "A full-stack application to manage hospital inventory based on SOLID principles, and Agile framework.",
+  "longDescription": "",
+  "dateDisplay": "May 2021 - Aug 2021",
+  "tags": [
+    "Java",
+    "Springboot",
+    "Hibernate/JPA",
+    "JUnit"
+  ],
+  "category": "webapps",
+  "audience": "softdev",
+  "featured": false,
+  "published": true,
+  "orderGame": 220,
+  "orderSoftdev": 220,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://i.pinimg.com/originals/6e/12/6a/6e126a9ace040280e45f8144cf0cb2c8.jpg",
+      "alt": "Hospital Management System cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/Hospital-Management-System",
+      "kind": "code"
+    },
+    {
+      "label": "More",
+      "url": "",
+      "kind": "other"
+    }
+  ],
+  "legacyId": 15
+}

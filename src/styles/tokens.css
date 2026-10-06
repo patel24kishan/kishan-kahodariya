@@ -1,0 +1,201 @@
+/*
+ * DESIGN TOKENS — the only place colours, type, spacing, radii and motion values are defined.
+ * Components reference these custom properties; nothing else in src/ uses raw values.
+ *
+ * Themes:  <html data-theme="dark" | "light">  (dark is the default; see ARCHITECTURE.md §5)
+ * Accents: [data-track="game" | "softdev"] on the page root; game is the default when absent.
+ *
+ * LIGHT-MODE ACCENT RULE
+ * The raw accents (#faff69 yellow, #7cb2ff blue) are FILLS only. On a light background the
+ * yellow fails contrast as text (1.07:1) and as a thin border, so in light mode:
+ *   --color-accent        stays raw: use it only as a fill behind --color-on-accent text,
+ *                         or as text on a near-black fill (footer buttons, credit strip, scrims).
+ *   --color-accent-ink    is a dark derivative that passes 4.5:1 as text on canvas/surface/raised.
+ *   --color-accent-border is a mid derivative that passes 3:1 as a border on the same surfaces.
+ * In dark mode all three are the raw accent (yellow on near-black is 18.5:1, blue is 9.1:1).
+ * Measured ratios are listed next to each value and shown live on the dev kit (/__kit).
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Neutrals (dark, from DESIGN.md) ------------------------------------------------ */
+  --color-canvas: #0a0a0a;
+  --color-surface: #1a1a1a;
+  --color-surface-raised: #242424;
+  --color-hairline: #2a2a2a;
+  --color-hairline-strong: #3a3a3a;
+  --color-ink: #ffffff;   /* 19.6:1 on canvas */
+  --color-body: #cccccc;  /* 12.6:1 on canvas, 10.6:1 on surface */
+  --color-muted: #888888; /*  5.5:1 on canvas,  4.9:1 on surface — keep muted text off --color-surface-raised (4.4:1) */
+  --color-on-accent: #0a0a0a;
+  --color-on-accent-hover: #262626;
+  --color-backdrop: rgba(0, 0, 0, 0.7);     /* media viewer backdrop */
+  --color-scrim: rgba(10, 10, 10, 0.78);    /* card media overlay */
+  --color-on-scrim: #ffffff;
+
+  /* ---- Accent: game (default) --------------------------------------------------------- */
+  --color-accent: #faff69;        /* on-accent text 18.5:1 */
+  --color-accent-ink: #faff69;    /* 18.5:1 on canvas, 16.2:1 on surface */
+  --color-accent-border: #faff69;
+
+  /* ---- Derived interaction colours --------------------------------------------------- */
+  --color-focus: var(--color-accent-border);
+  --button-tint: rgba(255, 255, 255, 0.08); /* hover tint for neutral buttons (opacity-only) */
+
+  /* ---- Type ------------------------------------------------------------------------- */
+  --font-sans: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+
+  /* Fluid scale: phone value → desktop value (DESIGN.md display-xl 72 / display-md 40 / title-lg 24). */
+  --text-display: clamp(2.125rem, 1.25rem + 3.9vw, 4.5rem); /* 34px → 72px, h1 */
+  --text-heading: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);   /* 28px → 40px, section h2 */
+  --text-title-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem); /* 20px → 24px */
+  --text-title-md: 1.125rem;                                 /* 18px, card h3 */
+  --text-title-sm: 1rem;
+  --text-body-lg: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);  /* 16px → 18px, hero summary */
+  --text-body: 1rem;
+  --text-body-sm: 0.875rem;
+  --text-caption: 0.8125rem;                                  /* 13px */
+  --text-caption-upper: 0.75rem;                              /* 12px, letter-spaced */
+  --text-button: 0.875rem;
+  --text-nav: 0.875rem;
+
+  --leading-display: 1.05;
+  --leading-heading: 1.15;
+  --leading-title: 1.3;
+  --leading-body: 1.55;
+  --leading-tight: 1.4;
+
+  --tracking-display: -0.03em;  /* ≈ -2.2px at 72px */
+  --tracking-heading: -0.025em; /* ≈ -1px at 40px */
+  --tracking-title: -0.0125em;
+  --tracking-upper: 0.1em;
+
+  /* ---- Spacing (4px scale) ----------------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ---- Radii (no shadows anywhere) --------------------------------------------------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-pill: 9999px;
+
+  /* ---- Layout: phone (< 768px) ------------------------------------------------------- */
+  --container-max: 1200px;
+  --gutter: 16px;
+  --section-gap: 48px;
+  --nav-height: 64px;
+
+  /* ---- Motion: transform / opacity only --------------------------------------------- */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- Stacking ---------------------------------------------------------------------- */
+  --z-nav: 50;
+  --z-skip: 100;
+  --z-modal: 200;
+}
+
+/* Tablet 768–1023px */
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+    --section-gap: 64px;
+  }
+}
+
+/* Desktop ≥ 1024px */
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 40px;
+    --section-gap: 96px;
+  }
+}
+
+/* ---- Accent per track (dark values; the light block below overrides ink and border) ---- */
+/*
+ * --color-focus is re-declared here on purpose: a custom property that references another one
+ * is computed on the element where it is declared and descendants inherit the RESULT, so the
+ * :root declaration alone would give every track the game-yellow ring.
+ */
+[data-track='game'] {
+  --color-accent: #faff69;
+  --color-accent-ink: #faff69;
+  --color-accent-border: #faff69;
+  --color-focus: var(--color-accent-border);
+}
+
+[data-track='softdev'] {
+  --color-accent: #7cb2ff;        /* on-accent text 9.1:1 */
+  --color-accent-ink: #7cb2ff;    /* 9.1:1 on canvas, 8.0:1 on surface */
+  --color-accent-border: #7cb2ff;
+  --color-focus: var(--color-accent-border);
+}
+
+/* ---- Light theme (derived) ------------------------------------------------------------- */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-canvas: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-surface-raised: #efefed;
+  --color-hairline: #e4e4e1;
+  --color-hairline-strong: #c6c6c2;
+  --color-ink: #0a0a0a;   /* 18.5:1 on canvas */
+  --color-body: #3d3d3d;  /* 10.1:1 on canvas, 9.4:1 on raised */
+  --color-muted: #666666; /*  5.4:1 on canvas, 5.0:1 on raised */
+  --button-tint: rgba(10, 10, 10, 0.06);
+
+  /* game accent, light */
+  --color-accent-ink: #5f6200;    /* 6.1:1 on canvas, 6.5:1 on surface, 5.6:1 on raised */
+  --color-accent-border: #7d7f00; /* 4.0:1 on canvas, 4.3:1 on surface, 3.7:1 on raised */
+}
+
+:root[data-theme='light'] [data-track='game'] {
+  --color-accent-ink: #5f6200;
+  --color-accent-border: #7d7f00;
+}
+
+:root[data-theme='light'] [data-track='softdev'],
+:root[data-theme='light'][data-track='softdev'] {
+  --color-accent-ink: #1b4fa8;    /* 7.2:1 on canvas, 7.7:1 on surface, 6.7:1 on raised */
+  --color-accent-border: #3b74d1; /* 4.3:1 on canvas, 4.6:1 on surface, 4.0:1 on raised */
+}
+
+/*
+ * ON-ACCENT REGIONS — add data-on-accent to any element filled with --color-accent (the footer
+ * band). Inside it, text tokens become near-black and the focus ring switches to near-black so
+ * it stays visible on both accent fills in both themes.
+ */
+[data-on-accent] {
+  color: var(--color-on-accent);
+  --color-ink: var(--color-on-accent);
+  --color-body: var(--color-on-accent);
+  --color-muted: #3d3d3d;            /* 5.0:1 on blue, 10.1:1 on yellow */
+  --color-hairline: rgba(10, 10, 10, 0.18);
+  --color-hairline-strong: rgba(10, 10, 10, 0.4);
+  --color-focus: var(--color-on-accent);
+  --button-tint: rgba(10, 10, 10, 0.08);
+}
+
+/* ---- Reduced motion: every duration collapses to zero ---------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

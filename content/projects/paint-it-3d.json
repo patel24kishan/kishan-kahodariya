@@ -1,0 +1,41 @@
+{
+  "slug": "paint-it-3d",
+  "title": "Paint it 3D",
+  "shortDescription": "3D mobile game where players collect stars and paint a blank canvas with precision within various shapes for an enjoyable experience.",
+  "longDescription": "",
+  "dateDisplay": "Sept 2019 - Dec 2019",
+  "tags": [
+    "Unity",
+    "C#",
+    "Blender",
+    "UI Builder",
+    "Photoshop"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 110,
+  "orderSoftdev": 110,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://gameforge.com/de-DE/littlegames/includes/images/games/3566_5eb3e34d61d21.jpg",
+      "alt": "Paint it 3D cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "",
+      "kind": "code"
+    },
+    {
+      "label": "Gameplay",
+      "url": "https://apps.apple.com/us/app/kolor-it/id1477042251",
+      "kind": "store"
+    }
+  ],
+  "legacyId": 4
+}

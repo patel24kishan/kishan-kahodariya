@@ -1,0 +1,26 @@
+.section {
+  padding-block: calc(var(--section-gap) / 2);
+  scroll-margin-top: calc(var(--nav-height) + var(--space-4));
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block-end: var(--space-8);
+}
+
+.centered {
+  align-items: center;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+}
+
+.intro {
+  max-width: 60ch;
+  color: var(--color-body);
+  font-size: var(--text-body-lg);
+}

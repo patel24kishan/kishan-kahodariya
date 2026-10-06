@@ -1,0 +1,15 @@
+{
+  "id": "softdev",
+  "route": "softdev",
+  "label": "Software",
+  "headline": "Software Engineer",
+  "summary": "As creative developer focused on building engaging gameplay systems and interactive experiences. I’m passionate about creating memorable experiences and exploring new ideas in Gaming as a Services, Cloud Gaming, and AR.",
+  "resumeUrl": "https://drive.google.com/file/d/1IDqMwEJxBzXq9XgQcefFmeDTMmLGUlZl/view?usp=drive_link",
+  "resumeLabel": "Software Resume",
+  "defaultTab": "webapps",
+  "photo": "/images/profile.jpg",
+  "photoAlt": "Kishan Kahodariya",
+  "certificatesFirst": true,
+  "metaTitle": "Kishan Kahodariya — Software Engineer",
+  "metaDescription": ""
+}

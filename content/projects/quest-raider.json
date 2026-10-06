@@ -1,0 +1,36 @@
+{
+  "slug": "quest-raider",
+  "title": "Quest Raider",
+  "shortDescription": "Immersive first-person quest with dynamic puzzles, powered by Unreal’s GAS, Lumen lighting, and custom C++ mechanics.",
+  "longDescription": "",
+  "dateDisplay": "2025",
+  "tags": [
+    "Unreal",
+    "C++",
+    "Blueprint",
+    "AnimGraph/BlendSpace",
+    "AI"
+  ],
+  "category": "unreal",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 30,
+  "orderSoftdev": 30,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://miro.medium.com/v2/resize:fit:1200/0*CME_fwKZ7g75TRuj.jpg",
+      "alt": "Quest Raider cover image"
+    }
+  ],
+  "videoUrl": "https://youtu.be/QlD0JzGOHkk",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://gitlab.com/kishan24patel/quest-raider",
+      "kind": "code"
+    }
+  ],
+  "legacyId": -3
+}

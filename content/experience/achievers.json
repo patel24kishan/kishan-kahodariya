@@ -1,0 +1,28 @@
+{
+  "slug": "achievers",
+  "company": "Achievers",
+  "role": "Software Developer Intern",
+  "location": "",
+  "remote": false,
+  "startDate": "2022-05",
+  "endDate": "2022-08",
+  "present": false,
+  "dateDisplay": "May - August 2022",
+  "logo": "https://media.licdn.com/dms/image/C560BAQFi2lc_IOfaGQ/company-logo_200_200/0/1656594783502/achievers_logo?e=1717027200&v=beta&t=BJrwNA3XKPSsOK7E8HB5g2zMJnVQdIpoNJmKIWfEfqc",
+  "bullets": [
+    "Working on the frontend of the web application using ReactJS, Redux, and Material UI."
+  ],
+  "bulletsGame": [],
+  "bulletsSoftdev": [],
+  "tags": [
+    "Python",
+    "PHP",
+    "Google cloud",
+    "GraphQL",
+    "pub/sub"
+  ],
+  "audience": "softdev",
+  "orderGame": 40,
+  "orderSoftdev": 40,
+  "published": true
+}

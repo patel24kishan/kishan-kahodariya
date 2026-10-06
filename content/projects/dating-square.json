@@ -1,0 +1,41 @@
+{
+  "slug": "dating-square",
+  "title": "Dating Square",
+  "shortDescription": "Developd Agora-based chat feature for 65Square, a privacy-focused social media platform with 1,000+ Android/iOS users. ",
+  "longDescription": "",
+  "dateDisplay": "Dec 2024 - Mar 2025",
+  "tags": [
+    "Mobile",
+    "Unity",
+    "C#",
+    "Agora",
+    "Git"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 70,
+  "orderSoftdev": 70,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://helpusdefend.com/wp-content/uploads/2023/07/datingsquare_on-white-1-300x300.jpg",
+      "alt": "Dating Square cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "",
+      "kind": "code"
+    },
+    {
+      "label": "Watch",
+      "url": "https://helpusdefend.com/?page_id=7341",
+      "kind": "video"
+    }
+  ],
+  "legacyId": 2
+}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Design kit — Kishan Kahodariya</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <!--
+      Dev-only entry for the design system kit, owned by the design agent. It is served by the
+      Vite dev server at /My-Portfolio/src/dev/kit.html and is NOT part of the production build.
+      The inline script mirrors the app's theme bootstrap (index.html, owned by infra): same key,
+      same rule — stored choice, else the system setting — applied before first paint.
+    -->
+    <script>
+      (function () {
+        var theme = 'dark';
+        try {
+          var stored = localStorage.getItem('kk-theme');
+          theme = stored === 'light' || stored === 'dark' ? stored : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./kit-entry.tsx"></script>
+  </body>
+</html>

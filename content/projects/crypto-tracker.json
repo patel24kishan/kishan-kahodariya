@@ -1,0 +1,40 @@
+{
+  "slug": "crypto-tracker",
+  "title": "Crypto Tracker",
+  "shortDescription": "Crypto Tracker is a React application to get to know about various Crypto currenccies along with their details and userful information. In addition to that, user can also visulize the price variation over time perio using graphs, and provides various useful links to know more about the currencies. Application is developed using React components, React Queries, Tailwind CSS, ReCharts, React-icons and Material UI.",
+  "longDescription": "",
+  "dateDisplay": "May 2024",
+  "tags": [
+    "React",
+    "ReChart",
+    "ReactQuery",
+    "Tailwind CSS"
+  ],
+  "category": "webapps",
+  "audience": "softdev",
+  "featured": false,
+  "published": true,
+  "orderGame": 200,
+  "orderSoftdev": 200,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "https://i.pinimg.com/originals/6e/12/6a/6e126a9ace040280e45f8144cf0cb2c8.jpg",
+      "alt": "Crypto Tracker cover image"
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "",
+      "kind": "code"
+    },
+    {
+      "label": "More",
+      "url": "",
+      "kind": "other"
+    }
+  ],
+  "legacyId": 13
+}

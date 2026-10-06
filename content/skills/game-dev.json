@@ -1,0 +1,17 @@
+{
+  "slug": "game-dev",
+  "title": "Game Dev",
+  "skills": [
+    "Unity3D",
+    "Unreal Engine",
+    "AR/VR",
+    "Netcode",
+    "Photon",
+    "Unity Cloud",
+    "Git"
+  ],
+  "emphasis": "game",
+  "orderGame": 10,
+  "orderSoftdev": 40,
+  "published": true
+}
