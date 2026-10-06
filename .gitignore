@@ -21,3 +21,6 @@
 .DS_Store
 npm-debug.log*
 *.tsbuildinfo
+
+# local agent worktrees and tool state
+/.claude/

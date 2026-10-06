@@ -41,3 +41,13 @@ Phase 2 (pages, admin) starts after the architect has reviewed and integrated ph
 - infra: routing, hydration entries, head management, prerender (each route written as `a/b.html` and `a/b/index.html`), GitHub Pages emulation server, dev suite 416 passed / 2 skipped, build suite 194 passed (agent's own runs), deploy and CI workflows written but never run.
 - Rulings: see each file in `logs/issues/` (10 issues: 5 content, 1 design, 4 infra). Main ones: optional fields are normalised instead of failing validation (content agent resumed to apply); phase 2 agents work in separate git worktrees; the owner's K24 mark stays as the site icon; production branch is `master`.
 - Design system reviewed visually by the architect (kit in dark/game, light/game, light/softdev): accepted.
+
+## 2026-10-06 — Phase 1 accepted, phase 2 launched
+
+- Architect regression on the integrated phase 1: `npx tsc --noEmit` exit 0; `npm run validate:content` exit 0; `PW_PORT=5180 npx playwright test` → 444 passed, 2 skipped (design's hover/touch counterparts), 0 failed; `PW_BUILD_PORT=4180 npx playwright test -c playwright.build.config.ts` → 194 passed. Committed locally as `46cac14`.
+- GitHub Action majors in the workflows checked against each action's latest release (checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5, upload-artifact v7): all current. The workflows themselves have never run.
+- Security check: `PUT /repos/patel24kishan/My-Portfolio/contents/unauthenticated-write-check.txt` with no credentials → HTTP 401 "Requires authentication"; a follow-up GET for that file → 404 (nothing was written). GitHub, not the admin page, is what refuses the write.
+- Icons: the owner's K24 mark (was `favicon.ico`, really a 512px PNG) converted to `favicon-64.png`, `icon-192.png`, `icon-512.png`; the two default React logo files removed.
+- Profile photo: the 2329px, 647 KB JPEG is kept; `profile-640.webp` (37 KB) and `profile-320.webp` (12 KB) generated from it; both pages now point at the 640px file.
+- Ruling on the content agent's question: a missing choice field falls back to its neutral option (`audience` both, `emphasis` none, link `kind` other, link `icon` link). Accepted.
+- Phase 2 agents, each in its own git worktree: `pages` (Fable 5.1, ports 5184/4184) builds the real page, nav, footer and media viewer; `admin` (Opus 5.5, ports 5185/4185) builds the Sveltia CMS dashboard, its config validator and the owner guide.
