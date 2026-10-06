@@ -210,8 +210,17 @@ an accessible name.
 | Admin (phase 2) | `admin` | `public/admin/**`, `scripts/validate-cms-config.ts`, `docs/admin-guide.md`, `tests/admin/**` |
 | QA (phase 3) | `qa` | `tests/regression/**`; read-only everywhere else |
 
-Cross-area contracts that already exist as placeholders (keep the export and props):
-`src/pages/TrackPage.tsx` (`{ track, tab }`), `src/dev/Kit.tsx`, `src/content/index.ts`.
+Cross-area contracts that already exist as placeholders (keep the exports, props and paths):
+
+| File | Contract | Implemented by |
+|---|---|---|
+| `src/content/index.ts` | the content API; currently returns a small seed | `content` |
+| `scripts/lib/content-plugin.ts` | `contentPlugin()` — Vite plugin providing the virtual module `virtual:content` (content read from disk, validated, unpublished items removed). Already registered in `vite.config.ts`; `infra` must keep it registered | `content` |
+| `src/styles/index.css` | the one global stylesheet; the app entry imports it and no other global CSS | `design` |
+| `src/theme/index.tsx` | `ThemeProvider`, `useTheme`, `ThemeToggle`; storage key `kk-theme`; the entry wraps the app in `ThemeProvider` | `design` |
+| `src/dev/Kit.tsx` | dev-only showcase at `/__kit` (default export) | `design` |
+| `src/pages/TrackPage.tsx` | the public page, props `{ track, tab }` (default export) | `pages` |
+| `src/lib/paths.ts` | `assetUrl(path)` and route helpers that apply the base path | `infra` |
 
 ## 8. Testing
 
