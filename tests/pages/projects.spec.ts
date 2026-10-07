@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
+import type { ProjectLink } from '../../src/content/types';
 import { assetHref, content, isExternal, routeOf, TRACK_IDS, withBase } from './support/content';
-import { card, cards, mediaButton, openRoute, scrollY, tabsNav, trackPage } from './support/page';
+import { card, cards, cssVar, hexToRgb, mediaButton, openRoute, scrollY, tabsNav, THEMES, trackPage } from './support/page';
 
 /** The Projects section: the tab control, the grid and the cards, against getProjects(). */
 const tabs = content.getTabs();
@@ -8,6 +9,28 @@ const allTab = tabs.find((tab) => tab.id === 'all');
 
 async function cardSlugs(page: Parameters<typeof cards>[0]): Promise<string[]> {
   return cards(page).evaluateAll((list) => list.map((element) => element.getAttribute('data-project') ?? ''));
+}
+
+/** The rule in ProjectCard.linkIcon(): "View Code" always the one code icon, the rest by host, else by kind. */
+function expectedLinkIcon(link: ProjectLink): string {
+  if (link.kind === 'code') return 'gitlab';
+  let host = '';
+  try {
+    host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    host = '';
+  }
+  if (host === 'github.com') return 'github';
+  if (host === 'gitlab.com') return 'gitlab';
+  if (host === 'itch.io' || host.endsWith('.itch.io')) return 'itchio';
+  if (host === 'youtu.be' || host === 'youtube.com' || host.endsWith('.youtube.com')) return 'youtube';
+  if (host.endsWith('steampowered.com') || host.endsWith('steamcommunity.com')) return 'steam';
+  return link.kind === 'play' ? 'play' : 'external';
+}
+
+/** Play links are accent buttons (like Gameplay); everything else is outline. */
+function expectedLinkVariant(link: ProjectLink): string {
+  return link.kind === 'play' ? 'accent' : 'outline';
 }
 
 for (const trackId of TRACK_IDS) {
@@ -70,6 +93,7 @@ for (const trackId of TRACK_IDS) {
     });
 
     test('every card shows its project exactly as stored', async ({ page }) => {
+      test.slow(); // every field, link, icon and variant of every published project: 20+ cards
       await openRoute(page, routeOf(track, 'all'));
       const projects = content.getProjects(trackId, 'all');
       expect(projects.length).toBeGreaterThan(0);
@@ -93,6 +117,8 @@ for (const trackId of TRACK_IDS) {
           await expect(links.nth(index)).toHaveAttribute('href', link.url);
           await expect(links.nth(index)).toHaveText(new RegExp(`^${link.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
           if (isExternal(link.url)) await expect(links.nth(index)).toHaveAttribute('target', '_blank');
+          await expect(links.nth(index), `${project.slug} "${link.label}" variant`).toHaveAttribute('data-variant', expectedLinkVariant(link));
+          await expect(links.nth(index).locator('svg[data-icon]'), `${project.slug} "${link.label}" icon`).toHaveAttribute('data-icon', expectedLinkIcon(link));
         }
         for (const link of project.links.filter((candidate) => candidate.url.trim() === '')) {
           await expect(article.getByRole('link', { name: new RegExp(`^${link.label}`) }), `${project.slug}: "${link.label}" has no URL`).toHaveCount(0);
@@ -103,8 +129,42 @@ for (const trackId of TRACK_IDS) {
         else await expect(article).not.toHaveAttribute('data-featured', /./);
 
         await expect(mediaButton(article)).toHaveAccessibleName(new RegExp(content.getHoverText(project).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+        // The slideshow exists only for a project with two or more screenshots.
+        const slideshow = project.screenshots.length >= 2;
+        await expect(mediaButton(article).locator('[data-media-dots]'), `${project.slug} dots`).toHaveCount(slideshow ? 1 : 0);
+        await expect(mediaButton(article).locator('[data-media-slide]'), `${project.slug} slides`).toHaveCount(slideshow ? project.screenshots.length : 0);
+        if (!slideshow) await expect(mediaButton(article), `${project.slug} is not a slideshow`).not.toHaveAttribute('data-media-current', /./);
       }
     });
+
+    test('every View Code button shows the same code icon and every Play button is filled with the accent', async ({ page }) => {
+      await openRoute(page, routeOf(track, 'all'));
+      const codeLinks = page.locator('[data-testid="project-grid"] [data-project-link="code"]');
+      const playLinks = page.locator('[data-testid="project-grid"] [data-project-link="play"]');
+      const projects = content.getProjects(trackId, 'all');
+      const expectedCode = projects.flatMap((project) => project.links.filter((link) => link.kind === 'code' && link.url.trim() !== ''));
+      const expectedPlay = projects.flatMap((project) => project.links.filter((link) => link.kind === 'play' && link.url.trim() !== ''));
+      await expect(codeLinks).toHaveCount(expectedCode.length);
+      await expect(playLinks).toHaveCount(expectedPlay.length);
+      await expect(codeLinks.locator('svg[data-icon="gitlab"]')).toHaveCount(expectedCode.length);
+      await expect(codeLinks.locator('svg[data-icon="github"]')).toHaveCount(0);
+      for (let index = 0; index < expectedPlay.length; index += 1) await expect(playLinks.nth(index)).toHaveAttribute('data-variant', 'accent');
+      await expect(page.locator('[data-testid="project-grid"] [data-project-link]:not([data-project-link="play"])[data-variant="accent"]')).toHaveCount(0);
+    });
+
+    for (const theme of THEMES) {
+      test(`a Play button has the accent fill and dark text — ${theme}`, async ({ page }) => {
+        const withPlay = content.getProjects(trackId, 'all').find((project) => project.links.some((link) => link.kind === 'play' && link.url.trim() !== ''));
+        test.skip(!withPlay, 'no project with a Play link on this page');
+        await openRoute(page, routeOf(track, 'all'), { theme });
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        const play = card(page, withPlay!.slug).locator('[data-project-link="play"]').first();
+        const accent = await cssVar(trackPage(page), '--color-accent');
+        expect(accent).toBe(trackId === 'game' ? '#faff69' : '#7cb2ff');
+        await expect(play).toHaveCSS('background-color', hexToRgb(accent));
+        await expect(play).toHaveCSS('color', hexToRgb(await cssVar(trackPage(page), '--color-on-accent')));
+      });
+    }
 
     test('a featured card gets the accent border', async ({ page }) => {
       const featured = content.getProjects(trackId, 'all').find((project) => project.featured);
@@ -123,10 +183,11 @@ for (const trackId of TRACK_IDS) {
       await openRoute(page, routeOf(track, 'all'), { serveImages: [assetHref(shot.src)].filter(isExternal) });
       const button = mediaButton(card(page, project!.slug));
       await expect(button).toHaveJSProperty('tagName', 'BUTTON');
-      const image = button.locator('img');
+      const image = button.locator('img').first();
       await expect(image).toHaveAttribute('src', assetHref(shot.src));
       await expect(image).toHaveAttribute('alt', shot.alt);
       await expect(image).toHaveAttribute('referrerpolicy', 'no-referrer');
+      await expect(button.locator('img')).toHaveCount(project!.screenshots.length);
     });
   });
 }

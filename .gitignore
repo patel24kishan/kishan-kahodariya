@@ -27,3 +27,6 @@ npm-debug.log*
 
 # review screenshots (regenerated on demand)
 /docs/screenshots/
+
+# owner-only working documents (resume-derived notes); never committed
+/private/

@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react';
 import { getHoverText, type Project, type ProjectLink } from '@/content';
-import { Button, Chip, LinkButton, MediaOverlayButton, cx, type IconName } from '@/components/ui';
+import { Button, Chip, LinkButton, MediaOverlayButton, cx, type ButtonVariant, type IconName } from '@/components/ui';
 import { assetUrl, isExternalUrl } from '@/lib/paths';
 import type { ViewerItemRef } from '@/components/viewer/viewerState';
 import styles from './ProjectCard.module.css';
@@ -11,8 +11,12 @@ export interface ProjectCardProps {
   onOpen: (project: Project, item: ViewerItemRef, opener: HTMLElement) => void;
 }
 
-/** Icon for a project link: by host when it is a known site, else by the link's kind. */
+/**
+ * Icon for a project link. Every "View Code" link (kind `code`) shows the one code icon
+ * whatever the host; the other kinds go by host when it is a known site, else by kind.
+ */
 export function linkIcon(link: ProjectLink): IconName {
+  if (link.kind === 'code') return 'gitlab';
   let host = '';
   try {
     host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');
@@ -27,8 +31,6 @@ export function linkIcon(link: ProjectLink): IconName {
   switch (link.kind) {
     case 'play':
       return 'play';
-    case 'code':
-      return 'link';
     default:
       // "video" on a host that is not YouTube is just an address somewhere else.
       return 'external';
@@ -40,18 +42,26 @@ export function renderableLinks(project: Project): ProjectLink[] {
   return project.links.filter((link) => link.url.trim() !== '');
 }
 
+/** "Play" links are primary actions (accent fill, like Gameplay); every other kind is outline. */
+export function linkVariant(link: ProjectLink): ButtonVariant {
+  return link.kind === 'play' ? 'accent' : 'outline';
+}
+
 /**
- * ProjectCard — media button (first screenshot, or a designed placeholder), tag chips,
- * title, date, the owner's short description verbatim, then the link buttons and a filled
- * "Gameplay" button when there is a video. A featured project gets the accent border.
+ * ProjectCard — media button (the screenshots as a slideshow when there are several, the
+ * first one when there is one, or a designed placeholder), tag chips, title, date, the
+ * owner's short description verbatim, then the link buttons (Play filled with the accent,
+ * the rest outline) and a filled "Gameplay" button when there is a video. A featured project
+ * gets the accent border.
  */
 export function ProjectCard({ project, onOpen }: ProjectCardProps) {
   const shot = project.screenshots[0];
+  const slides = project.screenshots.map((screenshot) => ({ src: assetUrl(screenshot.src), alt: screenshot.alt }));
   const links = renderableLinks(project);
   const hasVideo = project.videoUrl.trim() !== '';
-  const firstItem: ViewerItemRef = shot ? { kind: 'screenshot', index: 0 } : { kind: 'video' };
 
-  const openFromMedia = (event: MouseEvent<HTMLButtonElement>) => onOpen(project, firstItem, event.currentTarget);
+  // The viewer opens at the screenshot on show (or at the video when there is no screenshot).
+  const openFromMedia = (index: number, button: HTMLButtonElement) => onOpen(project, shot ? { kind: 'screenshot', index } : { kind: 'video' }, button);
   const openVideo = (event: MouseEvent<HTMLButtonElement>) => onOpen(project, { kind: 'video' }, event.currentTarget);
 
   return (
@@ -59,13 +69,14 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps) {
       <MediaOverlayButton
         src={shot ? assetUrl(shot.src) : ''}
         alt={shot?.alt ?? `${project.title} preview`}
+        slides={slides}
         width={1600}
         height={900}
         label={getHoverText(project)}
         icon={hasVideo ? 'play' : 'image'}
         referrerPolicy="no-referrer"
         className={styles.media}
-        onClick={openFromMedia}
+        onOpen={openFromMedia}
         data-viewer-opener={project.slug}
         fallback={<MediaPlaceholder title={project.title} />}
       />
@@ -90,7 +101,7 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps) {
       {(links.length > 0 || hasVideo) && (
         <div className={styles.actions}>
           {links.map((link, index) => (
-            <LinkButton key={`${index}-${link.label}`} variant="outline" icon={linkIcon(link)} href={link.url} external={isExternalUrl(link.url)} data-project-link={link.kind}>
+            <LinkButton key={`${index}-${link.label}`} variant={linkVariant(link)} icon={linkIcon(link)} href={link.url} external={isExternalUrl(link.url)} data-project-link={link.kind}>
               {link.label}
             </LinkButton>
           ))}

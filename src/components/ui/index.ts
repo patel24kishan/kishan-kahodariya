@@ -18,7 +18,7 @@ export { IconButton, type IconButtonProps } from './IconButton';
 export { Chip, type ChipProps } from './Chip';
 export { Container, type ContainerProps } from './Container';
 export { Icon, ICON_NAMES, type IconProps, type IconName, type UiIconName } from './Icon';
-export { MediaOverlayButton, type MediaOverlayButtonProps } from './MediaOverlayButton';
+export { MediaOverlayButton, SLIDE_INTERVAL_MS, type MediaOverlayButtonProps, type MediaSlide } from './MediaOverlayButton';
 export { Section, type SectionProps } from './Section';
 export { SegmentedTabs, type SegmentedTabsProps, type SegmentedTabItem, type SegmentedTabLinkProps } from './SegmentedTabs';
 export { SkipLink, type SkipLinkProps } from './SkipLink';

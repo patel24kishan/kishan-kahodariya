@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Card fixture</title>
+    <meta name="robots" content="noindex" />
+    <!--
+      Test-only page (tests/pages/card-fixture.spec.ts). Served by the Vite dev server at
+      /My-Portfolio/tests/pages/support/card-fixture.html; not part of any build. It mounts
+      the projects section with hand-made projects that cover what the real content cannot:
+      several screenshots (the card slideshow), a broken screenshot among them, Play and
+      View Code links on different hosts, a project without screenshots. ?track=softdev
+      switches the accent; the theme follows the stored choice like the app.
+    -->
+    <script>
+      (function () {
+        var theme = 'dark';
+        try {
+          var stored = localStorage.getItem('kk-theme');
+          theme = stored === 'light' || stored === 'dark' ? stored : 'dark';
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./card-fixture.tsx"></script>
+  </body>
+</html>

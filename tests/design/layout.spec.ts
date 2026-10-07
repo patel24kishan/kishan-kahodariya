@@ -14,12 +14,14 @@ test.describe('layout', () => {
     expect(widths.scroll).toBeLessThanOrEqual(320);
     expect(widths.body).toBeLessThanOrEqual(320);
 
-    // No element pokes out of the viewport either (overflow-x: clip could hide it).
+    // No element pokes out of the viewport either (overflow-x: clip could hide it). The
+    // slideshow's waiting slides sit one width to the right inside the media button's own
+    // clipped box, by design (tests/design/slideshow.spec.ts covers that box).
     const poking = await page.evaluate(() =>
       [...document.querySelectorAll<HTMLElement>('main *')]
         .filter((el) => {
           const r = el.getBoundingClientRect();
-          return r.width > 0 && r.right > 320 + 0.5 && !el.closest('[class*="scroller"], [class*="tableWrap"]');
+          return r.width > 0 && r.right > 320 + 0.5 && !el.closest('[class*="scroller"], [class*="tableWrap"], [data-media-track]');
         })
         .slice(0, 5)
         .map((el) => `${el.tagName.toLowerCase()}.${el.className}`),

@@ -94,6 +94,32 @@ const PLACEHOLDER_SHOT =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a4a6a"/><stop offset="1" stop-color="#1a2238"/></linearGradient></defs><rect width="1600" height="900" fill="url(#g)"/><circle cx="1180" cy="300" r="180" fill="#ffffff" fill-opacity="0.08"/><rect x="160" y="560" width="640" height="40" rx="20" fill="#ffffff" fill-opacity="0.25"/><rect x="160" y="630" width="420" height="40" rx="20" fill="#ffffff" fill-opacity="0.18"/></svg>',
   );
 
+/** Plain colour slides for the slideshow samples (SVG data URIs, nothing to fetch). */
+function slideShot(label: string, fill: string): string {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><rect width="1600" height="900" fill="${fill}"/><text x="800" y="490" font-family="sans-serif" font-size="140" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.7">${label}</text></svg>`,
+  )}`;
+}
+
+const SLIDESHOW_SHOTS = [
+  { src: slideShot('1', '#3a4a6a'), alt: 'Tile Breaker screenshot one' },
+  { src: slideShot('2', '#4a3a6a'), alt: 'Tile Breaker screenshot two' },
+  { src: slideShot('3', '#2f5a4a'), alt: 'Tile Breaker screenshot three' },
+];
+
+/** The middle screenshot cannot load: it must be skipped, leaving two dots. */
+const SLIDESHOW_WITH_BROKEN_SHOT = [
+  { src: slideShot('1', '#5a3a2f'), alt: 'Galaxy Shooter screenshot one' },
+  { src: 'data:image/png;base64,broken', alt: 'Galaxy Shooter screenshot two' },
+  { src: slideShot('3', '#2f4a5a'), alt: 'Galaxy Shooter screenshot three' },
+];
+
+/** No screenshot loads: the fallback takes over. */
+const SLIDESHOW_ALL_BROKEN = [
+  { src: 'data:image/png;base64,broken', alt: 'Infinite Racing screenshot one' },
+  { src: 'data:image/png;base64,broken2', alt: 'Infinite Racing screenshot two' },
+];
+
 function isTrack(value: string | null): value is TrackId {
   return value === 'game' || value === 'softdev';
 }
@@ -114,6 +140,8 @@ export default function Kit() {
   const [tokens, setTokens] = useState<Record<string, string>>({});
   const [contrast, setContrast] = useState<ContrastRow[]>([]);
   const [root, setRoot] = useState<HTMLElement | null>(null);
+  /** Index the slideshow sample was last activated at (what a viewer would open). */
+  const [openedSlide, setOpenedSlide] = useState<number | null>(null);
 
   // URL → state (SSR-safe: only after mount).
   useEffect(() => {
@@ -517,6 +545,63 @@ export default function Kit() {
               <p className={styles.cardText}>
                 <code>fallback</code> replaces a broken or missing image; <code>referrerPolicy="no-referrer"</code> for hot-linked images.
               </p>
+            </div>
+          </div>
+          <h3 className={styles.subhead}>Several screenshots: the slideshow</h3>
+          <div className={styles.mediaGrid}>
+            <div className={styles.card} data-testid="slideshow-card" data-kit-opened={openedSlide ?? 'none'}>
+              <MediaOverlayButton
+                data-testid="media-slideshow"
+                src={SLIDESHOW_SHOTS[0]!.src}
+                alt={SLIDESHOW_SHOTS[0]!.alt}
+                slides={SLIDESHOW_SHOTS}
+                width={1600}
+                height={900}
+                label="View Gameplay & Screenshots"
+                loading="eager"
+                onOpen={(index) => setOpenedSlide(index)}
+              />
+              <h3 className={styles.cardTitle}>Three screenshots</h3>
+              <p className={styles.cardText}>
+                Slides every 3 s while on screen; hover or focus pauses it. The dots are decorative. A click opens the screenshot on show:{' '}
+                <span data-numeric>{openedSlide === null ? 'none opened yet' : `opened screenshot ${openedSlide + 1}`}</span>.
+              </p>
+            </div>
+            <div className={styles.card}>
+              <MediaOverlayButton
+                data-testid="media-slideshow-broken"
+                src={SLIDESHOW_WITH_BROKEN_SHOT[0]!.src}
+                alt={SLIDESHOW_WITH_BROKEN_SHOT[0]!.alt}
+                slides={SLIDESHOW_WITH_BROKEN_SHOT}
+                width={1600}
+                height={900}
+                label="View Screenshots"
+                icon="image"
+              />
+              <h3 className={styles.cardTitle}>One screenshot fails</h3>
+              <p className={styles.cardText}>The broken second screenshot is skipped: two dots, slides 1 and 3 only.</p>
+            </div>
+            <div className={styles.card}>
+              <MediaOverlayButton
+                data-testid="media-slideshow-failed"
+                src={SLIDESHOW_ALL_BROKEN[0]!.src}
+                alt={SLIDESHOW_ALL_BROKEN[0]!.alt}
+                slides={SLIDESHOW_ALL_BROKEN}
+                width={1600}
+                height={900}
+                label="View Screenshots"
+                icon="image"
+                fallback={
+                  <span className={styles.mediaFallback}>
+                    <span className={styles.mediaFallbackGlyph} aria-hidden="true">
+                      I
+                    </span>
+                    <span className={styles.mediaFallbackText}>No preview yet</span>
+                  </span>
+                }
+              />
+              <h3 className={styles.cardTitle}>Every screenshot fails</h3>
+              <p className={styles.cardText}>No slide is left, so the fallback shows and there are no dots.</p>
             </div>
           </div>
         </Section>

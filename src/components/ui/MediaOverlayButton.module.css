@@ -12,6 +12,8 @@
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  /* The slide between two screenshots (DESIGN.md: transform only). Off under reduced motion. */
+  --media-slide-duration: 450ms;
 }
 
 .media:focus-visible {
@@ -33,6 +35,70 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+
+/* ---- Slideshow: a row of slides moved by one width per step --------------------------- */
+
+.track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  transform: translate3d(calc(var(--media-index, 0) * -100%), 0, 0);
+  transition: transform var(--media-slide-duration) var(--ease);
+}
+
+.slide {
+  flex: 0 0 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slideImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease);
+}
+
+/* Position dots: decorative, bottom centre; the current one is an accent pill. */
+.dots {
+  position: absolute;
+  right: 0;
+  bottom: var(--space-2);
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-1);
+  pointer-events: none;
+}
+
+.dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-on-scrim);
+  opacity: 0.55;
+}
+
+.dotActive {
+  width: 16px;
+  background: var(--color-accent); /* raw accent: it sits on the image, never on the canvas */
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media {
+    --media-slide-duration: 0ms;
+  }
+
+  /* No auto-advance under reduced motion (see the component), so the dots would never move. */
+  .dots {
+    display: none;
+  }
 }
 
 .label {
@@ -74,12 +140,14 @@
   }
 
   .media:hover .image,
-  .media:focus-visible .image {
+  .media:focus-visible .image,
+  .media:hover .slideImage,
+  .media:focus-visible .slideImage {
     transform: scale(1.04);
   }
 }
 
-/* Touch devices: a permanent badge in the bottom-right corner. */
+/* Touch devices: a permanent badge in the bottom-right corner; the dots move to the left. */
 @media (hover: none) {
   .label {
     right: var(--space-2);
@@ -95,5 +163,11 @@
   .icon {
     width: 14px;
     height: 14px;
+  }
+
+  .dots {
+    right: auto;
+    left: var(--space-3);
+    justify-content: flex-start;
   }
 }
