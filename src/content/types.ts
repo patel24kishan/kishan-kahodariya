@@ -37,6 +37,10 @@ export interface SiteSettings {
   name: string;
   /** Short logo text in the nav: "KK" */
   monogram: string;
+  /** Image path or URL of the nav logo. "" means: show the monogram text instead. */
+  logo: string;
+  /** Alt text of the logo image. "" is allowed. */
+  logoAlt: string;
   email: string;
   /** Footer credit lines, rendered one per line. */
   credit: string[];
@@ -45,6 +49,16 @@ export interface SiteSettings {
   /** Label of the "All" tab. */
   allTabLabel: string;
   categories: Category[];
+}
+
+/** A resume that replaces the page's own resume while one project tab is open. */
+export interface TabResume {
+  /** Category id ("unreal", "unity", "webapps") or "all". */
+  tab: string;
+  /** "" means not set yet: the page falls back to resumeUrl. */
+  url: string;
+  /** Button text for this tab. "" uses resumeLabel. */
+  label: string;
 }
 
 /** content/tracks/game.json and content/tracks/softdev.json */
@@ -59,6 +73,8 @@ export interface TrackProfile {
   resumeUrl: string;
   /** Button text: "Game Dev Resume". */
   resumeLabel: string;
+  /** Resumes for specific project tabs; read them through getResume(). [] = one resume on every tab. */
+  tabResumes: TabResume[];
   /** Category id (or "all") of the tab that is open first on this page. */
   defaultTab: string;
   /** Profile photo path. */
@@ -176,7 +192,10 @@ export interface SocialLink {
   url: string;
   icon: LinkIcon;
   audience: Audience;
+  /** Position among the hero buttons (lower first). */
   order: number;
+  /** Position among the footer links (lower first). */
+  orderFooter: number;
   showInHero: boolean;
   showInFooter: boolean;
   published: boolean;

@@ -132,7 +132,25 @@ singletons:
         widget: string
         required: false
         default: ''
-        hint: The short logo in the top-left corner, for example KK.
+        hint: For example KK. Shown in the top-left corner when there is no logo image below.
+      - name: logo
+        label: Logo image
+        widget: image
+        required: false
+        default: ''
+        hint: >-
+          The small picture in the top-left corner of both pages. A square picture works
+          best; it is shown about 40 pixels wide, so a small file is enough. Remove the
+          picture to show the logo letters instead.
+        pattern:
+          - &image_pattern '^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?|/(?!/)\S*|[a-z0-9_~-][a-z0-9._~-]*\.[a-z0-9]+)$'
+          - &image_message 'Upload or pick a picture, or write a full address starting with https://, without spaces — or leave it empty.'
+      - name: logoAlt
+        label: Logo description
+        widget: string
+        required: false
+        default: ''
+        hint: A few words for people who cannot see the logo, for example your name.
       - name: email
         label: Email address
         widget: string
@@ -267,6 +285,44 @@ collections:
             required: false
             default: ''
             hint: For example Game Dev Resume.
+          - name: tabResumes
+            label: Resume for a specific tab
+            label_singular: Resume for one tab
+            widget: list
+            required: false
+            default: []
+            summary: '{{tab}} — {{url}}'
+            collapsed: auto
+            hint: &tab_resumes_hint >-
+              Leave empty to use the main resume on every tab. Add a row to give one project
+              tab a resume of its own: while a visitor has that tab open, the resume button
+              opens the link of the row instead of the main resume. One row per tab.
+            fields:
+              - name: tab
+                label: Tab with its own resume
+                widget: relation
+                collection: _singletons
+                file: site
+                value_field: 'categories.*.id'
+                display_fields: ['categories.*.label']
+                search_fields: ['categories.*.label', 'categories.*.id']
+                required: true
+                hint: &tab_resume_tab_hint The project tab this resume is for. Use each tab in one row only — two rows for the same tab stop the next update of the site.
+              - name: url
+                label: Resume link for this tab
+                widget: string
+                required: false
+                default: ''
+                hint: &tab_resume_url_hint A full address starting with https://, for example a Google Drive share link. While it is empty, this tab uses the main resume.
+                pattern:
+                  - &web_pattern '^[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?$'
+                  - &web_message 'Write a full address starting with https://, without spaces — or leave it empty.'
+              - name: label
+                label: Button text for this tab
+                widget: string
+                required: false
+                default: ''
+                hint: &tab_resume_label_hint Optional, for example Unreal Resume. Leave empty to use the resume button text above.
           - name: defaultTab
             label: Project tab that opens first
             widget: relation
@@ -284,8 +340,8 @@ collections:
             default: ''
             hint: Shown in a circle next to your name. A square photo works best.
             pattern:
-              - &image_pattern '^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?|/(?!/)\S*|[a-z0-9_~-][a-z0-9._~-]*\.[a-z0-9]+)$'
-              - &image_message 'Upload or pick a picture, or write a full address starting with https://, without spaces — or leave it empty.'
+              - *image_pattern
+              - *image_message
           - name: photoAlt
             label: Photo description
             widget: string
@@ -349,6 +405,41 @@ collections:
             required: false
             default: ''
             hint: For example Software Resume.
+          - name: tabResumes
+            label: Resume for a specific tab
+            label_singular: Resume for one tab
+            widget: list
+            required: false
+            default: []
+            summary: '{{tab}} — {{url}}'
+            collapsed: auto
+            hint: *tab_resumes_hint
+            fields:
+              - name: tab
+                label: Tab with its own resume
+                widget: relation
+                collection: _singletons
+                file: site
+                value_field: 'categories.*.id'
+                display_fields: ['categories.*.label']
+                search_fields: ['categories.*.label', 'categories.*.id']
+                required: true
+                hint: *tab_resume_tab_hint
+              - name: url
+                label: Resume link for this tab
+                widget: string
+                required: false
+                default: ''
+                hint: *tab_resume_url_hint
+                pattern:
+                  - *web_pattern
+                  - *web_message
+              - name: label
+                label: Button text for this tab
+                widget: string
+                required: false
+                default: ''
+                hint: *tab_resume_label_hint
           - name: defaultTab
             label: Project tab that opens first
             widget: relation
@@ -557,8 +648,8 @@ collections:
         default: ''
         hint: Paste the YouTube address. The card then gets a Gameplay button and the video plays inside the site. Leave empty for none.
         pattern:
-          - &web_pattern '^[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?$'
-          - 'Write a full address starting with https://, without spaces — or leave it empty.'
+          - *web_pattern
+          - *web_message
       - name: links
         label: Buttons
         label_singular: Button
@@ -837,7 +928,7 @@ collections:
     duplicate: false
     summary: "{{label}} · {{audience}}{{published | ternary('', ' · DRAFT')}}"
     sortable_fields:
-      fields: [label, order]
+      fields: [label, order, orderFooter]
       default:
         field: order
         direction: ascending
@@ -889,12 +980,23 @@ collections:
         options: *audience_options
         hint: The page(s) this link is shown on.
       - name: order
-        label: Position
+        label: Position next to your name
         widget: number
         value_type: int
         required: true
         default: 0
-        hint: *order_hint
+        hint: >-
+          The order of the link buttons at the top of the page, next to your name. Lower
+          numbers come first; leave gaps (10, 20, 30…). The footer has its own order below.
+      - name: orderFooter
+        label: Footer order
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: >-
+          The order of the links in the footer, separate from the order at the top of the
+          page. Lower numbers come first; leave gaps (10, 20, 30…).
       - name: showInHero
         label: Show next to your name (top of the page)
         widget: boolean

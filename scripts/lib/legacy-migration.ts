@@ -648,6 +648,9 @@ export function migrateLegacy(input: unknown): MigrationResult {
       icon: spec.icon,
       audience: spec.audience,
       order: (links.length + 1) * 10,
+      // The footer got its own order after the migration; a fresh migration starts it equal
+      // to `order`. The owner's footer order lives in /content.
+      orderFooter: (links.length + 1) * 10,
       showInHero: spec.showInHero,
       showInFooter: spec.showInFooter,
       published: true,
@@ -704,6 +707,9 @@ export function migrateLegacy(input: unknown): MigrationResult {
   const site: SiteSettings = {
     name: SITE_NAME,
     monogram: SITE_MONOGRAM,
+    // Added after the migration: no logo image means the nav shows the monogram.
+    logo: '',
+    logoAlt: '',
     email: emailIsValid ? Bio.email : '',
     credit: [...SITE_CREDIT],
     roles: Bio.roles.filter((role) => role.trim() !== ''),
@@ -726,6 +732,8 @@ export function migrateLegacy(input: unknown): MigrationResult {
       summary: Bio.description,
       resumeUrl: resumeUrl('Game page resume', Bio.resume_gamedeveloper),
       resumeLabel: 'Game Dev Resume',
+      // Added after the migration: the old site had one resume per page, none per tab.
+      tabResumes: [],
       defaultTab: 'unity',
       photo: PROFILE_PHOTO,
       photoAlt: SITE_NAME,
@@ -741,6 +749,7 @@ export function migrateLegacy(input: unknown): MigrationResult {
       summary: Bio.description,
       resumeUrl: resumeUrl('Software page resume', Bio.resume_softwaredeveloper),
       resumeLabel: 'Software Resume',
+      tabResumes: [],
       defaultTab: 'webapps',
       photo: PROFILE_PHOTO,
       photoAlt: SITE_NAME,

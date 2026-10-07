@@ -119,8 +119,24 @@ Good to know:
 5. **Page:** the page(s) the link is shown on.
 6. **Show next to your name (top of the page)** and **Show in the footer:** switch on the
    places you want. With both off, the link is not shown anywhere.
-7. **Position:** lower numbers come first.
+7. **Position next to your name** and **Footer order:** the link has one number for each of
+   its two places. Lower numbers come first.
 8. Switch **Published** on and press **Save**.
+
+### Change the order of the links in the footer
+
+The footer has its own order. It does not follow the order of the buttons next to your name.
+
+1. Click **Links** and open a link.
+2. Change **Footer order**. Lower numbers come first; leave gaps (10, 20, 30…) so a link fits
+   in between later. Today: Email 10, itch.io 20, LinkedIn 30, GitHub 40, Blog 50.
+3. Press **Save**. Do the same for every link you want to move.
+
+**Position next to your name** is the other number. It only moves the buttons at the top of
+the page. Changing one number never moves the link in the other place.
+
+A link that is set to one page only (itch.io is on the game page only) is simply left out on
+the other page; the rest keep their order.
 
 ## 8. Change a page: headline, summary, resume
 
@@ -132,8 +148,46 @@ Good to know:
    here too.
 5. Press **Save**.
 
-Your name, the logo letters, the footer credit lines and the project tabs are under
+Your name, the logo, the footer credit lines and the project tabs are under
 **Site settings**.
+
+### Add a resume for one project tab
+
+A page has one main resume (the **Resume link** above). A project tab can have a resume of
+its own: while a visitor has that tab open, the resume button opens that one instead.
+
+1. Click **Pages**, then the page (for example **Game page**).
+2. Under **Resume for a specific tab**, open the row of the tab — the game page already has
+   an empty row for **Unreal** — or click **Add Resume for one tab** and choose the tab in
+   **Tab with its own resume**.
+3. Paste the link in **Resume link for this tab**. It must be a full address starting with
+   `https://`, for example a Google Drive share link.
+4. **Button text for this tab** is optional, for example `Unreal Resume`. Left empty, the
+   button keeps the **Resume button text** of the page.
+5. Press **Save**.
+
+Good to know:
+
+- Leave the list empty to use the main resume on every tab.
+- A row without a link changes nothing: that tab uses the main resume until you paste one.
+- Use each tab in one row only. Two rows for the same tab are refused (section 13).
+- The "All" tab cannot be chosen here. It always uses the main resume.
+- To go back to the main resume, delete the row (or empty its link) and save.
+
+### Change the logo
+
+The logo is the small picture in the top-left corner of both pages.
+
+1. Click **Site settings**.
+2. Under **Logo image**, click **Replace** (or **Browse** when there is no picture yet), then
+   **Upload**, pick the picture and click **Insert**. A small square picture works best: it
+   is shown about 40 pixels wide.
+3. Write a few words in **Logo description**, for example your name. People who cannot see
+   the picture hear these words.
+4. Press **Save**.
+
+To show the **Logo letters** (`KK`) instead of a picture, click **Remove** under **Logo
+image** and save.
 
 ## 9. Add a new project tab
 
@@ -150,6 +204,7 @@ Two rules:
 - **Never change the ID of a tab that already has projects.** The projects point at the ID.
   Changing the *name* is always fine.
 - Do not delete a tab that still has projects. Move the projects to another tab first.
+  If a page has a resume row for that tab (section 8), delete that row too.
 
 If you break either rule the site does not break — the update is refused (section 13).
 
@@ -157,6 +212,8 @@ If you break either rule the site does not break — the update is refused (sect
 
 The order is set by the **Position** number of each item; lower numbers come first.
 Projects, jobs, skill groups and certificates have two numbers, one for each page.
+Links have two numbers as well, one for each place: next to your name and in the footer
+(section 7).
 
 In a list, **Sort** shows the items by position, and **Group** (projects) groups them by tab
 or by page, which makes it easy to see what to change. To move an item, open it, change its
@@ -177,7 +234,10 @@ What you can rely on:
 - which hover text a card gets (its own, or the default of its tab);
 - which bullet points each page shows for a job;
 - which buttons are shown and which are hidden because they have no address;
-- whether a link appears next to your name, in the footer, or not at all on a page;
+- whether a link appears next to your name, in the footer, or not at all on a page, and its
+  position in each place;
+- which resume each project tab opens (its own, or the main one);
+- whether the top-left corner shows the logo picture or the logo letters;
 - each page's colour, and a notice when the item is still a draft.
 
 What it does **not** show: the exact look. Fonts, spacing, image cropping and the phone
@@ -207,7 +267,8 @@ stops. **The live site stays exactly as it was** — a refused update never brea
 
 The forms already stop most mistakes (a missing title, more than 4 hover words, an address
 without `https://`). What can still slip through is something that involves two items, such
-as deleting a tab that projects still use.
+as deleting a tab that projects still use, or two rows of one list that clash, such as two
+resumes for the same tab.
 
 To find the reason:
 

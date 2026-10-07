@@ -18,14 +18,18 @@
  *     label, site name and "All" tab label, category id and label, track id, route, label and
  *     default tab, project category;
  *   - a wrong type, an unknown option, a broken URL / date / email, more than 4 hover words;
- *   - the cross-file rules (slug = file name, category exists, default tab exists, …).
+ *   - the cross-file rules (slug = file name, category exists, default tab exists, a resume
+ *     for one tab names a real tab and is that tab's only row, …).
  *
  * Tidied (never an error; reported as a note):
  *   - any other field that is missing or null gets its default: "", [], false, 0, null for
  *     legacyId, and the neutral option for a choice field (audience "both", emphasis "none",
  *     link kind "other", icon "link"). So a missing `published` means NOT published;
  *   - blank entries (empty or only spaces) are dropped from text lists;
- *   - screenshot rows without a `src` and link rows with neither a label nor a URL are dropped.
+ *   - screenshot rows without a `src`, link rows with neither a label nor a URL and
+ *     tab-resume rows without a `tab` are dropped;
+ *   - a link without a footer position (`orderFooter`, added after the first content was
+ *     written) keeps its place: it is read as the link's `order`.
  *   Text that is not blank is never changed — nothing is trimmed or rewritten.
  *
  * The parsed output therefore always has every field of ./types.ts.
@@ -152,7 +156,24 @@ function isBlankLinkRow(row: unknown): boolean {
 const ROW_IS_BLANK: Record<string, (row: unknown) => boolean> = {
   screenshots: isBlankScreenshotRow,
   links: isBlankLinkRow,
+  tabResumes: isBlankTabResumeRow,
 };
+
+/** A "resume for one tab" row that names no tab: it can never apply, dropped. */
+function isBlankTabResumeRow(row: unknown): boolean {
+  return isBlank(valueAt(row, ['tab']));
+}
+
+/**
+ * Links written before the footer had an order of its own have no `orderFooter`. Such a link
+ * keeps its place in the footer: the missing (or null) value is read as the link's `order`.
+ */
+function withFooterOrder(value: unknown): unknown {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+  const link = value as Record<string, unknown>;
+  if (link.orderFooter !== undefined && link.orderFooter !== null) return value;
+  return typeof link.order === 'number' ? { ...link, orderFooter: link.order } : value;
+}
 
 /** A missing or null value becomes the field's default; anything else is validated as it is. */
 function orDefault<S extends z.ZodType>(schema: S, fallback: () => z.output<S>) {
@@ -257,6 +278,8 @@ export const siteSchema = z
   .strictObject({
     name: requiredText,
     monogram: text,
+    logo: assetPath,
+    logoAlt: text,
     email: orDefault(
       z.string().refine((value) => value === '' || EMAIL_PATTERN.test(value), {
         error: 'must be empty or an email address',
@@ -284,23 +307,50 @@ export const siteSchema = z
     });
   });
 
-export const trackSchema = z.strictObject({
-  id: z.enum(TRACK_IDS),
-  route: z.string().refine(isSlug, {
-    error: 'must use only lower-case letters, digits and single hyphens (it is part of the page address)',
-  }),
-  label: requiredText,
-  headline: text,
-  summary: text,
-  resumeUrl: linkUrl,
-  resumeLabel: text,
-  defaultTab: requiredText,
-  photo: assetPath,
-  photoAlt: text,
-  certificatesFirst: flag,
-  metaTitle: text,
-  metaDescription: text,
+/**
+ * A resume for one project tab. Whether `tab` names a real tab is a cross-file rule (see
+ * validateContent). An empty `url` is valid: the row is prepared but not used yet.
+ */
+export const tabResumeSchema = z.strictObject({
+  tab: requiredText,
+  url: webUrl,
+  label: text,
 });
+
+export const trackSchema = z
+  .strictObject({
+    id: z.enum(TRACK_IDS),
+    route: z.string().refine(isSlug, {
+      error: 'must use only lower-case letters, digits and single hyphens (it is part of the page address)',
+    }),
+    label: requiredText,
+    headline: text,
+    summary: text,
+    resumeUrl: linkUrl,
+    resumeLabel: text,
+    tabResumes: listOf(tabResumeSchema, isBlankTabResumeRow),
+    defaultTab: requiredText,
+    photo: assetPath,
+    photoAlt: text,
+    certificatesFirst: flag,
+    metaTitle: text,
+    metaDescription: text,
+  })
+  .superRefine((track, ctx) => {
+    // One resume per tab: with two rows for one tab nobody could tell which one is used.
+    const seen = new Set<string>();
+    track.tabResumes.forEach((row, index) => {
+      if (!seen.has(row.tab)) {
+        seen.add(row.tab);
+        return;
+      }
+      ctx.addIssue({
+        code: 'custom',
+        message: `"${row.tab}" has more than one row (a tab can have only one resume)`,
+        path: ['tabResumes', index, 'tab'],
+      });
+    });
+  });
 
 export const mediaImageSchema = z.strictObject({
   src: assetPath,
@@ -366,20 +416,26 @@ export const skillGroupSchema = z.strictObject({
   published: flag,
 });
 
-export const socialLinkSchema = z.strictObject({
-  slug,
-  label: requiredText,
-  url: linkUrl,
-  icon: orDefault(
-    z.enum(['github', 'gitlab', 'linkedin', 'youtube', 'itchio', 'steam', 'email', 'blog', 'x', 'discord', 'link']),
-    () => 'link' as const,
-  ),
-  audience,
-  order,
-  showInHero: flag,
-  showInFooter: flag,
-  published: flag,
-});
+export const socialLinkSchema = z.preprocess(
+  withFooterOrder,
+  z.strictObject({
+    slug,
+    label: requiredText,
+    url: linkUrl,
+    icon: orDefault(
+      z.enum(['github', 'gitlab', 'linkedin', 'youtube', 'itchio', 'steam', 'email', 'blog', 'x', 'discord', 'link']),
+      () => 'link' as const,
+    ),
+    audience,
+    /** Position among the hero buttons. */
+    order,
+    /** Position among the footer links. Missing: read as `order` (see withFooterOrder). */
+    orderFooter: order,
+    showInHero: flag,
+    showInFooter: flag,
+    published: flag,
+  }),
+);
 
 export const educationSchema = z.strictObject({
   slug,
@@ -591,6 +647,8 @@ function rawString(data: unknown, key: string): string | undefined {
 interface Reference {
   file: string;
   value: string;
+  /** Where the value sits in the file, when it is not a top-level field of its own name. */
+  field?: string;
 }
 
 /**
@@ -600,7 +658,9 @@ interface Reference {
  *   rules, no unknown fields); other missing values and blank rows are tidied, not rejected;
  * - slug equals the file name; a track's id equals its file name;
  * - project.category is one of site.categories[].id;
- * - track.defaultTab is a category id or "all"; the two tracks use different routes.
+ * - track.defaultTab is a category id or "all"; the two tracks use different routes;
+ * - track.tabResumes[].tab is a category id or "all" (and, in the track's own schema, is
+ *   used by one row only).
  *
  * The connecting rules are checked on the raw values, so one run reports them together with
  * any field problems of the same file. Returns the full, tidied bundle (unpublished items
@@ -629,6 +689,7 @@ export function validateContent(
 
   const categoryRefs: Reference[] = [];
   const defaultTabRefs: Reference[] = [];
+  const tabResumeRefs: Reference[] = [];
   const routeRefs: Reference[] = [];
 
   /** Parses one collection file and checks that its slug is its file name. */
@@ -691,6 +752,18 @@ export function validateContent(
       }
       const route = rawString(file.data, 'route');
       if (route !== undefined && route !== '') routeRefs.push({ file: file.path, value: route });
+      const rawTabResumes = valueAt(file.data, ['tabResumes']);
+      if (Array.isArray(rawTabResumes)) {
+        // Numbered the way the reader numbers them: rows without a tab are dropped first.
+        (rawTabResumes as unknown[])
+          .filter((row) => !isBlankTabResumeRow(row))
+          .forEach((row, index) => {
+            const tab = rawString(row, 'tab');
+            if (tab !== undefined) {
+              tabResumeRefs.push({ file: file.path, value: tab, field: `tabResumes[${index}].tab` });
+            }
+          });
+      }
 
       const track = parseFile(trackSchema, file, issues, notes);
       if (track) tracks.push(track);
@@ -764,6 +837,15 @@ export function validateContent(
         issues.push({
           file,
           field: 'defaultTab',
+          message: `"${value}" must be a category id from site.json (known ids: ${known}) or "${ALL_TAB_ID}"`,
+        });
+      }
+    }
+    for (const { file, value, field } of tabResumeRefs) {
+      if (value !== ALL_TAB_ID && !categoryIds.includes(value)) {
+        issues.push({
+          file,
+          field: field ?? 'tabResumes',
           message: `"${value}" must be a category id from site.json (known ids: ${known}) or "${ALL_TAB_ID}"`,
         });
       }

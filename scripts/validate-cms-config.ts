@@ -170,6 +170,8 @@ export function shapeOf(schema: unknown, nullable = false): Shape {
 const SAMPLE_SITE = {
   name: 'Sample Person',
   monogram: 'SP',
+  logo: '/uploads/logo.webp',
+  logoAlt: 'Sample Person',
   email: 'person@example.com',
   credit: ['Line one.'],
   roles: ['a Developer'],
@@ -188,6 +190,7 @@ function sampleTrack(id: (typeof TRACK_IDS)[number]): TrackProfile {
     summary: 'Summary.',
     resumeUrl: 'https://example.com/resume',
     resumeLabel: 'Resume',
+    tabResumes: [{ tab: 'sample-tab', url: 'https://example.com/tab-resume', label: 'Tab Resume' }],
     defaultTab: 'sample-tab',
     photo: '/images/profile.jpg',
     photoAlt: 'Sample Person',
@@ -255,6 +258,7 @@ const SAMPLE_LINK = {
   icon: 'link',
   audience: 'both',
   order: 10,
+  orderFooter: 20,
   showInHero: true,
   showInFooter: true,
   published: true,
@@ -348,12 +352,37 @@ export function contentKinds(contentFolder = CONTENT_ROOT): ContentKind[] {
  * Fields whose value points at something in another file. The per-file schemas accept any
  * non-empty text for them; the cross-file rules in validateContent() check the target.
  * In the form they must be choices driven by Site settings, not free text.
+ *
+ * `path` is the field's place in the file, with the names joined by dots and list positions
+ * left out: "category", or "tabResumes.tab" for the `tab` key of every row of `tabResumes`.
  */
-const REFERENCES: Record<string, { field: string; allowAll: boolean }> = {
-  projects: { field: 'category', allowAll: false },
-  'tracks/game': { field: 'defaultTab', allowAll: true },
-  'tracks/softdev': { field: 'defaultTab', allowAll: true },
+const REFERENCES: Record<string, readonly { path: string; allowAll: boolean }[]> = {
+  projects: [{ path: 'category', allowAll: false }],
+  'tracks/game': [
+    { path: 'defaultTab', allowAll: true },
+    { path: 'tabResumes.tab', allowAll: true },
+  ],
+  'tracks/softdev': [
+    { path: 'defaultTab', allowAll: true },
+    { path: 'tabResumes.tab', allowAll: true },
+  ],
 };
+
+/** "tabResumes.tab" for ["tabResumes", 0, "tab"]. */
+function namePath(dataPath: ReadonlyArray<string | number>): string {
+  return dataPath.filter((key) => typeof key === 'string').join('.');
+}
+
+/** The schema's shape at a name path ("tabResumes.tab" looks inside the rows of the list). */
+function shapeAt(shape: Shape, path: string): Shape | undefined {
+  let current: Shape | undefined = shape;
+  for (const name of path.split('.')) {
+    while (current?.kind === 'list') current = current.item;
+    if (current?.kind !== 'object') return undefined;
+    current = current.fields.find((field) => field.name === name)?.shape;
+  }
+  return current;
+}
 
 // ---------------------------------------------------------------------------------------
 // The config, read into a small model
@@ -952,12 +981,25 @@ export function checkCmsConfig(input: CmsCheckInput): CmsCheckResult {
   // ---- fields against the schema -----------------------------------------------------------
   const siteTarget = byKind.get('site');
 
-  const checkLeaf = (kind: ContentKind, field: FieldNode, shape: Shape, dataPath: DataPath, top: boolean): void => {
+  // Every reference must name a text field the schema really has, or its check below would
+  // silently never run (a renamed field, a typing mistake in REFERENCES).
+  for (const kind of kinds) {
+    for (const reference of REFERENCES[kind.id] ?? []) {
+      if (shapeAt(kind.shape, reference.path)?.kind !== 'string') {
+        problem(
+          '(validator)',
+          `REFERENCES names "${reference.path}" for ${kind.title}, but the schema has no text field there — update REFERENCES`,
+          'scripts/validate-cms-config.ts',
+        );
+      }
+    }
+  }
+
+  const checkLeaf = (kind: ContentKind, field: FieldNode, shape: Shape, dataPath: DataPath): void => {
     summary.fields += 1;
     const { raw, widget, where } = field;
     const identity = !schemaAcceptsWithout(kind, dataPath);
-    const reference = top ? REFERENCES[kind.id] : undefined;
-    const isReference = reference !== undefined && reference.field === field.name;
+    const isReference = (REFERENCES[kind.id] ?? []).some((reference) => reference.path === namePath(dataPath));
 
     // -- widget fits the kind of value --
     const allowed: Record<Shape['kind'], string[]> = {
@@ -1078,7 +1120,7 @@ export function checkCmsConfig(input: CmsCheckInput): CmsCheckResult {
           problem(where, 'is a list of rows in the schema and needs `fields:` (one per key of a row)');
           return;
         }
-        checkFields(kind, field.fields, shape.item.fields, [...dataPath, 0], where, false);
+        checkFields(kind, field.fields, shape.item.fields, [...dataPath, 0], where);
       } else if (shape.item.kind === 'string') {
         if (field.fields !== undefined) problem(where, 'is a list of plain text in the schema: remove `fields:` (a row would be written as an object)');
         if (field.field !== undefined && !['string', 'text'].includes(field.field.widget)) {
@@ -1096,7 +1138,7 @@ export function checkCmsConfig(input: CmsCheckInput): CmsCheckResult {
         problem(where, 'needs `fields:` matching the schema');
         return;
       }
-      checkFields(kind, field.fields, shape.fields, dataPath, where, false);
+      checkFields(kind, field.fields, shape.fields, dataPath, where);
       return;
     }
 
@@ -1174,7 +1216,6 @@ export function checkCmsConfig(input: CmsCheckInput): CmsCheckResult {
     shapeFields: readonly ShapeField[],
     dataPath: DataPath,
     where: string,
-    top: boolean,
   ): void => {
     const configNames = fields.map((field) => field.name);
     const schemaNames = shapeFields.map((field) => field.name);
@@ -1194,14 +1235,14 @@ export function checkCmsConfig(input: CmsCheckInput): CmsCheckResult {
     }
     for (const field of fields) {
       const match = shapeFields.find((candidate) => candidate.name === field.name);
-      if (match) checkLeaf(kind, field, match.shape, [...dataPath, field.name], top);
+      if (match) checkLeaf(kind, field, match.shape, [...dataPath, field.name]);
     }
   };
 
   for (const kind of kinds) {
     const target = byKind.get(kind.id);
     if (!target || kind.shape.kind !== 'object') continue;
-    checkFields(kind, target.fields, kind.shape.fields, [], target.label, true);
+    checkFields(kind, target.fields, kind.shape.fields, [], target.label);
 
     // A page file's hidden id must be the name of its file (a cross-file rule of the schema).
     if (kind.id.startsWith('tracks/')) {

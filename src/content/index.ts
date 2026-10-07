@@ -99,11 +99,17 @@ export function getSkillGroups(track: TrackId): SkillGroup[] {
 }
 
 /**
- * Published links visible on this page for one placement, sorted by order.
+ * Published links visible on this page for one placement. The two placements have their own
+ * order: "hero" sorts by `order`, "footer" by `orderFooter` (ties: `order`, then slug).
  * Links whose url is empty are left out, so a renderer never gets a button with nowhere to go.
  */
 export function getLinks(track: TrackId, placement: 'hero' | 'footer'): SocialLink[] {
   return api.getLinks(track, placement);
+}
+
+/** The resume button for one page while `tabId` is the open tab. Falls back to the track's own resume. */
+export function getResume(track: TrackId, tabId: string): { url: string; label: string } {
+  return api.getResume(track, tabId);
 }
 
 /** Published education entries sorted by order. */

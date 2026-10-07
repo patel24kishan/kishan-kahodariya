@@ -28,6 +28,12 @@ const ALL_TAB_ID = 'all';
 
 const TRACK_ORDER: readonly TrackId[] = ['game', 'softdev'];
 
+/** What the resume button of a page shows and opens. */
+export interface ResumeButton {
+  url: string;
+  label: string;
+}
+
 export interface ContentApi {
   getSite(): SiteSettings;
   getTracks(): TrackProfile[];
@@ -40,6 +46,7 @@ export interface ContentApi {
   getExperience(track: TrackId): ResolvedExperience[];
   getSkillGroups(track: TrackId): SkillGroup[];
   getLinks(track: TrackId, placement: 'hero' | 'footer'): SocialLink[];
+  getResume(track: TrackId, tabId: string): ResumeButton;
   getEducation(): Education[];
   getCertificates(track: TrackId): Certificate[];
   getAllRoutes(): string[];
@@ -58,6 +65,15 @@ function published<T extends { published: boolean }>(items: readonly T[]): T[] {
 
 function trackOrder(item: { orderGame: number; orderSoftdev: number }, track: TrackId): number {
   return track === 'game' ? item.orderGame : item.orderSoftdev;
+}
+
+/**
+ * A link's position in the footer. The content reader always fills `orderFooter` in (a link
+ * saved without one gets its `order`); the same fallback is repeated here so that a bundle
+ * built by hand without the field still sorts instead of comparing against `undefined`.
+ */
+function footerOrder(link: SocialLink): number {
+  return typeof link.orderFooter === 'number' ? link.orderFooter : link.order;
 }
 
 /** true when an item marked for `audience` belongs to the page of `track`. */
@@ -144,12 +160,25 @@ export function createContentApi(content: ContentBundle): ContentApi {
   }
 
   function getLinks(track: TrackId, placement: 'hero' | 'footer'): SocialLink[] {
-    return published(content.links)
+    const shown = published(content.links)
       // A link without an address has nothing to open: never hand it to a renderer.
       .filter((link) => link.url.trim() !== '')
       .filter((link) => belongsTo(link.audience, track))
-      .filter((link) => (placement === 'hero' ? link.showInHero : link.showInFooter))
-      .sort((a, b) => a.order - b.order || compareText(a.label, b.label) || compareText(a.slug, b.slug));
+      .filter((link) => (placement === 'hero' ? link.showInHero : link.showInFooter));
+    // The two places are ordered independently: `order` for the hero, `orderFooter` for the footer.
+    if (placement === 'hero') {
+      return shown.sort((a, b) => a.order - b.order || compareText(a.label, b.label) || compareText(a.slug, b.slug));
+    }
+    return shown.sort(
+      (a, b) => footerOrder(a) - footerOrder(b) || a.order - b.order || compareText(a.slug, b.slug),
+    );
+  }
+
+  function getResume(track: TrackId, tabId: string): ResumeButton {
+    const profile = getTrack(track);
+    const own = (profile.tabResumes ?? []).find((entry) => entry.tab === tabId && entry.url.trim() !== '');
+    if (!own) return { url: profile.resumeUrl, label: profile.resumeLabel };
+    return { url: own.url, label: own.label.trim() !== '' ? own.label : profile.resumeLabel };
   }
 
   function getEducation(): Education[] {
@@ -186,6 +215,7 @@ export function createContentApi(content: ContentBundle): ContentApi {
     getExperience,
     getSkillGroups,
     getLinks,
+    getResume,
     getEducation,
     getCertificates,
     getAllRoutes,

@@ -71,6 +71,7 @@ const FIXTURE_TRACK: TrackProfile = {
   summary: '',
   resumeUrl: '',
   resumeLabel: '',
+  tabResumes: [],
   defaultTab: 'unity',
   photo: '',
   photoAlt: '',

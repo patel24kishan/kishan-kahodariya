@@ -11,6 +11,7 @@ import {
   getHoverText,
   getLinks,
   getProjects,
+  getResume,
   getSite,
   getSkillGroups,
   getTabs,
@@ -31,6 +32,9 @@ export interface ContentSnapshot {
   skills: string[];
   heroLinks: string[];
   footerLinks: string[];
+  /** "<button text> → <address>" of the resume on each page's default tab, game first. */
+  resumes: string[];
+  logo: string;
   education: string[];
   certificates: string[];
 }
@@ -49,6 +53,11 @@ export function snapshot(): ContentSnapshot {
     skills: getSkillGroups('game').map((group) => group.title),
     heroLinks: getLinks('game', 'hero').map((link) => link.label),
     footerLinks: getLinks('game', 'footer').map((link) => link.label),
+    resumes: getTracks().map((track) => {
+      const resume = getResume(track.id, resolveTab(track.id, undefined));
+      return `${resume.label} → ${resume.url}`;
+    }),
+    logo: getSite().logo,
     education: getEducation().map((entry) => entry.school),
     certificates: getCertificates('game').map((certificate) => certificate.title),
   };

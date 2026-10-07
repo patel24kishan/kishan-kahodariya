@@ -228,6 +228,8 @@ test.describe('content schema — field rules', () => {
     const cases: [string, string, (data: Record<string, unknown>) => void][] = [
       ['tracks/game.json', 'resumeUrl', (data) => { data.resumeUrl = 'drive link'; }],
       ['tracks/game.json', 'photo', (data) => { data.photo = 'images/profile.jpg'; }],
+      ['tracks/game.json', 'tabResumes[0].url', (data) => { data.tabResumes = [{ tab: 'unreal', url: 'drive link', label: '' }]; }],
+      ['site.json', 'logo', (data) => { data.logo = 'images/logo.webp'; }],
       ['projects/alpha.json', 'videoUrl', (data) => { data.videoUrl = 'youtu.be/abc'; }],
       ['projects/alpha.json', 'screenshots[0].src', (data) => { (data.screenshots as Record<string, unknown>[])[0]!.src = 'alpha.webp'; }],
       ['experience/acme.json', 'logo', (data) => { data.logo = 'logo.png'; }],
@@ -307,6 +309,8 @@ test.describe('content schema — field rules', () => {
     expect(content.site).toEqual({
       name: 'Fixture Person',
       monogram: '',
+      logo: '',
+      logoAlt: '',
       email: '',
       credit: [],
       roles: [],
@@ -324,6 +328,7 @@ test.describe('content schema — field rules', () => {
       summary: '',
       resumeUrl: '',
       resumeLabel: '',
+      tabResumes: [],
       defaultTab: 'webapps',
       photo: '',
       photoAlt: '',
@@ -386,6 +391,7 @@ test.describe('content schema — field rules', () => {
       icon: 'link',
       audience: 'both',
       order: 0,
+      orderFooter: 0,
       showInHero: false,
       showInFooter: false,
       published: false,
@@ -640,6 +646,228 @@ test.describe('content schema — field rules', () => {
 
   test('complete content produces no notes', () => {
     expect(read(fixtureFiles()).notes).toEqual([]);
+  });
+});
+
+test.describe('content schema — site logo', () => {
+  const setLogo = (value: unknown) => (data: Record<string, unknown>) => {
+    data.logo = value;
+  };
+
+  test('the logo is empty, a site path or a web address; the alt text is free', () => {
+    for (const good of ['', '/images/logo-96.webp', '/uploads/logo.webp', 'https://example.com/logo.png']) {
+      expectValid(withFile('site.json', setLogo(good)));
+    }
+    for (const bad of ['logo.webp', 'images/logo.webp', 'mailto:someone@example.com', '//example.com/logo.png', '/images/my logo.png']) {
+      expectIssue(withFile('site.json', setLogo(bad)), 'site.json', 'logo', /must be empty, an address starting with https:\/\/ or http:\/\/, or a site path/);
+    }
+    expectIssue(withFile('site.json', setLogo(7)), 'site.json', 'logo', /expected string/);
+    expectValid(withFile('site.json', (data) => { data.logoAlt = ''; }));
+    expectIssue(withFile('site.json', (data) => { data.logoAlt = ['Kishan']; }), 'site.json', 'logoAlt', /expected string/);
+  });
+
+  test('a site file written before the logo existed still reads: no logo means the monogram', () => {
+    const { content, notes } = read(
+      withFile('site.json', (data) => {
+        delete data.logo;
+        data.logoAlt = null;
+      }),
+    );
+    expect(content.site.logo).toBe('');
+    expect(content.site.logoAlt).toBe('');
+    expect(content.site.monogram).toBe('FP');
+    expect(notes).toEqual(['site.json › logo: was missing, read as ""', 'site.json › logoAlt: was null, read as ""']);
+  });
+});
+
+test.describe('content schema — footer order of a link', () => {
+  const link = (change: (data: Record<string, unknown>) => void) => withFile('links/github.json', change);
+  const github = (files: readonly RawContentFile[]) => bySlug(read(files).content.links, 'github');
+
+  test('a link without a footer order keeps its place: it is read as its `order`', () => {
+    const missing = read(link((data) => { data.order = 30; delete data.orderFooter; }));
+    expect(bySlug(missing.content.links, 'github')).toMatchObject({ order: 30, orderFooter: 30 });
+    expect(missing.notes).toEqual(['links/github.json › orderFooter: was missing, read as 30']);
+
+    const empty = read(link((data) => { data.order = 30; data.orderFooter = null; }));
+    expect(bySlug(empty.content.links, 'github')).toMatchObject({ order: 30, orderFooter: 30 });
+    expect(empty.notes).toEqual(['links/github.json › orderFooter: was null, read as 30']);
+
+    // Neither number: both are 0.
+    expect(github(link((data) => { delete data.order; delete data.orderFooter; }))).toMatchObject({ order: 0, orderFooter: 0 });
+  });
+
+  test('a footer order that is written is never replaced, also when it is 0 or negative', () => {
+    expect(github(link((data) => { data.order = 30; data.orderFooter = 0; }))).toMatchObject({ order: 30, orderFooter: 0 });
+    expect(github(link((data) => { data.order = 30; data.orderFooter = -5; }))).toMatchObject({ order: 30, orderFooter: -5 });
+    expect(github(link((data) => { data.order = 30; data.orderFooter = 10; }))).toMatchObject({ order: 30, orderFooter: 10 });
+    expect(read(link((data) => { data.order = 30; data.orderFooter = 10; })).notes).toEqual([]);
+  });
+
+  test('a wrong type is still an error, and a broken `order` is not copied into the footer order', () => {
+    expectIssue(link((data) => { data.orderFooter = '10'; }), 'links/github.json', 'orderFooter', /expected number/);
+    const issues = issuesOf(link((data) => { data.order = 'first'; delete data.orderFooter; }));
+    expect(issues.map((issue) => issue.field)).toEqual(['order']);
+  });
+
+  test('the key order of the file does not matter, and an unknown key is still reported', () => {
+    expect(
+      github([
+        ...fixtureFiles().filter((file) => file.path !== 'links/github.json'),
+        { path: 'links/github.json', data: { orderFooter: 5, published: true, slug: 'github', order: 40, label: 'GitHub' } },
+      ]),
+    ).toMatchObject({ order: 40, orderFooter: 5 });
+    expectIssue(link((data) => { delete data.orderFooter; data.orderFoter = 10; }), 'links/github.json', 'orderFoter', /is not a field of this kind of content/);
+  });
+});
+
+test.describe('content schema — resume per project tab', () => {
+  const rows = (value: unknown) => (data: Record<string, unknown>) => {
+    data.tabResumes = value;
+  };
+  const game = (value: unknown) => withFile('tracks/game.json', rows(value));
+  const gameTrack = (files: readonly RawContentFile[]) => read(files).content.tracks[0];
+
+  test('valid rows: a category id or "all", with or without a link and a label', () => {
+    const value = [
+      { tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' },
+      { tab: 'unity', url: '', label: '' },
+      { tab: 'all', url: 'http://example.com/all?x=1#y', label: '' },
+    ];
+    const { content, notes } = read(game(value));
+    expect(content.tracks[0]?.tabResumes).toEqual(value);
+    expect(notes).toEqual([]);
+    // The two pages are independent: the same tab may have a row on each.
+    expectValid([
+      ...game([{ tab: 'unreal', url: '', label: '' }]).filter((file) => file.path !== 'tracks/softdev.json'),
+      { path: 'tracks/softdev.json', data: makeTrack('softdev', { tabResumes: [{ tab: 'unreal', url: 'https://example.com/r', label: '' }] }) },
+    ]);
+  });
+
+  test('the tab must be a category id from site.json or "all"', () => {
+    for (const bad of ['godot', 'Unreal', 'unreal ', 'All', 'web apps']) {
+      expectIssue(
+        game([{ tab: bad, url: '', label: '' }]),
+        'tracks/game.json',
+        'tabResumes[0].tab',
+        /must be a category id from site\.json \(known ids: "unreal", "unity", "webapps"\) or "all"/,
+      );
+    }
+    // The second row is the wrong one: the message points at it.
+    expectIssue(
+      game([{ tab: 'unity', url: '', label: '' }, { tab: 'godot', url: '', label: '' }]),
+      'tracks/game.json',
+      'tabResumes[1].tab',
+      /"godot" must be a category id/,
+    );
+    // A category that the owner removed from Site settings is caught the same way.
+    const withoutUnreal = game([{ tab: 'unreal', url: '', label: '' }]).map((file) =>
+      file.path === 'site.json'
+        ? { path: file.path, data: { ...(file.data as Record<string, unknown>), categories: (file.data as { categories: { id: string }[] }).categories.filter((category) => category.id !== 'unreal') } }
+        : file,
+    );
+    expectIssue(withoutUnreal, 'tracks/game.json', 'tabResumes[0].tab', /"unreal" must be a category id from site\.json \(known ids: "unity", "webapps"\)/);
+  });
+
+  test('a tab can have only one row on a page', () => {
+    expectIssue(
+      game([
+        { tab: 'unreal', url: 'https://example.com/a', label: '' },
+        { tab: 'unity', url: '', label: '' },
+        { tab: 'unreal', url: 'https://example.com/b', label: '' },
+      ]),
+      'tracks/game.json',
+      'tabResumes[2].tab',
+      /"unreal" has more than one row \(a tab can have only one resume\)/,
+    );
+    // Also when the rows have no link yet, and for the "all" tab.
+    expectIssue(game([{ tab: 'unreal', url: '', label: '' }, { tab: 'unreal', url: '', label: '' }]), 'tracks/game.json', 'tabResumes[1].tab', /more than one row/);
+    expectIssue(game([{ tab: 'all', url: '', label: '' }, { tab: 'all', url: '', label: '' }]), 'tracks/game.json', 'tabResumes[1].tab', /"all" has more than one row/);
+    // Three rows for one tab: every extra row is reported.
+    const fields = issuesOf(game([{ tab: 'unity' }, { tab: 'unity' }, { tab: 'unity' }])).map((issue) => issue.field);
+    expect(fields).toEqual(['tabResumes[1].tab', 'tabResumes[2].tab']);
+  });
+
+  test('the link must be empty or a web address (not mailto, not a site path)', () => {
+    const bad = ['drive link', 'drive.google.com/file/d/1', 'mailto:someone@example.com', '/uploads/resume.pdf', 'ftp://example.com/resume.pdf', 'https://', 'https://example.com/my resume.pdf', ' https://example.com/r'];
+    for (const value of bad) {
+      expect(isWebUrl(value), value).toBe(false);
+      expectIssue(
+        game([{ tab: 'unreal', url: value, label: '' }]),
+        'tracks/game.json',
+        'tabResumes[0].url',
+        /must be empty or an address starting with https:\/\/ or http:\/\//,
+      );
+    }
+    for (const value of ['', 'https://drive.google.com/file/d/1S5b/view?usp=drive_link', 'http://example.com/resume.pdf']) {
+      expect(isWebUrl(value), value).toBe(true);
+      expectValid(game([{ tab: 'unreal', url: value, label: '' }]));
+    }
+  });
+
+  test('an unknown key and a wrong type are reported with the row and the key', () => {
+    expectIssue(game([{ tab: 'unreal', url: '', label: '', note: 'x' }]), 'tracks/game.json', 'tabResumes[0].note', /is not a field of this kind of content/);
+    expectIssue(game([{ tab: 'unreal', link: 'https://example.com/r' }]), 'tracks/game.json', 'tabResumes[0].link', /is not a field of this kind of content/);
+    expectIssue(game('unreal'), 'tracks/game.json', 'tabResumes', /expected array/);
+    expectIssue(game({ unreal: 'https://example.com/r' }), 'tracks/game.json', 'tabResumes', /expected array/);
+    expectIssue(game([{ tab: 'unreal', url: 7, label: '' }]), 'tracks/game.json', 'tabResumes[0].url', /expected string/);
+    expectIssue(game([{ tab: 'unreal', url: '', label: false }]), 'tracks/game.json', 'tabResumes[0].label', /expected string/);
+    expectIssue(game([{ tab: 3, url: '', label: '' }]), 'tracks/game.json', 'tabResumes[0].tab', /expected string/);
+  });
+
+  test('forgiving read: no list means no tab resumes; a missing link or label is ""', () => {
+    const missing = read(withFile('tracks/game.json', (data) => { delete data.tabResumes; }));
+    expect(missing.content.tracks[0]?.tabResumes).toEqual([]);
+    expect(missing.notes).toEqual(['tracks/game.json › tabResumes: was missing, read as []']);
+
+    const empty = read(game(null));
+    expect(empty.content.tracks[0]?.tabResumes).toEqual([]);
+    expect(empty.notes).toEqual(['tracks/game.json › tabResumes: was null, read as []']);
+
+    const sparse = read(game([{ tab: 'unreal' }, { tab: 'unity', url: null, label: null }]));
+    expect(sparse.content.tracks[0]?.tabResumes).toEqual([
+      { tab: 'unreal', url: '', label: '' },
+      { tab: 'unity', url: '', label: '' },
+    ]);
+    expect(sparse.notes).toEqual([
+      'tracks/game.json › tabResumes[0].url: was missing, read as ""',
+      'tracks/game.json › tabResumes[0].label: was missing, read as ""',
+      'tracks/game.json › tabResumes[1].url: was null, read as ""',
+      'tracks/game.json › tabResumes[1].label: was null, read as ""',
+    ]);
+  });
+
+  test('forgiving read: rows without a tab are dropped, whatever else they hold', () => {
+    const { content, notes } = read(
+      game([
+        { tab: '', url: 'https://example.com/lost', label: 'Lost' },
+        { url: 'https://example.com/no-tab-key' },
+        { tab: null, url: '', label: '' },
+        { tab: '   ', url: '', label: '' },
+        { tab: 'unity', url: 'https://example.com/unity', label: '' },
+        {},
+      ]),
+    );
+    expect(content.tracks[0]?.tabResumes).toEqual([{ tab: 'unity', url: 'https://example.com/unity', label: '' }]);
+    expect(notes).toEqual(['tracks/game.json › tabResumes: 5 blank entries were dropped']);
+    // A dropped row never counts as a second row for a tab, and is never checked.
+    expectValid(game([{ tab: '', url: 'not a url', label: '' }, { tab: 'unreal', url: '', label: '' }, { tab: ' ', url: '', label: '' }]));
+    expect(gameTrack(game([{ tab: '' }, { tab: 'unreal' }]))?.tabResumes).toEqual([{ tab: 'unreal', url: '', label: '' }]);
+  });
+
+  test('every problem of the list is reported in one run', () => {
+    const issues = issuesOf(
+      game([
+        { tab: 'godot', url: 'https://example.com/a', label: '' },
+        { tab: 'unreal', url: 'nope', label: '' },
+        { tab: 'unreal', url: '', label: '', extra: 1 },
+      ]),
+    );
+    const fields = issues.map((issue) => issue.field).sort();
+    expect(fields).toContain('tabResumes[0].tab');
+    expect(fields).toContain('tabResumes[1].url');
+    expect(fields).toContain('tabResumes[2].extra');
+    expect(issues.every((issue) => issue.file === 'tracks/game.json')).toBe(true);
   });
 });
 

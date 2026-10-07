@@ -5,6 +5,7 @@
   "icon": "itchio",
   "audience": "game",
   "order": 10,
+  "orderFooter": 20,
   "showInHero": true,
   "showInFooter": true,
   "published": true

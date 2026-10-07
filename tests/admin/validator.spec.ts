@@ -198,7 +198,7 @@ const CASES: Case[] = [
     config: (config) => {
       field(collection(config, 'links'), 'order').value_type = 'int/string';
     },
-    expect: [/Position \(order\)/, /would store the number as text/],
+    expect: [/Position next to your name \(order\)/, /would store the number as text/],
   },
   {
     name: 'a list without a default',
@@ -609,6 +609,137 @@ const CASES: Case[] = [
     },
     expect: [/merge key/],
   },
+  // ---- the logo, the footer order and the resume per tab (added at the end so the numbers above stay) ----
+  {
+    name: 'the logo image missing from Site settings',
+    config: (config) => removeField(site(config), 'logo'),
+    expect: [/where:\s+Site settings\n\s+problem: the field "logo" is in the schema but not in the config/, /lost on the next save/],
+  },
+  {
+    name: 'the logo description missing from Site settings',
+    config: (config) => removeField(site(config), 'logoAlt'),
+    expect: [/Site settings/, /"logoAlt" is in the schema but not in the config/],
+  },
+  {
+    name: 'the logo as free text instead of an image with its pattern',
+    config: (config) => {
+      const logo = field(site(config), 'logo');
+      logo.widget = 'string';
+      delete logo.pattern;
+    },
+    expect: [/Site settings › Logo image \(logo\)/, /the form accepts "[^"]+" but the content check rejects it/],
+  },
+  {
+    name: 'a logo field that would refuse every upload',
+    config: (config) => {
+      field(site(config), 'logo').pattern = [LINK_PATTERN_WITHOUT_MAILTO, 'Write a full address starting with https://'];
+    },
+    expect: [/Logo image \(logo\)/, /refuses the upload name "screenshot\.png"/],
+  },
+  {
+    name: 'the footer order missing from Links',
+    config: (config) => removeField(collection(config, 'links'), 'orderFooter'),
+    expect: [/where:\s+Links\n\s+problem: the field "orderFooter" is in the schema but not in the config/, /lost on the next save/],
+  },
+  {
+    name: 'the footer order placed before the position next to the name',
+    config: (config) => {
+      const all = fields(collection(config, 'links'));
+      const order = all.findIndex((entry) => entry.name === 'order');
+      const [first, second] = [all[order], all[order + 1]];
+      if (order < 0 || !first || !second || second.name !== 'orderFooter') throw new Error('orderFooter is expected right after order');
+      all.splice(order, 2, second, first);
+    },
+    expect: [/Links/, /different order than the schema/, /audience, order, orderFooter, showInHero/],
+  },
+  {
+    name: 'a footer order without a default',
+    config: (config) => {
+      delete field(collection(config, 'links'), 'orderFooter').default;
+    },
+    expect: [/Footer order \(orderFooter\)/, /needs a numeric `default`/],
+  },
+  {
+    name: 'a footer order stored as text',
+    config: (config) => {
+      field(collection(config, 'links'), 'orderFooter').value_type = 'int/string';
+    },
+    expect: [/Footer order \(orderFooter\)/, /would store the number as text/],
+  },
+  {
+    name: 'the resume-per-tab list missing from one page',
+    config: (config) => removeField(pageFile(config, 'softdev'), 'tabResumes'),
+    expect: [/where:\s+Pages › Software page\n\s+problem: the field "tabResumes" is in the schema but not in the config/, /lost on the next save/],
+  },
+  {
+    name: 'a resume-per-tab row misses a key',
+    config: (config) => removeField(field(pageFile(config, 'game'), 'tabResumes'), 'label'),
+    expect: [/Game page › Resume for a specific tab \(tabResumes\)/, /"label" is in the schema but not in the config/],
+  },
+  {
+    name: 'a resume-per-tab row has a key the schema does not know',
+    config: (config) => fields(field(pageFile(config, 'game'), 'tabResumes')).push({ name: 'note', widget: 'string', required: false, default: '' }),
+    expect: [/Resume for a specific tab \(tabResumes\)/, /"note" is not in the schema/, /the deploy would stop/],
+  },
+  {
+    name: 'the resume-per-tab rows in another order than the schema',
+    config: (config) => {
+      (field(pageFile(config, 'game'), 'tabResumes').fields as Dict[]).reverse();
+    },
+    expect: [/Resume for a specific tab \(tabResumes\)/, /different order than the schema/, /Schema order: tab, url, label/],
+  },
+  {
+    name: 'the tab of a resume row as free text',
+    config: (config) => {
+      const tab = field(field(pageFile(config, 'game'), 'tabResumes'), 'tab');
+      tab.widget = 'string';
+    },
+    expect: [/Tab with its own resume \(tab\)/, /must be a choice driven by Site settings/, /could name a tab that does not exist/],
+  },
+  {
+    name: 'the tab of a resume row pointing at the wrong list',
+    config: (config) => {
+      field(field(pageFile(config, 'softdev'), 'tabResumes'), 'tab').value_field = 'categories.*.label';
+    },
+    expect: [/Software page › Resume for a specific tab \(tabResumes\) › Tab with its own resume \(tab\)/, /must list the project tabs of Site settings/],
+  },
+  {
+    name: 'the tab of a resume row made optional',
+    config: (config) => {
+      field(field(pageFile(config, 'game'), 'tabResumes'), 'tab').required = false;
+    },
+    expect: [/Tab with its own resume \(tab\)/, /must be required: Sveltia writes null for an unselected relation/],
+  },
+  {
+    name: 'the link of a resume row without a pattern',
+    config: (config) => {
+      delete field(field(pageFile(config, 'game'), 'tabResumes'), 'url').pattern;
+    },
+    expect: [/Resume link for this tab \(url\)/, /the form accepts "[^"]+" but the content check rejects it/, /Add or tighten the `pattern`/],
+  },
+  {
+    name: 'the link of a resume row with the looser pattern of the main resume link',
+    config: (config) => {
+      const main = field(pageFile(config, 'game'), 'resumeUrl').pattern as unknown[];
+      field(field(pageFile(config, 'game'), 'tabResumes'), 'url').pattern = [main[0], 'Write a full address starting with https://'];
+    },
+    // The main resume may be a site path or a mailto: address; a tab resume may not.
+    expect: [/Resume link for this tab \(url\)/, /the form accepts "(?:\/|mailto:)[^"]*" but the content check rejects it/],
+  },
+  {
+    name: 'the link of a resume row made required',
+    config: (config) => {
+      delete field(field(pageFile(config, 'softdev'), 'tabResumes'), 'url').required;
+    },
+    expect: [/Resume link for this tab \(url\)/, /optional in the schema: add `required: false`/],
+  },
+  {
+    name: 'the resume-per-tab list without its rows',
+    config: (config) => {
+      delete field(pageFile(config, 'game'), 'tabResumes').fields;
+    },
+    expect: [/Resume for a specific tab \(tabResumes\)/, /is a list of rows in the schema and needs `fields:`/],
+  },
 ];
 
 // ---------------------------------------------------------------------------------------
@@ -743,6 +874,9 @@ test.describe('form patterns behave like the schema rules', () => {
     { title: 'profile photo', field: find('Pages › Software page', 'photo'), schema: isAssetPath, image: true },
     { title: 'company logo', field: find('Experience', 'logo'), schema: isAssetPath, image: true },
     { title: 'badge image', field: find('Certificates', 'image'), schema: isAssetPath, image: true },
+    { title: 'site logo', field: find('Site settings', 'logo'), schema: isAssetPath, image: true },
+    { title: 'resume link of one tab (game page)', field: find('Pages › Game page', 'tabResumes', 'url'), schema: isWebUrl },
+    { title: 'resume link of one tab (software page)', field: find('Pages › Software page', 'tabResumes', 'url'), schema: isWebUrl },
   ];
 
   for (const row of table) {
@@ -801,6 +935,78 @@ test.describe('form patterns behave like the schema rules', () => {
     expect(result.notes).toEqual([]);
     expect(result.summary.kinds).toBe(contentKinds().length);
     expect(result.summary.contentFiles).toBeGreaterThan(0);
+  });
+
+  test('the logo: an image field and a description, right after the logo letters, set up like the profile photo', () => {
+    const siteFields = model.targets.find((candidate) => candidate.label === 'Site settings')?.fields ?? [];
+    expect(siteFields.map((entry) => entry.name).slice(0, 5)).toEqual(['name', 'monogram', 'logo', 'logoAlt', 'email']);
+    const logo = find('Site settings', 'logo');
+    const photo = find('Pages › Game page', 'photo');
+    expect(logo.widget).toBe('image');
+    expect(logo.raw.required).toBe(false);
+    expect(logo.raw.default).toBe('');
+    expect(logo.raw.pattern, 'the same pattern and message as the profile photo').toEqual(photo.raw.pattern);
+    expect(String(logo.raw.hint)).toMatch(/logo letters instead/);
+    const alt = find('Site settings', 'logoAlt');
+    expect(alt.widget).toBe('string');
+    expect(alt.raw.required).toBe(false);
+    expect(alt.raw.default).toBe('');
+    // An empty logo and the uploaded form of a picture are both saved values the schema takes.
+    for (const value of ['', '/uploads/logo.webp', '/images/logo-96.webp', 'https://example.com/logo.png']) {
+      expect(formAcceptsText(logo, value), value).toBe(true);
+      expect(isAssetPath(value), value).toBe(true);
+    }
+  });
+
+  test('links: "Footer order" sits right after the hero position, and each hint says which place it moves', () => {
+    const names = (model.targets.find((candidate) => candidate.label === 'Links')?.fields ?? []).map((entry) => entry.name);
+    expect(names.slice(names.indexOf('order'), names.indexOf('order') + 2)).toEqual(['order', 'orderFooter']);
+    const hero = find('Links', 'order');
+    const footer = find('Links', 'orderFooter');
+    expect(footer.raw.label).toBe('Footer order');
+    for (const node of [hero, footer]) {
+      expect(node.widget).toBe('number');
+      expect(node.raw.value_type).toBe('int');
+      expect(node.raw.required).toBe(true);
+      expect(node.raw.default).toBe(0);
+    }
+    expect(String(hero.raw.hint)).toMatch(/next to your name/);
+    expect(String(hero.raw.hint)).toMatch(/footer has its own order/i);
+    expect(String(footer.raw.hint)).toMatch(/footer/);
+    expect(String(footer.raw.hint)).toMatch(/separate from the order at the top of the\s+page/);
+  });
+
+  test('pages: "Resume for a specific tab" is the same list on both pages — a tab choice from Site settings, a link, an optional label', () => {
+    const projectTab = find('Projects', 'category');
+    const shapes = ['Pages › Game page', 'Pages › Software page'].map((label) => {
+      const names = (model.targets.find((candidate) => candidate.label === label)?.fields ?? []).map((entry) => entry.name);
+      expect(names.slice(names.indexOf('resumeLabel'), names.indexOf('resumeLabel') + 3), label).toEqual(['resumeLabel', 'tabResumes', 'defaultTab']);
+
+      const list2 = find(label, 'tabResumes');
+      expect(list2.widget).toBe('list');
+      expect(list2.raw.required).toBe(false);
+      expect(list2.raw.default).toEqual([]);
+      expect(String(list2.raw.hint)).toContain('Leave empty to use the main resume on every tab.');
+      expect((list2.fields ?? []).map((entry) => entry.name)).toEqual(['tab', 'url', 'label']);
+
+      // The tab choice is generated from Site settings exactly like the project's "Tab" choice.
+      const tab = find(label, 'tabResumes', 'tab');
+      expect(tab.widget).toBe('relation');
+      expect(tab.raw.required).toBe(true);
+      for (const key of ['collection', 'file', 'value_field', 'display_fields', 'search_fields']) {
+        expect(tab.raw[key], `${label}: ${key}`).toEqual(projectTab.raw[key]);
+      }
+
+      const url = find(label, 'tabResumes', 'url');
+      expect(url.raw.required).toBe(false);
+      expect(url.raw.default).toBe('');
+      expect(url.raw.pattern, 'the web-address pattern of the video field').toEqual(find('Projects', 'videoUrl').raw.pattern);
+      const text = find(label, 'tabResumes', 'label');
+      expect(text.raw.required).toBe(false);
+      expect(text.raw.default).toBe('');
+      return JSON.stringify(list2.raw);
+    });
+    expect(shapes[0], 'the two pages offer the same list').toBe(shapes[1]);
   });
 
   test('the admin folder holds exactly the files the page needs', () => {

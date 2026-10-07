@@ -7,6 +7,7 @@ import { expect, test } from '@playwright/test';
 import { loadContent, publishedOnly } from '../../scripts/lib/load-content';
 import type { ContentBundle } from '../../src/content/bundle';
 import { createContentApi } from '../../src/content/selectors';
+import type { SocialLink, TabResume, TrackProfile } from '../../src/content/types';
 import {
   UNPUBLISHED_MARKER,
   fixtureBundle,
@@ -267,6 +268,65 @@ test.describe('skills, links, education, certificates', () => {
     expect(slugs(api.getLinks('softdev', 'footer'))).toEqual(['github', 'email']);
   });
 
+  test('getLinks: the footer has its own order, and the hero order does not move with it', () => {
+    // The owner's links: hero itch.io, GitHub, LinkedIn — footer Email, itch.io, LinkedIn, GitHub, Blog.
+    const links = [
+      makeLink({ slug: 'blog', label: 'Blog', audience: 'both', order: 40, orderFooter: 50, showInHero: false }),
+      makeLink({ slug: 'email', label: 'Email', url: 'mailto:person@example.com', audience: 'both', order: 50, orderFooter: 10, showInHero: false }),
+      makeLink({ slug: 'github', label: 'GitHub', audience: 'both', order: 20, orderFooter: 40 }),
+      makeLink({ slug: 'itchio', label: 'itch.io', audience: 'game', order: 10, orderFooter: 20 }),
+      makeLink({ slug: 'linkedin', label: 'LinkedIn', audience: 'both', order: 30, orderFooter: 30 }),
+    ];
+    const api = createContentApi(bundle({ links }));
+    expect(slugs(api.getLinks('game', 'footer'))).toEqual(['email', 'itchio', 'linkedin', 'github', 'blog']);
+    // itch.io is for the game page only, so the software footer is the same order without it.
+    expect(slugs(api.getLinks('softdev', 'footer'))).toEqual(['email', 'linkedin', 'github', 'blog']);
+    expect(slugs(api.getLinks('game', 'hero'))).toEqual(['itchio', 'github', 'linkedin']);
+    expect(slugs(api.getLinks('softdev', 'hero'))).toEqual(['github', 'linkedin']);
+
+    // Reversing the footer order changes the footer only.
+    const reversed = createContentApi(bundle({ links: links.map((link) => ({ ...link, orderFooter: 100 - link.orderFooter })) }));
+    expect(slugs(reversed.getLinks('game', 'footer'))).toEqual(['blog', 'github', 'linkedin', 'itchio', 'email']);
+    expect(slugs(reversed.getLinks('game', 'hero'))).toEqual(['itchio', 'github', 'linkedin']);
+    // Changing `order` changes the hero only.
+    const heroReversed = createContentApi(bundle({ links: links.map((link) => ({ ...link, order: 100 - link.order })) }));
+    expect(slugs(heroReversed.getLinks('game', 'hero'))).toEqual(['linkedin', 'github', 'itchio']);
+    expect(slugs(heroReversed.getLinks('game', 'footer'))).toEqual(['email', 'itchio', 'linkedin', 'github', 'blog']);
+    // The stored list is not reordered by reading it.
+    expect(slugs(links)).toEqual(['blog', 'email', 'github', 'itchio', 'linkedin']);
+  });
+
+  test('getLinks: equal footer orders fall back to `order`, then to the short name', () => {
+    const api = createContentApi(
+      bundle({
+        links: [
+          makeLink({ slug: 'zeta', label: 'Alpha Label', order: 30, orderFooter: 10 }),
+          makeLink({ slug: 'beta', label: 'Middle Label', order: 20, orderFooter: 10 }),
+          makeLink({ slug: 'alpha', label: 'Zeta Label', order: 20, orderFooter: 10 }),
+          makeLink({ slug: 'first', label: 'First', order: 99, orderFooter: 5 }),
+        ],
+      }),
+    );
+    // Footer: orderFooter 5, then the three tied on 10 by order (20, 20, 30), the two 20s by short name.
+    expect(slugs(api.getLinks('game', 'footer'))).toEqual(['first', 'alpha', 'beta', 'zeta']);
+    // Hero (unchanged rule): order, then the label ("Middle" before "Zeta"), then the short name.
+    expect(slugs(api.getLinks('game', 'hero'))).toEqual(['beta', 'alpha', 'zeta', 'first']);
+  });
+
+  test('getLinks: a bundle made by hand without a footer order sorts the footer by `order`', () => {
+    const bare = (overrides: Partial<SocialLink>): SocialLink => {
+      const { orderFooter: _unset, ...rest } = makeLink(overrides);
+      return rest as SocialLink;
+    };
+    const api = createContentApi(
+      bundle({
+        links: [bare({ slug: 'c', order: 30 }), bare({ slug: 'a', order: 10 }), makeLink({ slug: 'b', order: 99, orderFooter: 20 })],
+      }),
+    );
+    expect(slugs(api.getLinks('softdev', 'footer'))).toEqual(['a', 'b', 'c']);
+    expect(slugs(api.getLinks('softdev', 'hero'))).toEqual(['a', 'c', 'b']);
+  });
+
   test('getLinks: a link with an empty url is never returned', () => {
     const api = createContentApi(
       bundle({
@@ -311,6 +371,113 @@ test.describe('skills, links, education, certificates', () => {
     );
     expect(slugs(api.getCertificates('game'))).toEqual(['unity', 'aws-sa', 'aws-dev']);
     expect(slugs(api.getCertificates('softdev'))).toEqual(['aws-sa', 'aws-dev', 'unity']);
+  });
+});
+
+test.describe('getResume', () => {
+  const MAIN_GAME = { url: 'https://example.com/game-resume', label: 'Game Dev Resume' };
+  const MAIN_SOFTDEV = { url: 'https://example.com/software-resume', label: 'Software Resume' };
+
+  function api(game: TabResume[], softdev: TabResume[] = [], gameOverrides: Partial<TrackProfile> = {}) {
+    return createContentApi(
+      bundle({
+        tracks: [
+          makeTrack('game', { resumeUrl: MAIN_GAME.url, resumeLabel: MAIN_GAME.label, tabResumes: game, ...gameOverrides }),
+          makeTrack('softdev', { resumeUrl: MAIN_SOFTDEV.url, resumeLabel: MAIN_SOFTDEV.label, tabResumes: softdev }),
+        ],
+      }),
+    );
+  }
+
+  test('no tab resumes: every tab gets the page\'s own resume', () => {
+    const content = api([]);
+    for (const tab of ['unreal', 'unity', 'webapps', 'all']) {
+      expect(content.getResume('game', tab)).toEqual(MAIN_GAME);
+      expect(content.getResume('softdev', tab)).toEqual(MAIN_SOFTDEV);
+    }
+  });
+
+  test('a tab with a link of its own overrides the resume on that tab only', () => {
+    const content = api([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]);
+    expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: 'Unreal Resume' });
+    expect(content.getResume('game', 'unity')).toEqual(MAIN_GAME);
+    expect(content.getResume('game', 'webapps')).toEqual(MAIN_GAME);
+    expect(content.getResume('game', 'all')).toEqual(MAIN_GAME);
+    // The other page has its own list: the game page's row does not reach it.
+    expect(content.getResume('softdev', 'unreal')).toEqual(MAIN_SOFTDEV);
+  });
+
+  test('an override without a label keeps the page\'s button text', () => {
+    const content = api([
+      { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '' },
+      { tab: 'unity', url: 'https://example.com/unity-resume', label: '   ' },
+    ]);
+    expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: MAIN_GAME.label });
+    expect(content.getResume('game', 'unity')).toEqual({ url: 'https://example.com/unity-resume', label: MAIN_GAME.label });
+  });
+
+  test('a row without a link is not used: the tab falls back to the page\'s resume, label included', () => {
+    const content = api([
+      { tab: 'unreal', url: '', label: 'Unreal Resume' },
+      { tab: 'unity', url: '   ', label: 'Unity Resume' },
+    ]);
+    expect(content.getResume('game', 'unreal')).toEqual(MAIN_GAME);
+    expect(content.getResume('game', 'unity')).toEqual(MAIN_GAME);
+  });
+
+  test('the "all" tab can have a row, and each page reads its own rows', () => {
+    const content = api(
+      [{ tab: 'all', url: 'https://example.com/everything', label: 'Full Resume' }],
+      [{ tab: 'webapps', url: 'https://example.com/web-resume', label: '' }],
+    );
+    expect(content.getResume('game', 'all')).toEqual({ url: 'https://example.com/everything', label: 'Full Resume' });
+    expect(content.getResume('game', 'webapps')).toEqual(MAIN_GAME);
+    expect(content.getResume('softdev', 'webapps')).toEqual({ url: 'https://example.com/web-resume', label: MAIN_SOFTDEV.label });
+    expect(content.getResume('softdev', 'all')).toEqual(MAIN_SOFTDEV);
+  });
+
+  test('a tab that does not exist, or an id in another case, gets the page\'s resume', () => {
+    const content = api([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]);
+    for (const tab of ['godot', '', 'Unreal', 'unreal ']) expect(content.getResume('game', tab), JSON.stringify(tab)).toEqual(MAIN_GAME);
+  });
+
+  test('a page without a resume: only a tab with its own link has one', () => {
+    const content = api(
+      [
+        { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '' },
+        { tab: 'unity', url: '', label: 'Unity Resume' },
+      ],
+      [],
+      { resumeUrl: '', resumeLabel: '' },
+    );
+    expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: '' });
+    // Nothing to fall back to: the url is empty only because the page's own resume is empty.
+    expect(content.getResume('game', 'unity')).toEqual({ url: '', label: '' });
+    expect(content.getResume('game', 'all')).toEqual({ url: '', label: '' });
+  });
+
+  test('returns a new object each time, never the stored row', () => {
+    const rows: TabResume[] = [{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }];
+    const content = api(rows);
+    const first = content.getResume('game', 'unreal');
+    first.url = 'changed by the caller';
+    first.label = 'changed by the caller';
+    expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: 'Unreal Resume' });
+    expect(rows).toEqual([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]);
+    const main = content.getResume('game', 'unity');
+    main.url = 'changed by the caller';
+    expect(content.getResume('game', 'unity')).toEqual(MAIN_GAME);
+  });
+
+  test('a track made by hand without the list behaves like one with an empty list', () => {
+    const { tabResumes: _unset, ...bare } = makeTrack('game', { resumeUrl: MAIN_GAME.url, resumeLabel: MAIN_GAME.label });
+    const content = createContentApi(bundle({ tracks: [bare as TrackProfile, makeTrack('softdev')] }));
+    expect(content.getResume('game', 'unreal')).toEqual(MAIN_GAME);
+  });
+
+  test('throws for a track that does not exist, like getTrack', () => {
+    const content = createContentApi(bundle({ tracks: [makeTrack('game')] }));
+    expect(() => content.getResume('softdev', 'unity')).toThrow(/Unknown track: softdev/);
   });
 });
 
@@ -369,6 +536,37 @@ test.describe('the real content through the API', () => {
       expect(perCategory.sort()).toEqual(slugs(publishedProjects).sort());
       for (const project of all) expect(api.getHoverText(project).trim().split(/\s+/).length).toBeLessThanOrEqual(4);
       for (const entry of api.getExperience(track.id)) expect(Array.isArray(entry.resolvedBullets)).toBe(true);
+    }
+  });
+
+  test('links and resumes: invariants that hold whatever the owner edits', () => {
+    const loaded = loadContent(realContentDir);
+    expect(loaded.ok, JSON.stringify(loaded.issues, null, 2)).toBe(true);
+    if (!loaded.ok) return;
+    // Every link file states its footer order: nothing had to be filled in by the reader.
+    expect(loaded.notes.filter((note) => note.field === 'orderFooter')).toEqual([]);
+    const api = createContentApi(publishedOnly(loaded.content));
+
+    for (const track of api.getTracks()) {
+      const footer = api.getLinks(track.id, 'footer');
+      const hero = api.getLinks(track.id, 'hero');
+      expect(footer.map((link) => link.orderFooter), `${track.id} footer`).toEqual([...footer.map((link) => link.orderFooter)].sort((a, b) => a - b));
+      expect(hero.map((link) => link.order), `${track.id} hero`).toEqual([...hero.map((link) => link.order)].sort((a, b) => a - b));
+      for (const link of [...footer, ...hero]) expect(link.url.trim(), link.slug).not.toBe('');
+
+      // Every tab has a resume button whenever the page has a resume at all, and a tab's own
+      // resume is used exactly when its row has a link.
+      for (const tab of api.getTabs()) {
+        const resume = api.getResume(track.id, tab.id);
+        const own = track.tabResumes.find((row) => row.tab === tab.id && row.url.trim() !== '');
+        expect(resume.url, `${track.id}/${tab.id}`).toBe(own ? own.url : track.resumeUrl);
+        if (track.resumeUrl !== '') expect(resume.url, `${track.id}/${tab.id}`).not.toBe('');
+        if (!own) expect(resume.label, `${track.id}/${tab.id}`).toBe(track.resumeLabel);
+      }
+      // Every row names a real tab, once.
+      const rowTabs = track.tabResumes.map((row) => row.tab);
+      expect(new Set(rowTabs).size, `${track.id} tab resumes`).toBe(rowTabs.length);
+      for (const id of rowTabs) expect(api.getTabs().map((tab) => tab.id), `${track.id} tab resumes`).toContain(id);
     }
   });
 });

@@ -465,6 +465,14 @@ ul {
   font-weight: 700;
 }
 
+/* The logo image, at the size the site's nav shows it. */
+.kk-nav__logo-image {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
 .kk-tabs {
   display: flex;
   flex-wrap: wrap;

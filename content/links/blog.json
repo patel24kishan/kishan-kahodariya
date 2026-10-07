@@ -5,6 +5,7 @@
   "icon": "blog",
   "audience": "both",
   "order": 40,
+  "orderFooter": 50,
   "showInHero": false,
   "showInFooter": true,
   "published": true

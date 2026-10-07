@@ -109,6 +109,9 @@ const expectedSnapshot: ContentSnapshot = {
   skills: ['Game Dev'],
   heroLinks: ['GitHub'],
   footerLinks: ['GitHub'],
+  // The game page's default tab (unity) has a resume of its own in the fixture; the software page has none.
+  resumes: ['Unity Resume → https://example.com/unity-resume', 'Software Resume → https://example.com/resume'],
+  logo: '/images/logo.webp',
   education: ['Example University'],
   certificates: ['Example Certificate'],
 };
@@ -421,6 +424,9 @@ test.describe('content plugin — dev server', () => {
         skills: api.getSkillGroups('softdev').map((group) => group.slug),
         heroLinks: api.getLinks('game', 'hero').map((link) => link.slug),
         footerLinks: api.getLinks('softdev', 'footer').map((link) => link.slug),
+        gameFooterLinks: api.getLinks('game', 'footer').map((link) => [link.slug, link.orderFooter]),
+        resumes: api.getTracks().map((track) => api.getTabs().map((tab) => [track.id, tab.id, api.getResume(track.id, tab.id)])),
+        logo: [api.getSite().logo, api.getSite().logoAlt],
         education: api.getEducation().map((entry) => entry.slug),
         certificates: api.getCertificates('softdev').map((certificate) => certificate.slug),
       };
@@ -441,9 +447,14 @@ test.describe('content plugin — dev server', () => {
       skills: api.getSkillGroups('softdev').map((group) => group.slug),
       heroLinks: api.getLinks('game', 'hero').map((link) => link.slug),
       footerLinks: api.getLinks('softdev', 'footer').map((link) => link.slug),
+      gameFooterLinks: api.getLinks('game', 'footer').map((link) => [link.slug, link.orderFooter]),
+      resumes: api.getTracks().map((track) => api.getTabs().map((tab) => [track.id, tab.id, api.getResume(track.id, tab.id)])),
+      logo: [api.getSite().logo, api.getSite().logoAlt],
       education: api.getEducation().map((entry) => entry.slug),
       certificates: api.getCertificates('softdev').map((certificate) => certificate.slug),
     });
+    // One answer for every tab of every page.
+    expect(inBrowser.resumes.flat().length).toBe(api.getTracks().length * api.getTabs().length);
 
     const unpublished = loaded.content.projects.filter((project) => !project.published).map((project) => project.slug);
     for (const slug of unpublished) {

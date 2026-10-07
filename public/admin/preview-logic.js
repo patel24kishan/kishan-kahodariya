@@ -141,6 +141,68 @@ export function linkOnPage(link, page) {
   return { shown: true, hero, footer, reason: '' };
 }
 
+/** Text order as the site sorts it: case-insensitive first, then by code point. Never locale-aware. */
+function compareText(a, b) {
+  const left = a.toLowerCase();
+  const right = b.toLowerCase();
+  if (left !== right) return left < right ? -1 : 1;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * A link's position in one of its two places. "hero" (next to the name) reads `order`;
+ * "footer" reads `orderFooter`, and falls back to `order` when no footer order is stored.
+ */
+export function linkPosition(link, place) {
+  const order = typeof link?.order === 'number' ? link.order : 0;
+  if (place !== 'footer') return order;
+  return typeof link?.orderFooter === 'number' ? link.orderFooter : order;
+}
+
+/**
+ * The published links one page shows in one place ("hero" | "footer"), in the site's order:
+ * the hero by `order` (then label, then short name), the footer by `orderFooter` (then
+ * `order`, then short name).
+ */
+export function linksInPlace(links, page, place) {
+  const shown = (Array.isArray(links) ? links : []).filter(
+    (link) => link !== null && typeof link === 'object' && link.published === true && linkOnPage(link, page)[place] === true,
+  );
+  if (place === 'footer') {
+    return shown.sort(
+      (a, b) =>
+        linkPosition(a, 'footer') - linkPosition(b, 'footer') ||
+        linkPosition(a, 'hero') - linkPosition(b, 'hero') ||
+        compareText(text(a.slug), text(b.slug)),
+    );
+  }
+  return shown.sort(
+    (a, b) =>
+      linkPosition(a, 'hero') - linkPosition(b, 'hero') ||
+      compareText(text(a.label), text(b.label)) ||
+      compareText(text(a.slug), text(b.slug)),
+  );
+}
+
+/** "Resume for a specific tab" rows as the site reads them: a row without a tab is dropped. */
+export function cleanTabResumes(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((row) => row !== null && typeof row === 'object' && !isBlank(row.tab))
+    .map((row) => ({ tab: text(row.tab), url: text(row.url), label: text(row.label) }));
+}
+
+/**
+ * The resume button of a page while the tab `tabId` is open (getResume in selectors.ts): the
+ * tab's own row when it has a link, otherwise the page's main resume. `from` is "tab" or "main".
+ */
+export function resumeForTab(track, tabId) {
+  const main = { url: text(track?.resumeUrl), label: text(track?.resumeLabel), from: 'main' };
+  const own = cleanTabResumes(track?.tabResumes).find((row) => row.tab === tabId && row.url.trim() !== '');
+  if (!own) return main;
+  return { url: own.url, label: own.label.trim() !== '' ? own.label : main.label, from: 'tab' };
+}
+
 /** true when a skill group is drawn in the accent colour on `page`. */
 export function isEmphasised(group, page) {
   return group?.emphasis === 'both' || group?.emphasis === page;

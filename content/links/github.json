@@ -5,6 +5,7 @@
   "icon": "github",
   "audience": "both",
   "order": 20,
+  "orderFooter": 40,
   "showInHero": true,
   "showInFooter": true,
   "published": true

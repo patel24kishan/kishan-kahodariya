@@ -198,14 +198,17 @@ export function makeSkillGroup(overrides: Partial<SkillGroup> = {}): SkillGroup 
   };
 }
 
+/** `orderFooter` follows `order` unless a test sets it, so a link keeps one position by default. */
 export function makeLink(overrides: Partial<SocialLink> = {}): SocialLink {
+  const order = overrides.order ?? 10;
   return {
     slug: 'github',
     label: 'GitHub',
     url: 'https://github.com/example',
     icon: 'github',
     audience: 'both',
-    order: 10,
+    order,
+    orderFooter: order,
     showInHero: true,
     showInFooter: true,
     published: true,
@@ -247,6 +250,8 @@ export function makeSite(overrides: Partial<SiteSettings> = {}): SiteSettings {
   return {
     name: 'Fixture Person',
     monogram: 'FP',
+    logo: '/images/logo.webp',
+    logoAlt: 'Fixture Person',
     email: 'person@example.com',
     credit: ['Line one.', 'Line two.'],
     roles: ['a Developer'],
@@ -270,6 +275,7 @@ export function makeTrack(id: 'game' | 'softdev', overrides: Partial<TrackProfil
     summary: 'Summary.',
     resumeUrl: 'https://example.com/resume',
     resumeLabel: game ? 'Game Dev Resume' : 'Software Resume',
+    tabResumes: [],
     defaultTab: game ? 'unity' : 'webapps',
     photo: '/images/profile.jpg',
     photoAlt: 'Fixture Person',
@@ -284,7 +290,16 @@ export function makeTrack(id: 'game' | 'softdev', overrides: Partial<TrackProfil
 export function fixtureBundle(): ContentBundle {
   return {
     site: makeSite(),
-    tracks: [makeTrack('game'), makeTrack('softdev')],
+    tracks: [
+      // One tab with a resume of its own, one row that is prepared but has no link yet.
+      makeTrack('game', {
+        tabResumes: [
+          { tab: 'unity', url: 'https://example.com/unity-resume', label: 'Unity Resume' },
+          { tab: 'webapps', url: '', label: '' },
+        ],
+      }),
+      makeTrack('softdev'),
+    ],
     projects: [
       makeProject(),
       makeProject({ slug: 'beta', title: 'Beta Web App', category: 'webapps', audience: 'softdev', orderGame: 20, orderSoftdev: 20 }),

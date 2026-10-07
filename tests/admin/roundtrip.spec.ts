@@ -105,6 +105,95 @@ test.describe('saving an existing file through the dashboard', () => {
   });
 });
 
+test.describe('the logo, the footer order and the resume per tab through a save', () => {
+  const linkPaths = paths.filter((repoPath) => repoPath.startsWith('content/links/'));
+  const trackPaths = paths.filter((repoPath) => repoPath.startsWith('content/tracks/'));
+
+  /** The real content with one file replaced, checked by the real content script. */
+  function check(label: string, repoPath: string, data: Dict): ReturnType<typeof validateContent> {
+    const dir = makeTempDir(label);
+    const files: Record<string, string> = {};
+    for (const other of paths) files[other.slice('content/'.length)] = tree[other] ?? '';
+    files[repoPath.slice('content/'.length)] = serialise(data);
+    writeTree(dir, files);
+    return validateContent(dir);
+  }
+
+  test('every file already states them, so the first save through the dashboard adds nothing', () => {
+    const site = parsed('content/site.json');
+    expect(typeof site.logo).toBe('string');
+    expect(typeof site.logoAlt).toBe('string');
+    expect(Object.keys(site).slice(0, 4)).toEqual(['name', 'monogram', 'logo', 'logoAlt']);
+
+    expect(linkPaths.length).toBeGreaterThan(0);
+    for (const repoPath of linkPaths) {
+      const link = parsed(repoPath);
+      expect(typeof link.orderFooter, `${repoPath}: orderFooter`).toBe('number');
+      const keys = Object.keys(link);
+      expect(keys[keys.indexOf('order') + 1], `${repoPath}: orderFooter comes right after order`).toBe('orderFooter');
+    }
+
+    expect(trackPaths).toHaveLength(2);
+    for (const repoPath of trackPaths) {
+      const track = parsed(repoPath);
+      expect(Array.isArray(track.tabResumes), `${repoPath}: tabResumes`).toBe(true);
+      const keys = Object.keys(track);
+      expect(keys[keys.indexOf('resumeLabel') + 1], `${repoPath}: tabResumes comes right after resumeLabel`).toBe('tabResumes');
+      for (const row of track.tabResumes as Dict[]) expect(Object.keys(row), `${repoPath}: a row`).toEqual(['tab', 'url', 'label']);
+    }
+  });
+
+  test('rows of the resume list are written key by key in the config order, with spaces around a text removed', () => {
+    const repoPath = 'content/tracks/game.json';
+    const fields = targetFor(targets, repoPath).fields;
+    const firstTab = String((parsed('content/site.json').categories as Dict[])[0]?.id);
+    // Keys in another order than the form's, as a hand edit might leave them.
+    const original = { ...parsed(repoPath), tabResumes: [{ label: ' Own Resume ', url: ' https://example.com/own ', tab: firstTab }] };
+    const written = writeEntry(fields, original);
+    expect(written.tabResumes).toEqual([{ tab: firstTab, url: 'https://example.com/own', label: 'Own Resume' }]);
+    expect(Object.keys((written.tabResumes as Dict[])[0] ?? {})).toEqual(['tab', 'url', 'label']);
+    expect(Object.keys(written)).toEqual(Object.keys(parsed(repoPath)));
+    const result = check('tab-resume-row', repoPath, written);
+    expect(result.status, result.output).toBe(0);
+    expect(result.stdout).not.toContain('NOTE');
+  });
+
+  test('a file from before these fields existed is read with defaults, and a save writes the keys in place', () => {
+    // Site settings without a logo: read as "", written as "".
+    const site = parsed('content/site.json');
+    const { logo: _logo, logoAlt: _logoAlt, ...oldSite } = site;
+    const savedSite = writeEntry(targetFor(targets, 'content/site.json').fields, oldSite);
+    expect(savedSite).toEqual({ ...site, logo: '', logoAlt: '' });
+    expect(Object.keys(savedSite)).toEqual(Object.keys(site));
+
+    // A page without the list: read as [], written as [].
+    for (const repoPath of trackPaths) {
+      const track = parsed(repoPath);
+      const { tabResumes: _rows, ...oldTrack } = track;
+      const before = check('old-track', repoPath, oldTrack);
+      expect(before.status, before.output).toBe(0);
+      expect(before.stdout).toContain('tabResumes: was missing, read as []');
+      const saved = writeEntry(targetFor(targets, repoPath).fields, oldTrack);
+      expect(saved).toEqual({ ...track, tabResumes: [] });
+      expect(Object.keys(saved)).toEqual(Object.keys(track));
+    }
+
+    // A link without a footer order: the site reads it as its `order`, so nothing moves…
+    const repoPath = linkPaths.find((candidate) => Number(parsed(candidate).order) !== 0) ?? '';
+    expect(repoPath, 'a link with a position other than 0').not.toBe('');
+    const link = parsed(repoPath);
+    const { orderFooter: _orderFooter, ...oldLink } = link;
+    const read = check('old-link', repoPath, oldLink);
+    expect(read.status, read.output).toBe(0);
+    expect(read.stdout).toContain(`orderFooter: was missing, read as ${String(link.order)}`);
+    // …but the form has no value to show for it and writes its default, 0, on the next save.
+    // That is why every link file states its footer order (first test of this group).
+    const savedLink = writeEntry(targetFor(targets, repoPath).fields, oldLink);
+    expect(savedLink).toEqual({ ...link, orderFooter: 0 });
+    expect(Object.keys(savedLink)).toEqual(Object.keys(link));
+  });
+});
+
 test.describe('a brand-new item with only the required fields filled', () => {
   const site = parsed('content/site.json');
   const firstTab = String((site.categories as Dict[])[0]?.id);

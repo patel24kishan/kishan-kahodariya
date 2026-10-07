@@ -5,6 +5,7 @@
   "icon": "linkedin",
   "audience": "both",
   "order": 30,
+  "orderFooter": 30,
   "showInHero": true,
   "showInFooter": true,
   "published": true

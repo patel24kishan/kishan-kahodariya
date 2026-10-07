@@ -20,7 +20,10 @@
  */
 import zlib from 'node:zlib';
 import { expect, test } from '@playwright/test';
+import { loadContent, publishedOnly } from '../../scripts/lib/load-content';
+import type { ContentBundle } from '../../src/content/bundle';
 import { COLLECTION_FOLDERS } from '../../src/content/schema';
+import { createContentApi } from '../../src/content/selectors';
 import {
   configTargets,
   isDict,
@@ -34,9 +37,16 @@ import {
   type Dict,
 } from './support/cms-model';
 import { Dashboard, cdnSkipMessage, cdnStatus, webpSize } from './support/dashboard';
-import { contentTree, makeTempDir, removeTempDirs, validateContent, writeTree } from './support/env';
+import { contentDir, contentTree, makeTempDir, removeTempDirs, validateContent, writeTree } from './support/env';
 
 test.afterAll(removeTempDirs);
+
+/** The real content as the site reads it (unpublished items included). */
+function loadedContent(): ContentBundle {
+  const loaded = loadContent(contentDir);
+  if (!loaded.ok) throw new Error('the content does not validate');
+  return loaded.content;
+}
 
 test.beforeEach(async ({ request }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'The dashboard is driven once, in the desktop project: these checks are about data, not layout.');
@@ -488,6 +498,356 @@ test.describe('a typed image address must be a real address', () => {
         const messages = await dashboard.saveExpectingErrors();
         expect(messages.join(' | ')).toMatch(/Upload or pick a picture, or write a full address/);
         expect(await dashboard.file(certificate), 'nothing was written').toBe(tree[certificate]);
+      }
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------------------
+// The logo, the footer order and the resume per tab
+// ---------------------------------------------------------------------------------------
+
+/** What the site itself reads from the dashboard's private repository copy. */
+async function siteApi(dashboard: Dashboard, label: string): Promise<ReturnType<typeof createContentApi>> {
+  const dir = makeTempDir(label);
+  const files = await dashboard.contentFiles();
+  writeTree(dir, Object.fromEntries(Object.entries(files).map(([name, text]) => [name.slice('content/'.length), text])));
+  const loaded = loadContent(dir);
+  if (!loaded.ok) throw new Error(`the saved content does not validate: ${JSON.stringify(loaded.issues)}`);
+  return createContentApi(publishedOnly(loaded.content));
+}
+
+/** Number of lines that differ between two texts with the same number of lines (-1 when the counts differ). */
+function changedLines(before: string, after: string): number {
+  const [a, b] = [before.split('\n'), after.split('\n')];
+  return a.length === b.length ? a.filter((line, index) => line !== b[index]).length : -1;
+}
+
+test.describe('a resume for one project tab', () => {
+  const gamePath = 'content/tracks/game.json';
+  const LIST = 'Resume for a specific tab';
+  const TAB = 'Tab with its own resume';
+  const LINK = 'Resume link for this tab';
+  const TEXT = 'Button text for this tab';
+  const [firstTab, secondTab] = tabs;
+
+  /** The real content, with the game page holding one prepared row (a tab, no link yet). */
+  function seeded(rows: Dict[] = [{ tab: firstTab?.id, url: '', label: '' }]): { files: Record<string, string>; start: Dict } {
+    const start = { ...parsed(gamePath), tabResumes: rows };
+    return { files: { ...tree, [gamePath]: serialise(writeEntry(targetFor(targets, gamePath).fields, start)) }, start };
+  }
+
+  /** Opens the list on the game page with every row unfolded (one saved row opens folded). */
+  async function openList(dashboard: Dashboard, rows: number): Promise<Awaited<ReturnType<Dashboard['shown']>>> {
+    await dashboard.openEntry('pages', 'game');
+    const list = await dashboard.shown(LIST);
+    const unfold = list.getByRole('button', { name: 'Expand', exact: true });
+    for (let attempt = 0; attempt < 10 && (await list.getByRole('textbox', { name: LINK, exact: true }).count()) < rows; attempt += 1) {
+      if (await unfold.count()) await unfold.first().click();
+      else await list.page().waitForTimeout(100);
+    }
+    await expect(list.getByRole('textbox', { name: LINK, exact: true })).toHaveCount(rows);
+    return list;
+  }
+
+  test('pasting a link in the prepared row changes one line; a second row is written complete; the site uses both', async ({ page }) => {
+    test.setTimeout(150_000);
+    test.skip(!firstTab || !secondTab, 'the content has fewer than two project tabs');
+    if (!firstTab || !secondTab) return;
+    const { files, start } = seeded();
+    const fields = targetFor(targets, gamePath).fields;
+    const dashboard = await Dashboard.start(page, files);
+    const track = parsed(gamePath);
+
+    // The prepared row: the hint, the tab choices of Site settings, its tab selected, no link.
+    const list = await openList(dashboard, 1);
+    await expect(list).toContainText('Leave empty to use the main resume on every tab.');
+    const choice = list.getByRole('radiogroup', { name: TAB, exact: true });
+    await expect(choice.getByRole('radio')).toHaveCount(tabs.length);
+    for (const tab of tabs) await expect(choice.getByRole('radio', { name: tab.label, exact: true })).toBeVisible();
+    await expect(choice.getByRole('radio', { name: firstTab.label, exact: true })).toBeChecked();
+    await expect(list.getByRole('textbox', { name: LINK, exact: true })).toHaveValue('');
+
+    // 1. Paste the link (with spaces around it, as a paste often has).
+    await list.getByRole('textbox', { name: LINK, exact: true }).fill('  https://example.com/first-tab-resume  ');
+    await dashboard.save();
+    const withLink = { ...start, tabResumes: [{ tab: firstTab.id, url: 'https://example.com/first-tab-resume', label: '' }] };
+    const afterLink = serialise(writeEntry(fields, withLink));
+    await expect.poll(() => dashboard.file(gamePath), 'after pasting the link').toBe(afterLink);
+    expect(changedLines(files[gamePath] ?? '', afterLink), 'one line of the file changed').toBe(1);
+    let api = await siteApi(dashboard, 'tab-resume-1');
+    expect(api.getResume('game', firstTab.id)).toEqual({ url: 'https://example.com/first-tab-resume', label: track.resumeLabel });
+    expect(api.getResume('game', secondTab.id)).toEqual({ url: track.resumeUrl, label: track.resumeLabel });
+
+    // 2. Add a row for another tab, with a button text of its own.
+    const again = await openList(dashboard, 1);
+    await again.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
+    await expect(again.getByRole('radiogroup', { name: TAB, exact: true })).toHaveCount(2);
+    await again.getByRole('radiogroup', { name: TAB, exact: true }).last().getByRole('radio', { name: secondTab.label, exact: true }).check();
+    await again.getByRole('textbox', { name: LINK, exact: true }).last().fill('https://example.com/second-tab-resume');
+    await again.getByRole('textbox', { name: TEXT, exact: true }).last().fill('Second Tab Resume');
+    await dashboard.save();
+    const withRow = {
+      ...withLink,
+      tabResumes: [...withLink.tabResumes, { tab: secondTab.id, url: 'https://example.com/second-tab-resume', label: 'Second Tab Resume' }],
+    };
+    const afterRow = serialise(writeEntry(fields, withRow));
+    await expect.poll(() => dashboard.file(gamePath), 'after adding a row').toBe(afterRow);
+    expect(Object.keys((parsed(gamePath, { [gamePath]: afterRow }).tabResumes as Dict[])[1] ?? {}), 'the new row has every key, in order').toEqual(['tab', 'url', 'label']);
+
+    // No other file was touched; the content check passes; the site answers with both.
+    expect(await dashboard.contentFiles()).toEqual({ ...files, [gamePath]: afterRow });
+    expect(dashboard.configComplaints()).toEqual([]);
+    const check = await contentCheck(dashboard, 'tab-resume');
+    expect(check.status, check.output).toBe(0);
+    expect(check.stdout, 'every key was written: the reader filled in nothing').not.toContain('NOTE');
+    api = await siteApi(dashboard, 'tab-resume-2');
+    expect(api.getResume('game', firstTab.id)).toEqual({ url: 'https://example.com/first-tab-resume', label: track.resumeLabel });
+    expect(api.getResume('game', secondTab.id)).toEqual({ url: 'https://example.com/second-tab-resume', label: 'Second Tab Resume' });
+    expect(api.getResume('game', 'all')).toEqual({ url: track.resumeUrl, label: track.resumeLabel });
+    expect(api.getResume('softdev', firstTab.id).url, 'the other page keeps its own resume').toBe(parsed('content/tracks/softdev.json').resumeUrl);
+
+    // 3. Removing a row gives the tab back to the main resume.
+    const last = await openList(dashboard, 2);
+    await last.getByRole('button', { name: 'Remove', exact: true }).first().click();
+    await dashboard.save();
+    const withoutFirst = serialise(writeEntry(fields, { ...withRow, tabResumes: [withRow.tabResumes[1]] }));
+    await expect.poll(() => dashboard.file(gamePath), 'after removing the first row').toBe(withoutFirst);
+    api = await siteApi(dashboard, 'tab-resume-3');
+    expect(api.getResume('game', firstTab.id)).toEqual({ url: track.resumeUrl, label: track.resumeLabel });
+  });
+
+  for (const value of ['drive.google.com/file/d/1', 'mailto:someone@example.com', '/uploads/resume.pdf']) {
+    test(`the link of a row must be a web address: ${JSON.stringify(value)} is refused`, async ({ page }) => {
+      const { files } = seeded();
+      const dashboard = await Dashboard.start(page, files);
+      const list = await openList(dashboard, 1);
+      await list.getByRole('textbox', { name: LINK, exact: true }).fill(value);
+      const messages = await dashboard.saveExpectingErrors();
+      expect(messages.join(' | ')).toMatch(/Write a full address starting with https:\/\//);
+      expect(await dashboard.file(gamePath), 'nothing was written').toBe(files[gamePath]);
+    });
+  }
+
+  test('the form cannot stop two rows for one tab — the content check does, and names the row', async ({ page }) => {
+    test.skip(!firstTab, 'the content has no project tab');
+    if (!firstTab) return;
+    const { files } = seeded();
+    const dashboard = await Dashboard.start(page, files);
+    const list = await openList(dashboard, 1);
+    await list.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
+    await expect(list.getByRole('radiogroup', { name: TAB, exact: true })).toHaveCount(2);
+    await list.getByRole('radiogroup', { name: TAB, exact: true }).last().getByRole('radio', { name: firstTab.label, exact: true }).check();
+    await dashboard.save();
+    await expect.poll(async () => (parsed(gamePath, await dashboard.contentFiles()).tabResumes as Dict[]).map((row) => row.tab)).toEqual([firstTab.id, firstTab.id]);
+
+    const check = await contentCheck(dashboard, 'tab-resume-twice');
+    expect(check.status, 'the deploy would be blocked, the live site untouched').toBe(1);
+    expect(check.stderr).toMatch(/tracks\/game\.json\s+field:\s+tabResumes\[1\]\.tab\s+problem:\s+"[^"]+" has more than one row/);
+  });
+
+  test('a page without rows saves an empty list, and a row can be added from nothing', async ({ page }) => {
+    test.skip(!firstTab, 'the content has no project tab');
+    if (!firstTab) return;
+    const { files, start } = seeded([]);
+    const fields = targetFor(targets, gamePath).fields;
+    const dashboard = await Dashboard.start(page, files);
+    const list = await openList(dashboard, 0);
+    await list.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
+    await expect(list.getByRole('radiogroup', { name: TAB, exact: true })).toHaveCount(1);
+    // The tab is required: a row without one is not saved.
+    const messages = await dashboard.saveExpectingErrors();
+    expect(messages).toContain('This field is required.');
+    await list.getByRole('radiogroup', { name: TAB, exact: true }).getByRole('radio', { name: firstTab.label, exact: true }).check();
+    await dashboard.save();
+    const expected = serialise(writeEntry(fields, { ...start, tabResumes: [{ tab: firstTab.id, url: '', label: '' }] }));
+    await expect.poll(() => dashboard.file(gamePath)).toBe(expected);
+    expect((await contentCheck(dashboard, 'tab-resume-new')).status).toBe(0);
+  });
+});
+
+test.describe('the footer order of a link', () => {
+  test('changing "Footer order" changes one line, moves the link in the footer and leaves the top of the page alone', async ({ page }) => {
+    test.setTimeout(120_000);
+    const before = createContentApi(publishedOnly(loadedContent()));
+    const footer = before.getLinks('game', 'footer');
+    const hero = before.getLinks('game', 'hero');
+    const moved = footer.at(-1);
+    test.skip(footer.length < 2 || !moved, 'the game page has fewer than two footer links');
+    if (footer.length < 2 || !moved) return;
+    const repoPath = `content/links/${moved.slug}.json`;
+    const first = Math.min(...footer.map((link) => link.orderFooter)) - 5;
+
+    const dashboard = await Dashboard.start(page, tree);
+    await dashboard.openEntry('links', moved.slug);
+    const box = await dashboard.reveal(dashboard.editor.getByRole('spinbutton', { name: 'Footer order', exact: true }));
+    await expect(box).toHaveValue(String(moved.orderFooter));
+    await expect(await dashboard.shown('Footer order')).toContainText('separate from the order at the top of the page');
+    await box.fill(String(first));
+    await dashboard.save();
+
+    const expected = serialise(writeEntry(targetFor(targets, repoPath).fields, { ...parsed(repoPath), orderFooter: first }));
+    await expect.poll(() => dashboard.file(repoPath)).toBe(expected);
+    expect(changedLines(tree[repoPath] ?? '', expected), 'one line of the file changed').toBe(1);
+    expect(parsed(repoPath, { [repoPath]: expected }).order, 'the position next to the name is untouched').toBe(parsed(repoPath).order);
+    expect(await dashboard.contentFiles()).toEqual({ ...tree, [repoPath]: expected });
+
+    const after = await siteApi(dashboard, 'footer-order');
+    expect(after.getLinks('game', 'footer').map((link) => link.slug)).toEqual([moved.slug, ...footer.slice(0, -1).map((link) => link.slug)]);
+    expect(after.getLinks('game', 'hero').map((link) => link.slug), 'the buttons next to the name keep their order').toEqual(hero.map((link) => link.slug));
+    const check = await contentCheck(dashboard, 'footer-order');
+    expect(check.status, check.output).toBe(0);
+    expect(check.stdout).not.toContain('NOTE');
+  });
+
+  test('a new link gets both positions written (0 and 0), so nothing is left for the reader to fill in', async ({ page }) => {
+    const dashboard = await Dashboard.start(page, tree);
+    await dashboard.newEntry('links');
+    await dashboard.fill('Short name (file name)', 'brand-new-link');
+    await dashboard.fill('Link text', 'Brand New Link');
+    await dashboard.save();
+    const repoPath = 'content/links/brand-new-link.json';
+    await expect.poll(async () => Object.keys(await dashboard.contentFiles()).includes(repoPath)).toBe(true);
+    const link = parsed(repoPath, await dashboard.contentFiles());
+    expect(link).toMatchObject({ order: 0, orderFooter: 0, published: false });
+    expect(Object.keys(link)).toEqual(Object.keys(parsed(Object.keys(tree).find((name) => name.startsWith('content/links/')) ?? '')));
+    const check = await contentCheck(dashboard, 'new-link');
+    expect(check.status, check.output).toBe(0);
+    expect(check.stdout).not.toContain('NOTE');
+  });
+});
+
+test.describe('files written before the logo, the footer order and the resume list existed', () => {
+  test('a save writes the missing keys in their place: "" for the logo, [] for the list, 0 for the footer order', async ({ page }) => {
+    test.setTimeout(150_000);
+    const sitePath = 'content/site.json';
+    const gamePath = 'content/tracks/game.json';
+    const linkPath = Object.keys(tree).find((name) => name.startsWith('content/links/') && Number(parsed(name).order) !== 0) ?? '';
+    test.skip(linkPath === '', 'no link has a position other than 0');
+
+    const without = (repoPath: string, ...keys: string[]): Dict => Object.fromEntries(Object.entries(parsed(repoPath)).filter(([key]) => !keys.includes(key)));
+    const old = {
+      [sitePath]: without(sitePath, 'logo', 'logoAlt'),
+      [gamePath]: without(gamePath, 'tabResumes'),
+      [linkPath]: without(linkPath, 'orderFooter'),
+    };
+    const files = { ...tree, ...Object.fromEntries(Object.entries(old).map(([repoPath, data]) => [repoPath, serialise(data)])) };
+    const dashboard = await Dashboard.start(page, files);
+    // The old files load (0 errors) and the site reads them: the link keeps its place.
+    expect(dashboard.logs.find((line) => /Parsed \d+ entries/.test(line))).toContain('(0 errors)');
+    const before = await siteApi(dashboard, 'old-files-before');
+    expect(before.getSite().logo).toBe('');
+    expect(before.getTrack('game').tabResumes).toEqual([]);
+
+    // One small change in each form, then save.
+    await dashboard.openEntry('_singletons', 'site');
+    await dashboard.fill('Logo letters', `${String(site.monogram)}X`);
+    await dashboard.save();
+    await dashboard.openEntry('pages', 'game');
+    await dashboard.flip('Show certificates before education');
+    await dashboard.save();
+    await dashboard.openEntry('links', baseName(linkPath));
+    await expect(await dashboard.reveal(dashboard.editor.getByRole('spinbutton', { name: 'Footer order', exact: true })), 'the form has no footer order to show').toHaveValue('0');
+    await dashboard.flip('Published');
+    await dashboard.save();
+
+    const expected = {
+      [sitePath]: serialise(writeEntry(targetFor(targets, sitePath).fields, { ...old[sitePath], monogram: `${String(site.monogram)}X` })),
+      [gamePath]: serialise(writeEntry(targetFor(targets, gamePath).fields, { ...old[gamePath], certificatesFirst: !old[gamePath]?.certificatesFirst })),
+      [linkPath]: serialise(writeEntry(targetFor(targets, linkPath).fields, { ...old[linkPath], published: !old[linkPath]?.published })),
+    };
+    await expect.poll(() => dashboard.contentFiles()).toEqual({ ...files, ...expected });
+
+    // Every key is now in the file, where the real files have it.
+    const after = await dashboard.contentFiles();
+    expect(Object.keys(parsed(sitePath, after))).toEqual(Object.keys(parsed(sitePath)));
+    expect(parsed(sitePath, after)).toMatchObject({ logo: '', logoAlt: '' });
+    expect(Object.keys(parsed(gamePath, after))).toEqual(Object.keys(parsed(gamePath)));
+    expect(parsed(gamePath, after).tabResumes).toEqual([]);
+    expect(Object.keys(parsed(linkPath, after))).toEqual(Object.keys(parsed(linkPath)));
+    // The form writes its default for a footer order it was never given. Every real link
+    // file states its footer order (roundtrip.spec.ts), so this cannot move a real link.
+    expect(parsed(linkPath, after).orderFooter).toBe(0);
+    const check = await contentCheck(dashboard, 'old-files');
+    expect(check.status, check.output).toBe(0);
+    expect(check.stdout, 'nothing is left for the reader to fill in').not.toContain('NOTE');
+  });
+});
+
+test.describe('the site logo', () => {
+  const sitePath = 'content/site.json';
+
+  test('an uploaded logo is stored as a WebP under /uploads and saved with its description; removing it saves ""', async ({ page }) => {
+    test.setTimeout(150_000);
+    const fields = targetFor(targets, sitePath).fields;
+    const dashboard = await Dashboard.start(page, tree);
+
+    // 1. Upload a picture.
+    await dashboard.openEntry('_singletons', 'site');
+    const field = await dashboard.shown('Logo image');
+    await expect(field).toContainText('logo letters instead');
+    const replace = field.getByRole('button', { name: 'Replace Image' });
+    if (await replace.count()) await replace.click();
+    else await field.getByRole('button', { name: 'Browse' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Select Image' });
+    await expect(dialog).toBeVisible();
+    const chooser = page.waitForEvent('filechooser');
+    await dialog.getByRole('button', { name: 'Upload' }).click();
+    await (await chooser).setFiles({ name: 'My New Logo.PNG', mimeType: 'image/png', buffer: png(256, 256) });
+    await expect(dialog.getByRole('option', { name: /my-new-logo/ })).toBeVisible();
+    await dialog.getByRole('button', { name: 'Insert' }).click();
+    await expect(dialog).toHaveCount(0);
+    await dashboard.fill('Logo description', '  A new logo  ');
+    await dashboard.save();
+
+    const withLogo = serialise(writeEntry(fields, { ...site, logo: '/uploads/my-new-logo.webp', logoAlt: 'A new logo' }));
+    await expect.poll(() => dashboard.file(sitePath), 'after the upload').toBe(withLogo);
+    const all = await dashboard.files();
+    expect(Object.keys(all).filter((name) => !name.startsWith('content/'))).toEqual(['public/uploads/my-new-logo.webp']);
+    expect(webpSize(all['public/uploads/my-new-logo.webp']?.head ?? ''), 'the stored file is a WebP image').toEqual({ width: 256, height: 256 });
+    expect(await dashboard.contentFiles()).toEqual({ ...tree, [sitePath]: withLogo });
+    let check = await contentCheck(dashboard, 'logo-upload');
+    expect(check.status, check.output).toBe(0);
+    expect((await siteApi(dashboard, 'logo-upload-api')).getSite()).toMatchObject({ logo: '/uploads/my-new-logo.webp', logoAlt: 'A new logo' });
+
+    // 2. Remove it: "" is saved, which the site reads as "show the logo letters".
+    await dashboard.openEntry('_singletons', 'site');
+    await (await dashboard.shown('Logo image')).getByRole('button', { name: 'Remove Image' }).click();
+    await dashboard.save();
+    const withoutLogo = serialise(writeEntry(fields, { ...site, logo: '', logoAlt: 'A new logo' }));
+    await expect.poll(() => dashboard.file(sitePath), 'after removing the picture').toBe(withoutLogo);
+    check = await contentCheck(dashboard, 'logo-removed');
+    expect(check.status, check.output).toBe(0);
+    expect(check.stdout).not.toContain('NOTE');
+    const api = await siteApi(dashboard, 'logo-removed-api');
+    expect(api.getSite().logo).toBe('');
+    expect(api.getSite().monogram).toBe(site.monogram);
+  });
+
+  for (const [value, accepted] of [
+    ['logo.png please', false],
+    ['example.com/logo.png', false],
+    ['https://example.com/logo.png', true],
+  ] as const) {
+    test(`a typed logo address: ${JSON.stringify(value)} is ${accepted ? 'accepted' : 'refused'}`, async ({ page }) => {
+      const dashboard = await Dashboard.start(page, tree);
+      await dashboard.openEntry('_singletons', 'site');
+      const field = await dashboard.shown('Logo image');
+      const replace = field.getByRole('button', { name: 'Replace Image' });
+      if (await replace.count()) await replace.click();
+      else await field.getByRole('button', { name: 'Browse' }).click();
+      const dialog = page.getByRole('dialog', { name: 'Select Image' });
+      await dialog.getByRole('option', { name: 'Enter URL' }).click();
+      await dialog.getByRole('textbox').last().fill(value);
+      await dialog.getByRole('button', { name: 'Insert' }).click();
+      if (accepted) {
+        await dashboard.save();
+        await expect.poll(async () => parsed(sitePath, await dashboard.contentFiles()).logo).toBe(value);
+        expect((await contentCheck(dashboard, 'logo-url')).status).toBe(0);
+      } else {
+        const messages = await dashboard.saveExpectingErrors();
+        expect(messages.join(' | ')).toMatch(/Upload or pick a picture, or write a full address/);
+        expect(await dashboard.file(sitePath), 'nothing was written').toBe(tree[sitePath]);
       }
     });
   }

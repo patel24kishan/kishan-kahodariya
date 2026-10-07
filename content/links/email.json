@@ -5,6 +5,7 @@
   "icon": "email",
   "audience": "both",
   "order": 50,
+  "orderFooter": 10,
   "showInHero": false,
   "showInFooter": true,
   "published": true

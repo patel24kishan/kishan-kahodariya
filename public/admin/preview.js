@@ -27,12 +27,16 @@ import {
   belongsTo,
   cleanList,
   cleanScreenshots,
+  cleanTabResumes,
   hoverText,
   isEmphasised,
   linkOnPage,
+  linkPosition,
+  linksInPlace,
   positionOn,
   projectButtons,
   resolvedBullets,
+  resumeForTab,
   tabLabel,
   tabs,
 } from './preview-logic.js';
@@ -367,7 +371,8 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
           <dl class="kk-facts">
             <${Fact} label="Opens">${str(data.url) !== '' ? data.url : 'No address yet'}<//>
             <${Fact} label="Icon">${str(data.icon) || 'link'}<//>
-            <${Fact} label="Position">${typeof data.order === 'number' ? data.order : 0}<//>
+            <${Fact} label="Position next to your name">${linkPosition(data, 'hero')}<//>
+            <${Fact} label="Position in the footer">${linkPosition(data, 'footer')}<//>
           </dl>
         <//>`;
       })}
@@ -434,10 +439,9 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
     const data = dataOf(entry);
     const site = useSite(getCollection);
     const links = useEntries(getCollection, 'links');
-    const heroLinks = (links ?? [])
-      .filter((link) => link.published === true && linkOnPage(link, page.id).hero)
-      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    const heroLinks = linksInPlace(links ?? [], page.id, 'hero');
     const firstTab = site ? tabLabel(site, data.defaultTab) : '';
+    const tabResumeRows = cleanTabResumes(data.tabResumes);
 
     return html`<${Frame} data=${data} single=${true}>
       <${Panel} page=${page} title=${`${page.label} — top of the page`}>
@@ -463,6 +467,20 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
           <${Fact} label="Resume button">
             ${str(data.resumeUrl) !== '' ? `Opens ${data.resumeUrl}` : 'Hidden — there is no resume link.'}
           <//>
+          ${tabResumeRows.length === 0
+            ? html`<${Fact} label="Resume per tab">None — every tab uses the resume button above.<//>`
+            : tabResumeRows.map((row, index) => {
+                const name = (site ? tabLabel(site, row.tab) : '') || row.tab;
+                const repeated = tabResumeRows.findIndex((other) => other.tab === row.tab) !== index;
+                const used = resumeForTab(data, row.tab);
+                return html`<${Fact} key=${index} label=${`Resume on the ${name} tab`}>
+                  ${repeated
+                    ? 'This tab already has a row above — remove one of the two, or the next update of the site is stopped.'
+                    : row.url.trim() === ''
+                      ? 'No link yet — this tab uses the resume button above.'
+                      : `Opens ${used.url} — button text “${used.label || 'Resume'}”.`}
+                <//>`;
+              })}
           <${Fact} label="Tab that opens first">
             ${firstTab !== '' ? firstTab : site ? 'This tab does not exist any more — choose another.' : ''}
           <//>
@@ -479,14 +497,30 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
     <//>`;
   };
 
-  const SitePreview = ({ entry }) => {
+  /** The top-left corner of the nav: the logo image when there is one, otherwise the logo letters. */
+  const NavLogo = ({ src, alt, monogram }) => {
+    const [failed, setFailed] = useState(false);
+    useEffect(() => setFailed(false), [src]);
+    if (src === '' || failed) return html`<span class="kk-nav__logo" data-key-path="monogram">${monogram}</span>`;
+    return html`<img
+      class="kk-nav__logo-image"
+      data-key-path="logo"
+      src=${src}
+      alt=${alt}
+      referrerpolicy="no-referrer"
+      onError=${() => setFailed(true)}
+    />`;
+  };
+
+  const SitePreview = ({ entry, getAsset }) => {
     const data = dataOf(entry);
     const list = tabs(data);
     const credit = cleanList(data.credit);
+    const hasLogo = str(data.logo).trim() !== '';
     return html`<${Frame} data=${data} single=${true}>
       <${Panel} title="Both pages">
         <div class="kk-nav">
-          <span class="kk-nav__logo" data-key-path="monogram">${str(data.monogram)}</span>
+          <${NavLogo} src=${imageUrl(getAsset, data.logo)} alt=${str(data.logoAlt)} monogram=${str(data.monogram)} />
           <span class="kk-hero__name" data-key-path="name">${str(data.name)}</span>
         </div>
         <p class="kk-where">The project tabs, in the order visitors see them:</p>
@@ -494,6 +528,13 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
           ${list.map((tab, index) => html`<li key=${index}>${tab.label || '(no name)'}</li>`)}
         </ul>
         <dl class="kk-facts">
+          <${Fact} label="Logo in the top-left corner">
+            ${hasLogo
+              ? `The picture ${str(data.logo).trim()}${
+                  str(data.logoAlt).trim() !== '' ? `, described as “${str(data.logoAlt).trim()}”` : ', with no description'
+                }.`
+              : `No logo image — the letters “${str(data.monogram)}” are shown.`}
+          <//>
           ${list
             .filter((tab) => tab.id !== ALL_TAB_ID)
             .map((tab, index) => {

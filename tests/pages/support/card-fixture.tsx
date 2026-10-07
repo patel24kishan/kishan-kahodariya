@@ -96,6 +96,7 @@ function trackProfile(id: TrackId): TrackProfile {
     summary: '',
     resumeUrl: '',
     resumeLabel: '',
+    tabResumes: [],
     defaultTab: 'unity',
     photo: '',
     photoAlt: '',
