@@ -110,3 +110,10 @@ Three builders, each in its own git worktree from the start:
 - Checked on `https://patel24kishan.github.io/My-Portfolio/` after the run: `/`, `/gamedev`, `/gamedev/unreal`, `/softdev`, `/softdev/webapps`, `/admin/` and the logo return 200; `/gamedev/typo` and an unknown address return 404; the prerendered HTML carries the right title and open tab per route. In Chromium at desktop and Pixel 7 sizes: pages hydrate, a tab click moves to `/gamedev/unreal`, no sideways scroll, the admin page offers only "Sign In Using Access Token". Four console errors on desktop are the known blocked hotlinked project images.
 - Still unverified, and only the owner can do it: token sign-in, a real dashboard save, and the deploy that follows it (docs/admin-guide.md, section 16).
 - From now on every push to `master` publishes. Work continues on `redesign/v2`; nothing goes to `master` without the owner's word.
+
+## 2026-10-07 — New address live
+
+- The owner renamed the repository to `kishan-kahodariya`; the site is now served at `https://patel24kishan.github.io/kishan-kahodariya/`. The old address returns 404.
+- Between the earlier push and this one, `master` received a dashboard commit (`9ce92fe`, "Content: update Files \"site\" +1": the owner's own transparent logo uploaded to `public/uploads/logo-cloud.webp` and `site.logo` pointed at it). That is the first proof that token sign-in, a real dashboard save and a commit on `master` work. The push to master was rejected as a non-fast-forward; the commit was merged into `redesign/v2` (`4695e9b`), not overwritten, then both branches pushed.
+- Deploy run 37659305710 on `master`: success. `/`, `/gamedev/unreal`, `/softdev`, `/admin/` and the uploaded logo return 200 at the new address.
+- Local remote URL updated to the renamed repository.
