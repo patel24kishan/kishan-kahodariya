@@ -353,7 +353,6 @@ test.describe('theme toggle in the nav', () => {
     const reloaded = page.getByRole('banner').getByRole('switch');
     await expect(reloaded).toHaveAttribute('aria-checked', 'true');
     await expectToggleGeometry(reloaded, 'day', 'nav toggle after a reload');
-    await expectToggleGeometry(page.getByRole('contentinfo').getByRole('switch'), 'day', 'footer toggle after a reload');
 
     await reloaded.click();
     await expect(html).toHaveAttribute('data-theme', 'dark');

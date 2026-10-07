@@ -89,10 +89,10 @@ for (const trackId of TRACK_IDS) {
     expect(failures, failures.join('\n')).toEqual([]);
   });
 
-  test(`${track.route}: the theme toggles draw their focus ring around the pill, in the nav and in the footer`, async ({ page }) => {
+  test(`${track.route}: the theme toggle draws its focus ring around the pill`, async ({ page }) => {
     await openRoute(page, routeOf(track, 'all'));
     const toggles = await page.getByRole('switch').all();
-    expect(toggles).toHaveLength(2);
+    expect(toggles).toHaveLength(1);
     for (const toggle of toggles) {
       await toggle.focus();
       await page.keyboard.press('Shift'); // keeps :focus-visible on

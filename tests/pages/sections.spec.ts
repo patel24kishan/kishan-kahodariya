@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { assetHref, content, isExternal, routeOf, SECTION_IDS, SECTION_LABELS, TRACK_IDS } from './support/content';
-import { expectToggleGeometry, toggleBoxes } from '../design/helpers';
-import { cssVar, hexToRgb, openRoute, THEMES, trackPage } from './support/page';
+import { cssVar, hexToRgb, openRoute, trackPage } from './support/page';
 
 /** Experience, Skills, Education & Certificates and the footer, per page, against the content API. */
 const site = content.getSite();
@@ -184,7 +183,7 @@ for (const trackId of TRACK_IDS) {
   test.describe(`${track.route} footer`, () => {
     const links = content.getLinks(trackId, 'footer');
 
-    test('has the Navigate links, the Connect buttons, a theme toggle and the credit lines', async ({ page }) => {
+    test('has the Navigate links, the Connect buttons and the credit lines', async ({ page }) => {
       await openRoute(page, routeOf(track));
       const footer = page.getByRole('contentinfo');
       const navigate = footer.getByRole('navigation', { name: 'Footer' });
@@ -212,20 +211,12 @@ for (const trackId of TRACK_IDS) {
         else await expect(connect.nth(index)).not.toHaveAttribute('target', '_blank');
       }
 
-      // The accent band, with near-black text and the toggle at the bottom right.
+      // The accent band, with near-black text; the theme toggle is not in the footer.
       const band = footer.locator('[data-on-accent]');
       await expect(band).toHaveCount(1);
       await expect(band).toHaveCSS('background-color', hexToRgb(await cssVar(trackPage(page), '--color-accent')));
-      const toggle = band.getByRole('switch');
-      await expect(toggle).toHaveCount(1);
-      await expect(page.getByRole('switch')).toHaveCount(2);
-      const [bandBox, toggleBox, connectBox] = await Promise.all([band.boundingBox(), toggle.boundingBox(), connect.first().boundingBox()]);
-      expect(toggleBox!.x + toggleBox!.width).toBeGreaterThan(bandBox!.x + bandBox!.width - 80);
-      expect(toggleBox!.y).toBeGreaterThan(connectBox!.y);
-      // The pill ends flush with the band's content edge (the gutter), like the columns above it.
-      const { pill } = await toggleBoxes(toggle);
-      const contentRight = await band.locator('> *').first().evaluate((inner) => inner.getBoundingClientRect().right - parseFloat(getComputedStyle(inner).paddingRight));
-      expect(pill.right).toBeCloseTo(contentRight, 1);
+      await expect(band.getByRole('switch')).toHaveCount(0);
+      await expect(page.getByRole('switch')).toHaveCount(1);
 
       // The credit strip: one line each, accent on near-black.
       const credit = footer.locator('p').filter({ hasText: site.credit[0] ?? '' }).first();
@@ -238,15 +229,16 @@ for (const trackId of TRACK_IDS) {
       }
     });
 
-    test('the footer toggle switches the theme like the one in the nav', async ({ page }) => {
+    test('the footer has no theme toggle; the one in the nav switches the theme', async ({ page }) => {
       await openRoute(page, routeOf(track), { theme: 'dark' });
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-theme', 'dark');
-      const footerToggle = page.getByRole('contentinfo').getByRole('switch');
-      await footerToggle.scrollIntoViewIfNeeded();
-      await footerToggle.click();
+      await expect(page.getByRole('contentinfo').getByRole('switch')).toHaveCount(0);
+      await expect(page.getByRole('contentinfo').locator('[data-theme-toggle]')).toHaveCount(0);
+      // The nav bar holds the only switch on the page.
+      await expect(page.getByRole('switch')).toHaveCount(1);
+      await page.getByRole('banner').getByRole('switch').click();
       await expect(html).toHaveAttribute('data-theme', 'light');
-      for (const toggle of await page.getByRole('switch').all()) await expect(toggle).toHaveAttribute('aria-checked', 'true');
       await page.getByRole('banner').getByRole('switch').click();
       await expect(html).toHaveAttribute('data-theme', 'dark');
     });
@@ -269,26 +261,5 @@ for (const trackId of TRACK_IDS) {
       expect(shared(heroUrls as string[], footerOnPage as string[])).toEqual(shared(apiHero, apiFooter));
       expect(shared(footerOnPage as string[], heroUrls as string[])).toEqual(shared(apiFooter, apiHero));
     });
-
-    for (const theme of THEMES) {
-      test(`the footer toggle is a 48 × 22 pill in a 44px hit area on the accent band, knob inside — ${theme}`, async ({ page }) => {
-        await openRoute(page, routeOf(track), { theme });
-        const band = page.getByRole('contentinfo').locator('[data-on-accent]');
-        const toggle = band.getByRole('switch');
-        await toggle.scrollIntoViewIfNeeded();
-        const first = theme === 'light' ? 'day' : 'night';
-        await expectToggleGeometry(toggle, first, 'footer toggle');
-
-        // Inside the accent band the pill's ring is near-black, on yellow and on blue alike.
-        const ring = await toggle.locator('[data-theme-toggle-pill]').evaluate((pill) => getComputedStyle(pill, '::after').borderTopColor);
-        expect(ring).toBe(hexToRgb(await cssVar(band, '--color-on-accent')));
-
-        // Switched from the keyboard, so no pointer rests on the knob while it is measured.
-        await toggle.focus();
-        await page.keyboard.press('Space');
-        await expect(page.locator('html')).toHaveAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
-        await expectToggleGeometry(toggle, first === 'day' ? 'night' : 'day', 'footer toggle');
-      });
-    }
   });
 }

@@ -8,7 +8,7 @@
  *
  *   <ThemeProvider>            wrap the app once (src/main.tsx already does)
  *   const { theme, setTheme, toggleTheme } = useTheme()
- *   <ThemeToggle className? id? />   the sun / moon switch, for the nav and the footer band
+ *   <ThemeToggle className? id? />   the sun / moon switch, in the nav bar
  *
  * Also exported for the inline bootstrap script and tests: THEME_STORAGE_KEY ("kk-theme").
  */

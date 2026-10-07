@@ -1,6 +1,5 @@
 import type { SocialLink } from '@/content';
 import { Container, LinkButton } from '@/components/ui';
-import { ThemeToggle } from '@/theme';
 import { PAGE_SECTIONS } from './sections';
 import styles from './SiteFooter.module.css';
 
@@ -13,8 +12,8 @@ export interface SiteFooterProps {
 
 /**
  * SiteFooter — the accent band (data-on-accent: near-black text and focus ring inside) with
- * the Navigate and Connect columns and the theme toggle bottom right, then the near-black
- * credit strip in accent text. The strip sits outside the band so its colours are the raw
+ * the Navigate and Connect columns, then the near-black credit strip in accent text. The theme
+ * toggle lives in the nav bar only. The strip sits outside the band so its colours are the raw
  * accent on near-black in both themes.
  */
 export function SiteFooter({ links, credit }: SiteFooterProps) {
@@ -51,9 +50,6 @@ export function SiteFooter({ links, credit }: SiteFooterProps) {
                 <p className={styles.empty}>No links yet.</p>
               )}
             </div>
-          </div>
-          <div className={styles.bottom}>
-            <ThemeToggle />
           </div>
         </Container>
       </div>
