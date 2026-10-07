@@ -141,7 +141,7 @@ test.describe('nav logo', () => {
   }
 
   for (const theme of THEMES) {
-    test(`shows the picture, whole, on a 40px white disc inside a 44px link — ${theme}`, async ({ page }) => {
+    test(`shows the picture, whole, at 48px with a transparent background — ${theme}`, async ({ page }) => {
       await openFixture(page, { logo: 'ok', theme });
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       const link = brand(page);
@@ -165,14 +165,11 @@ test.describe('nav logo', () => {
       await expect(image).toHaveAttribute('referrerpolicy', 'no-referrer');
       await expect.poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
 
-      const disc = link.locator('[data-nav-logo-disc]');
-      await expect(disc).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-      await expect(disc).toHaveCSS('border-top-left-radius', '50%');
-      // A hairline around the disc in the light theme only; the border is there in both, so the size never changes.
-      await expect(disc).toHaveCSS('border-top-width', '1px');
-      const border = await disc.evaluate((element) => getComputedStyle(element).borderTopColor);
-      if (theme === 'light') expect(border).toBe(hexToRgb(await cssVar(page.locator('html'), '--color-hairline-strong')));
-      else expect(border).toBe('rgba(0, 0, 0, 0)');
+      // Transparent: nothing is drawn behind the picture, in either theme.
+      const frame = link.locator('[data-nav-logo-disc]');
+      await expect(frame).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+      await expect(frame).toHaveCSS('border-top-width', '0px');
+      await expect(link).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 
       const boxes = await link.evaluate((anchor) => {
         const box = (element: Element) => {
@@ -180,37 +177,25 @@ test.describe('nav logo', () => {
           return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height };
         };
         const img = anchor.querySelector('img')!;
-        return { link: box(anchor), disc: box(anchor.querySelector('[data-nav-logo-disc]')!), image: box(img), fit: getComputedStyle(img).objectFit };
+        return { link: box(anchor), image: box(img), fit: getComputedStyle(img).objectFit };
       });
-      expect(boxes.disc.width).toBeCloseTo(40, 1);
-      expect(boxes.disc.height).toBeCloseTo(40, 1);
+      // 48px: 20% more than the 40px it was.
+      expect(boxes.image.width).toBeCloseTo(48, 1);
+      expect(boxes.image.height).toBeCloseTo(48, 1);
       expect(boxes.link.width).toBeGreaterThanOrEqual(44);
       expect(boxes.link.height).toBeGreaterThanOrEqual(44);
-      // The disc is centred in the link.
-      expect((boxes.disc.left + boxes.disc.right) / 2).toBeCloseTo((boxes.link.left + boxes.link.right) / 2, 1);
-      expect((boxes.disc.top + boxes.disc.bottom) / 2).toBeCloseTo((boxes.link.top + boxes.link.bottom) / 2, 1);
-      // The whole picture is inside the circle: every corner of its box is within the disc's radius.
+      // The picture fills its link and is shown whole.
       expect(boxes.fit).toBe('contain');
-      const centre = { x: (boxes.disc.left + boxes.disc.right) / 2, y: (boxes.disc.top + boxes.disc.bottom) / 2 };
-      const radius = boxes.disc.width / 2;
-      for (const [x, y] of [
-        [boxes.image.left, boxes.image.top],
-        [boxes.image.right, boxes.image.top],
-        [boxes.image.left, boxes.image.bottom],
-        [boxes.image.right, boxes.image.bottom],
-      ] as const) {
-        expect(Math.hypot(x - centre.x, y - centre.y), 'a corner of the picture, from the centre of the disc').toBeLessThanOrEqual(radius);
-      }
-      expect(boxes.image.width, 'the picture is not shrunk further than the circle needs').toBeGreaterThanOrEqual(27);
+      expect((boxes.image.left + boxes.image.right) / 2).toBeCloseTo((boxes.link.left + boxes.link.right) / 2, 1);
+      expect((boxes.image.top + boxes.image.bottom) / 2).toBeCloseTo((boxes.link.top + boxes.link.bottom) / 2, 1);
 
-      // Keyboard focus: a visible ring, round like the disc.
+      // Keyboard focus: a visible ring.
       await link.focus();
       await page.keyboard.press('Shift');
       const ring = await focusRingOf(link);
       expect(ring.focused).toBe(true);
       expect(ring.style).toBe('solid');
       expect(ring.width).toBeGreaterThanOrEqual(2);
-      await expect(link).toHaveCSS('border-top-left-radius', '50%');
     });
   }
 

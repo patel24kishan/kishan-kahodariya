@@ -65,13 +65,13 @@ for (const route of siteMap.routes) {
 
 test('the logo file is in the build and is an image', async ({ request }) => {
   test.skip(!site.logo || /^(?:https?:)?\/\//i.test(site.logo), 'no logo, or one on another site');
-  // Site-root path: assetHref() already carries the base ("/My-Portfolio/images/…").
+  // Site-root path: assetHref() already carries the base ("/kishan-kahodariya/images/…").
   const response = await request.get(assetHref(site.logo), { maxRedirects: 0 });
   expect(response.status()).toBe(200);
   expect(response.headers()['content-type']).toMatch(/^image\//);
 });
 
-test('the logo is on screen after hydration, on its white disc, and nothing in the bar moved', async ({ page }) => {
+test('the logo is on screen after hydration, with no background behind it, and nothing in the bar moved', async ({ page }) => {
   test.skip(!site.logo, 'no logo');
   await page.addInitScript(() => {
     const moved: string[] = [];
@@ -97,8 +97,10 @@ test('the logo is on screen after hydration, on its white disc, and nothing in t
   // Still the picture after React took over (a failed load would have swapped in the monogram).
   await expect(brand).toHaveAttribute('data-nav-brand', 'logo');
   await expect(brand).toHaveAccessibleName(`${site.name} — top of page`);
-  const disc = await brand.locator('[data-nav-logo-disc]').boundingBox();
-  expect(disc!.width).toBeCloseTo(40, 1);
-  expect(disc!.height).toBeCloseTo(40, 1);
+  const frame = brand.locator('[data-nav-logo-disc]');
+  await expect(frame).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  const picture = await logo.boundingBox();
+  expect(picture!.width).toBeCloseTo(48, 1);
+  expect(picture!.height).toBeCloseTo(48, 1);
   expect(await page.evaluate(() => (window as unknown as { __navShifts: string[] }).__navShifts)).toEqual([]);
 });

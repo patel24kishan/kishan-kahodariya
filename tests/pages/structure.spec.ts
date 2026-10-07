@@ -94,17 +94,18 @@ for (const trackId of TRACK_IDS) {
         await expect(logo).toHaveAttribute('decoding', 'async');
         await expect.poll(() => logo.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
         expect((await brand.innerText()).trim(), 'no monogram text next to the picture').toBe('');
-        // 40px white disc, round, in a link of at least 44px, at the left end of the bar.
-        const disc = brand.locator('[data-nav-logo-disc]');
-        await expect(disc).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-        await expect(disc).toHaveCSS('border-top-left-radius', '50%');
-        const [discBox, brandBox] = await Promise.all([disc.boundingBox(), brand.boundingBox()]);
-        expect(discBox!.width).toBeCloseTo(40, 1);
-        expect(discBox!.height).toBeCloseTo(40, 1);
+        // A 48px picture (20% more than the old 40px), transparent, with nothing behind it,
+        // in a link of at least 44px, at the left end of the bar.
+        const frame = brand.locator('[data-nav-logo-disc]');
+        await expect(frame).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await expect(brand).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        const [logoBox, brandBox] = await Promise.all([logo.boundingBox(), brand.boundingBox()]);
+        expect(logoBox!.width).toBeCloseTo(48, 1);
+        expect(logoBox!.height).toBeCloseTo(48, 1);
         expect(brandBox!.width).toBeGreaterThanOrEqual(44);
         expect(brandBox!.height).toBeGreaterThanOrEqual(44);
         const gutter = parseFloat(await cssVar(page.locator('html'), '--gutter'));
-        expect(discBox!.x, 'the disc starts at the gutter').toBeCloseTo(gutter, 0);
+        expect(logoBox!.x, 'the picture starts at the gutter').toBeCloseTo(gutter, 0);
       } else {
         await expect(brand).toHaveAttribute('data-nav-brand', 'monogram');
         await expect(brand).toHaveText(site.monogram);

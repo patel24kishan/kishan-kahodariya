@@ -18,10 +18,10 @@ export interface SiteNavProps {
 
 const MENU_ID = 'site-menu';
 /**
- * The picture's drawn size in CSS px: the largest square inside the 40px disc (see the CSS).
+ * The picture's drawn size in CSS px (see the CSS).
  * The file is 96 × 96, enough for a 3× screen.
  */
-const LOGO_SIZE = 28;
+const LOGO_SIZE = 48;
 
 /**
  * SiteNav — the sticky top bar: the logo (to the top of the page), the section links and the
@@ -30,7 +30,7 @@ const LOGO_SIZE = 28;
  * and returns focus to the button, choosing a link closes it, and so does a click outside.
  * State starts closed on the server and on the client alike, so there is nothing to mismatch.
  *
- * The logo is a picture on a 40px white disc inside a 44px link. Without a logo, or when it
+ * The logo is a 48px picture with a transparent background inside a 48px link. Without a logo, or when it
  * does not load, the link shows the monogram text instead. The server and the first client
  * render both show the image when a logo is set; a failure is only known after mount.
  */
