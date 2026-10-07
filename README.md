@@ -64,13 +64,13 @@ content files that do the job a server and database would otherwise do.
 ```
 .
 ├── content/                 the site's content, one JSON file per item
-│   ├── site.json            name, credit lines, project tabs
-│   ├── tracks/              the two pages: game.json, softdev.json
+│   ├── site.json            name, nav logo, credit lines, project tabs
+│   ├── tracks/              the two pages: game.json, softdev.json (resume links, also per tab)
 │   ├── projects/            one file per project
 │   ├── experience/  skills/  links/  education/  certificates/
 ├── public/                  files served as they are
 │   ├── admin/               the dashboard: index.html, config.yml, slug guard, preview
-│   ├── images/              profile photo and logos
+│   ├── images/              profile photo and the nav logo
 │   └── uploads/             images uploaded through the dashboard (created on first upload)
 ├── src/
 │   ├── pages/               TrackPage: the one public page, used for both pages
@@ -97,6 +97,7 @@ content files that do the job a server and database would otherwise do.
 │   └── sketches/            the approved page wireframes
 ├── legacy/constants.js      the old site's content, kept as the migration source
 ├── logs/                    notes from the build: progress, issues and decisions
+├── private/                 owner-only working documents; git-ignored, never in the repository
 ├── .github/workflows/       deploy.yml (publish) and ci.yml (checks on pull requests)
 ├── ARCHITECTURE.md          the build contract: routes, content model, design rules
 ├── DESIGN.md                the visual system
@@ -110,7 +111,7 @@ Node 24 and npm are required.
 ```bash
 npm ci                # install exactly what the lockfile says
 npm run dev           # dev server → http://localhost:5173/My-Portfolio/
-npm run build         # validate content → type-check → build → prerender into dist/
+npm run build         # validate content and dashboard config → type-check → build → prerender into dist/
 npm run preview       # serve dist/ the way GitHub Pages does → http://localhost:4173/My-Portfolio/
 ```
 
@@ -139,10 +140,11 @@ PW_BUILD_PORT=4183 PW_SKIP_BUILD=1 npm run test:build   # reuse the dist/ that i
 All text, links and project data live in the repository as JSON, one file per item:
 
 ```
-content/site.json            name, credit lines, project categories (the tabs)
-content/tracks/*.json        the two pages: headline, summary, resume, default tab, page title
-content/projects/*.json      one project each
-content/experience/*.json    content/skills/*.json    content/links/*.json
+content/site.json            name, nav logo, credit lines, project categories (the tabs)
+content/tracks/*.json        the two pages: headline, summary, resume (and a resume per tab), default tab, page title
+content/projects/*.json      one project each: text, tags, screenshots, video, buttons
+content/links/*.json         social links, with one order for the hero and one for the footer
+content/experience/*.json    content/skills/*.json
 content/education/*.json     content/certificates/*.json
 public/uploads/              images uploaded through the dashboard
 ```
@@ -152,6 +154,12 @@ in to GitHub with a personal access token and saves each change as a commit. A c
 production branch starts the deploy workflow, and the change is live a minute or two later.
 There is no database and no server. The step-by-step guide for the dashboard is
 `docs/admin-guide.md`.
+
+To try the dashboard without a token, run `npm run dev`, open
+`http://localhost:5173/My-Portfolio/admin/` in Chrome or Edge, click **Work with Local
+Repository** and pick the repository folder. Saves then write the files on your disk, the dev
+server reloads the page with the change, and nothing goes to GitHub. The button only exists on
+a local address.
 
 Every build validates the content first. A file that breaks the schema fails the build, the
 deploy stops, and the live site stays as it was.
@@ -164,12 +172,13 @@ Rules worth knowing when touching content by hand:
 
 ## How the site is built
 
-`npm run build` runs four steps and stops at the first failure:
+`npm run build` runs five steps and stops at the first failure:
 
 1. `validate:content` — the content files match the schema.
-2. `typecheck`.
-3. `vite build` — the browser bundle and `dist/index.html`, which is the HTML template.
-4. `scripts/prerender.ts` — renders **every route to its own HTML file**, so a pasted link or
+2. `validate:cms` — the dashboard config covers every field of the schema.
+3. `typecheck`.
+4. `vite build` — the browser bundle and `dist/index.html`, which is the HTML template.
+5. `scripts/prerender.ts` — renders **every route to its own HTML file**, so a pasted link or
    a refresh returns the finished page with HTTP 200, with the right `<title>`, description
    and canonical link already in the HTML. The browser then hydrates that markup.
 
