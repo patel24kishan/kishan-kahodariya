@@ -37,20 +37,27 @@ There is no database and no server to pay for or maintain.
 
 ## Tech stack
 
-| Area | What is used | Why |
-|---|---|---|
-| Build tool | Vite 8 | fast dev server and production build |
-| UI | React 19, TypeScript 7 | components with strict types |
-| Routing | React Router 7 | one page component behind `/`, `/gamedev/<tab>`, `/softdev/<tab>` |
-| Styling | CSS Modules and design tokens (CSS custom properties) | no UI library; light and dark themes, one accent colour per page |
-| Font | Inter Variable, self-hosted (`@fontsource-variable/inter`) | no third-party font requests |
-| Content | JSON files under `content/`, checked with zod 4 | editable through the dashboard, validated before every build |
-| Prerender | a custom script (`scripts/prerender.ts`) using React's server renderer | every address is a real HTML file, so refresh and pasted links work |
-| Dashboard | Sveltia CMS 0.230.0 (pinned, with an integrity hash), GitHub backend, token sign-in | free, no server, saves straight to the repo |
-| Hosting | GitHub Pages | free static hosting |
-| Deploy | GitHub Actions | rebuilds and publishes on every commit to the production branch |
-| Tests | Playwright 1.63 (desktop and phone projects), `@axe-core/playwright` | feature, accessibility and production-build tests |
-| Scripts | tsx, yaml | run the TypeScript scripts and read the dashboard config |
+The site has no server of its own. "Backend" below means the hosted GitHub services and the
+content files that do the job a server and database would otherwise do.
+
+| Technology | Layer | Function | Where it is used |
+|---|---|---|---|
+| React 19 | Frontend | Renders the pages as components | `src/pages/`, `src/components/` |
+| TypeScript 7 | Frontend and build | Strict types for all code and for the content shapes | everything under `src/`, `scripts/`, `tests/` |
+| React Router 7 | Frontend | Maps `/`, `/gamedev/<tab>` and `/softdev/<tab>` to the page and keeps the open tab in the address | `src/routes.tsx`, `src/App.tsx` |
+| CSS Modules and design tokens | Frontend | Styling without a UI library; light and dark themes, one accent colour per page | `src/styles/`, `*.module.css` next to each component |
+| Inter Variable (`@fontsource-variable/inter`) | Frontend | The typeface, self-hosted so no third-party font request is made | `src/styles/index.css` |
+| Sveltia CMS 0.230.0 | Frontend (admin) | The content dashboard: forms, image uploads, side-by-side preview. Pinned with an integrity hash | `public/admin/` |
+| JSON content files | Backend (data) | Stand in for a database: one file per project, job, link and so on | `content/` |
+| GitHub repository and API | Backend (storage and sign-in) | Stores the content, and accepts a save only with the owner's access token | the dashboard commits to the production branch |
+| GitHub Actions | Backend (build and deploy) | Validates, builds and publishes the site after every commit | `.github/workflows/deploy.yml`, `ci.yml` |
+| GitHub Pages | Backend (hosting) | Serves the finished HTML, CSS, JavaScript and images | the published `dist/` folder |
+| zod 4 | Build | Checks every content file against the schema; a bad file stops the deploy | `src/content/schema.ts`, `scripts/validate-content.ts` |
+| Vite 8 | Build | Dev server and production bundle; a plugin feeds the content files to the app | `vite.config.ts`, `scripts/lib/content-plugin.ts` |
+| Prerender script (React server renderer) | Build | Writes one HTML file per address so refresh and pasted links work | `scripts/prerender.ts`, `src/entry-server.tsx` |
+| tsx, yaml | Build | Run the TypeScript scripts; read the dashboard config for validation | `scripts/` |
+| Playwright 1.63 | Tests | Feature and production-build tests on desktop and phone sizes | `tests/` |
+| `@axe-core/playwright` | Tests | Automated accessibility checks | `tests/design/`, `tests/pages/` |
 
 ## Folder structure
 
