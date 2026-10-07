@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      The dashboard is public by address but must never show up in search results. On a
+      GitHub Pages project site robots.txt is not read (logs/issues/infra-01), so this tag
+      is the only thing that keeps the page out of an index.
+    -->
+    <meta name="robots" content="noindex" />
+    <title>Portfolio Admin</title>
+  </head>
+  <body>
+    <noscript>The content dashboard needs JavaScript.</noscript>
+    <!--
+      Sveltia CMS, pinned to one exact release and checked by the browser before it runs
+      (Subresource Integrity: if the file at this address ever differs from the one this
+      hash was computed from, the browser refuses to run it). The settings are read from
+      config.yml in this folder.
+
+      This is the only thing this page loads from another site. The script itself then
+      fetches its fonts (cdn.jsdelivr.net) and a few of its own files (unpkg.com), and talks
+      to api.github.com once the owner signs in.
+
+      To upgrade: put the new version in the address below, put the sha384 hash of that exact
+      file in `integrity`, and use the same version in the first line of config.yml.
+      `npm run validate:cms` fails the build if the three disagree. Steps and the command
+      that computes the hash: docs/admin-guide.md, "For developers".
+    -->
+    <script
+      src="https://unpkg.com/@sveltia/cms@0.230.0/dist/sveltia-cms.js"
+      integrity="sha384-AzagiFkRmjAMDuffoNGXass0+WVk9WahF+XJyeht4DDPxO1MHHYDp84YqPoN+XFv"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Keeps an item's "Short name" equal to its file name on every save. -->
+    <script src="slug-guard.js"></script>
+    <!-- Side-by-side content preview for the game page and the software page. -->
+    <script type="module" src="preview.js"></script>
+  </body>
+</html>

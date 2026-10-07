@@ -51,3 +51,13 @@ Phase 2 (pages, admin) starts after the architect has reviewed and integrated ph
 - Profile photo: the 2329px, 647 KB JPEG is kept; `profile-640.webp` (37 KB) and `profile-320.webp` (12 KB) generated from it; both pages now point at the 640px file.
 - Ruling on the content agent's question: a missing choice field falls back to its neutral option (`audience` both, `emphasis` none, link `kind` other, link `icon` link). Accepted.
 - Phase 2 agents, each in its own git worktree: `pages` (Fable 5.1, ports 5184/4184) builds the real page, nav, footer and media viewer; `admin` (Opus 5.5, ports 5185/4185) builds the Sveltia CMS dashboard, its config validator and the owner guide.
+
+## 2026-10-07 — admin dashboard merged
+
+- Both phase-2 agents were stopped overnight by the account's usage limit and resumed; no work was lost (both worktrees intact).
+- admin handed in: Sveltia CMS 0.230.0 pinned with an integrity hash, token-only sign-in, `config.yml` (9 content kinds, 112 fields), `validate:cms` wired into the build, slug guard, side-by-side content preview, owner guide, tests. New items default to unpublished.
+- Architect review: read `public/admin/index.html` and the three scripts (no network, storage or token access). Squash-merged the agent's branch.
+- Architect regression after the merge: `tsc` exit 0; `validate:content` exit 0; `validate:cms` exit 0; `PW_PORT=5180 npx playwright test` → 714 passed, 28 skipped (26 dashboard-driving tests skipped on the mobile project by design and run on desktop; 2 design hover/touch counterparts), 0 failed; `PW_BUILD_PORT=4180 npx playwright test -c playwright.build.config.ts` → 218 passed.
+- Proven without a token: every one of the 44 content files survives a save through the real dashboard (39 byte-identical, 5 lose only leading/trailing spaces in a description); new items are written complete and as drafts; bad values are refused by the form.
+- Not verifiable without the owner's token: sign-in, a real commit on `master`, the deploy run, an uploaded image being served. Listed in `docs/admin-guide.md` section 16.
+- Rulings on admin-01 … admin-05: see each issue file.

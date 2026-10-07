@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { contentPlugin } from './scripts/lib/content-plugin';
 import { BASE_PATH, DEFAULT_SITE_ORIGIN, DIST_DIR } from './src/lib/site-config';
 
@@ -13,10 +13,38 @@ export const BASE = BASE_PATH;
 // passes the origin GitHub Pages reports; everywhere else the default applies.
 export const SITE_ORIGIN = (process.env.SITE_ORIGIN || DEFAULT_SITE_ORIGIN).replace(/\/+$/, '');
 
+/**
+ * Dev server only (added by the admin agent). The dashboard is a static page,
+ * public/admin/index.html, not a route of the app. GitHub Pages and scripts/serve-pages.ts
+ * answer "<base>admin/" with that file and redirect "<base>admin" to it; the Vite dev server
+ * would answer both with the app's index.html instead. This gives the dev server the same
+ * two rules, so /My-Portfolio/admin/ opens the dashboard everywhere.
+ */
+function adminPage(): Plugin {
+  const folder = `${BASE}admin`;
+  return {
+    name: 'kk-admin-page',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        const [pathname, ...rest] = (request.url ?? '').split('?');
+        const query = rest.length > 0 ? `?${rest.join('?')}` : '';
+        if (pathname === folder) {
+          response.writeHead(301, { Location: `${folder}/${query}`, 'Content-Length': 0 });
+          response.end();
+          return;
+        }
+        if (pathname === `${folder}/`) request.url = `${folder}/index.html${query}`;
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   base: BASE,
   // contentPlugin() provides "virtual:content" (owned by the content agent) — keep it registered.
-  plugins: [react(), contentPlugin()],
+  plugins: [react(), contentPlugin(), adminPage()],
   define: {
     // Declared in src/lib/globals.d.ts, read through src/lib/paths.ts.
     __SITE_ORIGIN__: JSON.stringify(SITE_ORIGIN),

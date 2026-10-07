@@ -1,0 +1,1072 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms@0.230.0/schema/sveltia-cms.json
+#
+# Settings of the content dashboard (Sveltia CMS) served at /My-Portfolio/admin/.
+#
+# The dashboard edits the JSON files under /content. A save is a commit; the commit starts
+# the deploy workflow; `npm run validate:content` runs first, so a bad save can stop a
+# deploy but can never break the live site.
+#
+# THIS FILE IS CHECKED ON EVERY BUILD by `npm run validate:cms`
+# (scripts/validate-cms-config.ts). The rules it enforces, and why:
+#   - every field of src/content/types.ts is listed here, in the order the content files
+#     use — the dashboard rewrites a whole file from this list, so a field left out would be
+#     lost on the next save, and a field in another position would reshuffle the file;
+#   - no field that is not in the schema — an unknown key fails validation and blocks the
+#     deploy;
+#   - identity fields are required, choices offer exactly the schema's options, address and
+#     hover-text patterns accept and reject the same values as the schema.
+# If you change a field here, change src/content/types.ts and schema.ts with the architect
+# first; the build tells you what no longer matches.
+#
+# This file is public (it is served next to the dashboard). Never put a token, a key or a
+# password in it. Signing in happens in the browser with the owner's own access token.
+
+backend:
+  name: github
+  repo: patel24kishan/My-Portfolio
+  # -------------------------------------------------------------------------------------
+  # PRODUCTION BRANCH — the one place the dashboard names it.
+  # Every save is committed to this branch. It must be the branch that
+  # .github/workflows/deploy.yml publishes (its `on.push.branches` line), or a save would
+  # never reach the live site. `npm run validate:cms` fails the build if the two differ.
+  # -------------------------------------------------------------------------------------
+  branch: master
+  # Sign-in is by personal access token only. The other method ("Sign In with GitHub")
+  # needs an OAuth server, which this site does not have, so the button is not shown.
+  auth_methods: [token]
+  commit_messages:
+    create: 'Content: add {{collection}} "{{slug}}"'
+    update: 'Content: update {{collection}} "{{slug}}"'
+    delete: 'Content: delete {{collection}} "{{slug}}"'
+    uploadMedia: 'Content: upload "{{path}}"'
+    deleteMedia: 'Content: delete file "{{path}}"'
+
+# Where the live site is. Used for the "View on Live Site" links and for showing uploaded
+# images. Must equal DEFAULT_SITE_ORIGIN + BASE_PATH in src/lib/site-config.ts.
+site_url: https://patel24kishan.github.io/My-Portfolio
+app_title: Portfolio Admin
+
+# Uploaded images are committed to public/uploads and are served at /uploads/… .
+# Content stores the path without the /My-Portfolio base (the site adds it).
+media_folder: public/uploads
+public_folder: /uploads
+
+media_libraries:
+  default:
+    config:
+      # "My Screenshot 1.PNG" is saved as "my-screenshot-1.webp": no spaces, lower case.
+      # A path with a space in it would fail the content check, and the image fields'
+      # pattern below relies on these names (see IMAGE FIELDS).
+      slugify_filename: true
+      # Photos and screenshots are converted to WebP and scaled down in the browser before
+      # they are committed, so the repository stays small. GIFs lose their animation.
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 1920
+          height: 1920
+        svg:
+          optimize: true
+  # No stock-photo search (Unsplash, Pexels…) in the image picker: a portfolio shows the
+  # owner's own pictures, and those services need accounts and keys of their own.
+  stock_assets:
+    providers: []
+
+# File names (entries and uploads): plain ASCII, lower case, hyphens.
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+# Every field is always written ("" / [] / false when empty), two-space JSON — the shape
+# the files under /content already have.
+output:
+  omit_empty_optional_fields: false
+  json:
+    indent_style: space
+    indent_size: 2
+
+# -----------------------------------------------------------------------------------------
+# NOTES FOR WHOEVER EDITS THE FIELDS BELOW
+#
+# ADDRESS PATTERNS. Link fields accept an https:// (or http://) address, a mailto: address or
+# a site path starting with "/"; the video field accepts https:// or http:// only. The
+# patterns mirror isLinkUrl / isWebUrl in src/content/schema.ts; `npm run validate:cms`
+# runs both against a table of sample values and fails if they disagree. They are slightly
+# stricter than the schema on purpose: an address that carries a user name or a password
+# in front of the host name (the "name:password@" form) is refused here.
+#
+# IMAGE FIELDS. Their pattern accepts an https:// / http:// address or a site path — and a
+# bare file name such as "my-shot-1.webp". The last part is needed because Sveltia tests the
+# pattern of a just-uploaded picture against its file name; the value that is saved is always
+# /uploads/<file name>. It leaves one small gap: a hand-typed "example.com" (no slash) passes
+# here and is then stopped by the content check.
+#
+# REQUIRED. Identity fields (slug, title / company / school / label, tab id and name…) are
+# required. Choice fields are required too, because an unselected choice would be saved as
+# "" , which the content check rejects. Position numbers are required with a default of 0 so
+# a number is always written. Everything else is optional and has an explicit default.
+#
+# PUBLISHED defaults to off for a new item: every save is a commit and a deploy, so an item
+# that is saved half-filled must not appear on the site by accident.
+# -----------------------------------------------------------------------------------------
+
+# =========================================================================================
+# Site settings — content/site.json
+# =========================================================================================
+singletons:
+  - name: site
+    label: Site settings
+    icon: settings
+    file: content/site.json
+    format: json
+    fields:
+      - name: name
+        label: Your name
+        widget: string
+        required: true
+        hint: Shown as the big heading at the top of both pages.
+      - name: monogram
+        label: Logo letters
+        widget: string
+        required: false
+        default: ''
+        hint: The short logo in the top-left corner, for example KK.
+      - name: email
+        label: Email address
+        widget: string
+        required: false
+        default: ''
+        pattern:
+          - &email_pattern '^[^\s@]+@[^\s@]+\.[^\s@]+$'
+          - 'Write a full email address, for example name@example.com — or leave it empty.'
+      - name: credit
+        label: Footer credit lines
+        label_singular: Credit line
+        widget: list
+        required: false
+        default: []
+        hint: The small lines at the very bottom of the page, one line each. Drag to reorder.
+      - name: roles
+        label: Roles (kept from the old site)
+        label_singular: Role
+        widget: list
+        required: false
+        default: []
+        hint: The rotating roles of the old site. Kept so nothing is lost; the new pages do not show them.
+      - name: allTabLabel
+        label: Name of the "All" tab
+        widget: string
+        required: true
+        default: All
+        hint: The last project tab, which shows every project.
+      - name: categories
+        label: Project tabs
+        label_singular: Project tab
+        widget: list
+        required: false
+        default: []
+        summary: '{{label}} — {{id}}'
+        collapsed: auto
+        hint: >-
+          The tabs above the project grid, on both pages. To add a tab, add a row here and
+          save; it then appears in the "Tab" choice of every project.
+        fields:
+          - name: id
+            label: Tab ID (part of the page address)
+            widget: string
+            required: true
+            hint: >-
+              Lower-case letters, numbers and hyphens, for example unity. It is the last part
+              of the address (/gamedev/unity). **Never change the ID of a tab that already
+              has projects** — the projects point at it.
+            pattern:
+              - '^(?!all$)[a-z0-9]+(?:-[a-z0-9]+)*$'
+              - 'Use lower-case letters, numbers and single hyphens only (for example web-apps). "all" is taken by the All tab.'
+          - name: label
+            label: Tab name
+            widget: string
+            required: true
+            hint: What visitors read on the tab, for example Unity3D.
+          - name: order
+            label: Position
+            widget: number
+            value_type: int
+            required: true
+            default: 0
+            hint: Lower numbers come first (10, 20, 30…). The "All" tab is always last.
+          - name: hoverWithVideo
+            label: Hover text for projects with a video
+            widget: string
+            required: false
+            default: ''
+            hint: At most 4 words, for example View Gameplay & Screenshots. Used when a project has no hover text of its own.
+            pattern:
+              - &hover_pattern '^\S+(?:\s+\S+){0,3}$'
+              - &hover_message 'Use at most 4 words.'
+          - name: hoverWithoutVideo
+            label: Hover text for projects without a video
+            widget: string
+            required: false
+            default: ''
+            hint: At most 4 words, for example View Screenshots.
+            pattern:
+              - *hover_pattern
+              - *hover_message
+
+collections:
+  # =======================================================================================
+  # Pages — content/tracks/game.json and content/tracks/softdev.json
+  # `id` and `route` are hidden: they are fixed by the site's code and by the file name.
+  # =======================================================================================
+  - name: pages
+    label: Pages
+    label_singular: Page
+    icon: web
+    description: The two public pages. Headline, summary, resume button, the tab that opens first, your photo, and the title shown in search results.
+    format: json
+    files:
+      - name: game
+        label: Game page
+        icon: sports_esports
+        file: content/tracks/game.json
+        preview_path: /gamedev
+        fields:
+          - { name: id, widget: hidden, default: game }
+          - { name: route, widget: hidden, default: gamedev }
+          - name: label
+            label: Short name of the page
+            widget: string
+            required: true
+            hint: Used wherever the site names this page, for example Game Dev.
+          - name: headline
+            label: Headline
+            widget: string
+            required: false
+            default: ''
+            hint: The coloured line under your name, for example Game Developer.
+          - name: summary
+            label: Summary
+            widget: text
+            required: false
+            default: ''
+            hint: The paragraph under the headline.
+          - name: resumeUrl
+            label: Resume link
+            widget: string
+            required: false
+            default: ''
+            hint: Where the resume button goes, for example a Google Drive share link. Leave empty to hide the button.
+            pattern:
+              - &link_pattern '^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?|[Mm][Aa][Ii][Ll][Tt][Oo]:[^\s@]+@[^\s@]+\.[^\s@]+|/(?!/)\S*)$'
+              - &link_message 'Write a full address starting with https:// (or mailto: for an email address), without spaces — or leave it empty.'
+          - name: resumeLabel
+            label: Resume button text
+            widget: string
+            required: false
+            default: ''
+            hint: For example Game Dev Resume.
+          - name: defaultTab
+            label: Project tab that opens first
+            widget: relation
+            collection: _singletons
+            file: site
+            value_field: 'categories.*.id'
+            display_fields: ['categories.*.label']
+            search_fields: ['categories.*.label', 'categories.*.id']
+            required: true
+            hint: The tab a visitor sees first on this page. The tabs are managed in Site settings.
+          - name: photo
+            label: Profile photo
+            widget: image
+            required: false
+            default: ''
+            hint: Shown in a circle next to your name. A square photo works best.
+            pattern:
+              - &image_pattern '^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?|/(?!/)\S*|[a-z0-9_~-][a-z0-9._~-]*\.[a-z0-9]+)$'
+              - &image_message 'Upload or pick a picture, or write a full address starting with https://, without spaces — or leave it empty.'
+          - name: photoAlt
+            label: Photo description
+            widget: string
+            required: false
+            default: ''
+            hint: One short sentence for people who cannot see the photo, for example your name.
+          - name: certificatesFirst
+            label: Show certificates before education
+            widget: boolean
+            required: false
+            default: false
+          - name: metaTitle
+            label: Browser tab and search title
+            widget: string
+            required: false
+            default: ''
+            hint: For example Kishan Kahodariya — Game Developer.
+          - name: metaDescription
+            label: Search result description
+            widget: text
+            required: false
+            default: ''
+            hint: One or two sentences that search engines and link previews show under the title.
+      - name: softdev
+        label: Software page
+        icon: code
+        file: content/tracks/softdev.json
+        preview_path: /softdev
+        fields:
+          - { name: id, widget: hidden, default: softdev }
+          - { name: route, widget: hidden, default: softdev }
+          - name: label
+            label: Short name of the page
+            widget: string
+            required: true
+            hint: Used wherever the site names this page, for example Software.
+          - name: headline
+            label: Headline
+            widget: string
+            required: false
+            default: ''
+            hint: The coloured line under your name, for example Software Engineer.
+          - name: summary
+            label: Summary
+            widget: text
+            required: false
+            default: ''
+            hint: The paragraph under the headline.
+          - name: resumeUrl
+            label: Resume link
+            widget: string
+            required: false
+            default: ''
+            hint: Where the resume button goes, for example a Google Drive share link. Leave empty to hide the button.
+            pattern:
+              - *link_pattern
+              - *link_message
+          - name: resumeLabel
+            label: Resume button text
+            widget: string
+            required: false
+            default: ''
+            hint: For example Software Resume.
+          - name: defaultTab
+            label: Project tab that opens first
+            widget: relation
+            collection: _singletons
+            file: site
+            value_field: 'categories.*.id'
+            display_fields: ['categories.*.label']
+            search_fields: ['categories.*.label', 'categories.*.id']
+            required: true
+            hint: The tab a visitor sees first on this page. The tabs are managed in Site settings.
+          - name: photo
+            label: Profile photo
+            widget: image
+            required: false
+            default: ''
+            hint: Shown in a circle next to your name. A square photo works best.
+            pattern:
+              - *image_pattern
+              - *image_message
+          - name: photoAlt
+            label: Photo description
+            widget: string
+            required: false
+            default: ''
+            hint: One short sentence for people who cannot see the photo, for example your name.
+          - name: certificatesFirst
+            label: Show certificates before education
+            widget: boolean
+            required: false
+            default: false
+          - name: metaTitle
+            label: Browser tab and search title
+            widget: string
+            required: false
+            default: ''
+            hint: For example Kishan Kahodariya — Software Engineer.
+          - name: metaDescription
+            label: Search result description
+            widget: text
+            required: false
+            default: ''
+            hint: One or two sentences that search engines and link previews show under the title.
+
+  - divider: true
+
+  # =======================================================================================
+  # Projects — content/projects/<slug>.json
+  # =======================================================================================
+  - name: projects
+    label: Projects
+    label_singular: Project
+    icon: grid_view
+    description: One card in the project grid each. New projects start as drafts — switch "Published" on when the card is ready.
+    folder: content/projects
+    format: json
+    extension: json
+    identifier_field: title
+    slug:
+      template: '{{fields.slug}}'
+      editable: false
+    duplicate: false
+    summary: "{{title}} · {{category}} · {{audience}}{{published | ternary('', ' · DRAFT')}}"
+    thumbnail: 'screenshots.*.src'
+    sortable_fields:
+      fields: [title, orderGame, orderSoftdev, category, audience]
+      default:
+        field: orderGame
+        direction: ascending
+    view_filters:
+      - { name: drafts, label: 'Drafts (not on the site)', field: published, pattern: false }
+      - { name: game, label: On the game page, field: audience, pattern: '^(game|both)$' }
+      - { name: softdev, label: On the software page, field: audience, pattern: '^(softdev|both)$' }
+      - { name: featured, label: Featured, field: featured, pattern: true }
+    view_groups:
+      - { name: tab, label: Tab, field: category }
+      - { name: page, label: Page, field: audience }
+    fields:
+      - name: slug
+        label: Short name (file name)
+        widget: string
+        required: true
+        hint: &slug_hint >-
+          Lower-case letters, numbers and hyphens, for example `my-new-game`. It names the
+          file in the repository and is not shown on the site. Choose it once: after the
+          first save it stays as it is, even if you type something else here.
+        pattern:
+          - &slug_pattern '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          - &slug_message 'Use lower-case letters, numbers and single hyphens only, for example my-new-game.'
+      - name: title
+        label: Title
+        widget: string
+        required: true
+      - name: shortDescription
+        label: Short description
+        widget: text
+        required: false
+        default: ''
+        hint: The text on the card. Two or three lines read best.
+      - name: longDescription
+        label: Long description
+        widget: text
+        required: false
+        default: ''
+        hint: Optional longer text.
+      - name: dateDisplay
+        label: Date
+        widget: string
+        required: false
+        default: ''
+        hint: Written the way you want it shown, for example Dec 2023 - Mar 2024.
+      - name: tags
+        label: Tags
+        label_singular: Tag
+        widget: list
+        required: false
+        default: []
+        hint: The small chips on the card, for example Unity, C#. One per row; drag to reorder.
+      - name: category
+        label: Tab
+        widget: relation
+        collection: _singletons
+        file: site
+        value_field: 'categories.*.id'
+        display_fields: ['categories.*.label']
+        search_fields: ['categories.*.label', 'categories.*.id']
+        required: true
+        hint: The project tab this card sits under. Tabs are managed in Site settings.
+      - name: audience
+        label: Page
+        widget: select
+        required: true
+        options: &audience_options
+          - { label: Game page, value: game }
+          - { label: Software page, value: softdev }
+          - { label: Both pages, value: both }
+        hint: >-
+          Every tab is on both pages, so the card is visible on both. This chooses the page
+          the project belongs to: on the "All" tab its own page lists it first.
+      - name: featured
+        label: Featured
+        widget: boolean
+        required: false
+        default: false
+        hint: Featured cards come first and get the coloured border.
+      - name: published
+        label: Published
+        widget: boolean
+        required: false
+        default: false
+        hint: &published_hint Off = draft, it is saved but not on the site. Switch it on when the item is ready.
+      - name: orderGame
+        label: Position on the game page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: &order_hint Lower numbers come first. Leave gaps (10, 20, 30…) so a new item fits in between.
+      - name: orderSoftdev
+        label: Position on the software page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: hoverText
+        label: Card hover text
+        widget: string
+        required: false
+        default: ''
+        hint: >-
+          The words shown over the card image when a visitor points at it. At most 4 words.
+          Leave empty to use the default of the tab (set in Site settings).
+        pattern:
+          - *hover_pattern
+          - *hover_message
+      - name: screenshots
+        label: Screenshots
+        label_singular: Screenshot
+        widget: list
+        required: false
+        default: []
+        summary: '{{alt}}'
+        thumbnail: src
+        collapsed: auto
+        hint: The first screenshot is the card image. Drag to reorder.
+        fields:
+          - name: src
+            label: Image
+            widget: image
+            required: false
+            default: ''
+            hint: Upload a picture, pick one already uploaded, or paste an image address.
+            pattern:
+              - *image_pattern
+              - *image_message
+          - name: alt
+            label: Description of the image
+            widget: string
+            required: false
+            default: ''
+            hint: One short sentence saying what the picture shows, for people who cannot see it.
+      - name: videoUrl
+        label: Gameplay / demo video (YouTube)
+        widget: string
+        required: false
+        default: ''
+        hint: Paste the YouTube address. The card then gets a Gameplay button and the video plays inside the site. Leave empty for none.
+        pattern:
+          - &web_pattern '^[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?$'
+          - 'Write a full address starting with https://, without spaces — or leave it empty.'
+      - name: links
+        label: Buttons
+        label_singular: Button
+        widget: list
+        required: false
+        default: []
+        summary: '{{label}} — {{url}}'
+        collapsed: auto
+        hint: The buttons under the card text (View Code, Play, Live Demo…). A button with an empty address is not shown.
+        fields:
+          - name: label
+            label: Button text
+            widget: string
+            required: false
+            default: ''
+            hint: For example View Code.
+          - name: url
+            label: Address
+            widget: string
+            required: false
+            default: ''
+            pattern:
+              - *link_pattern
+              - *link_message
+          - name: kind
+            label: Kind of link
+            widget: select
+            required: true
+            default: other
+            options:
+              - { label: Source code, value: code }
+              - { label: Play the game, value: play }
+              - { label: Video, value: video }
+              - { label: Live demo, value: demo }
+              - { label: Store page, value: store }
+              - { label: Something else, value: other }
+      - { name: legacyId, widget: hidden, default: null }
+
+  # =======================================================================================
+  # Experience — content/experience/<slug>.json
+  # =======================================================================================
+  - name: experience
+    label: Experience
+    label_singular: Job
+    icon: work
+    description: One block per job. A job can have a different set of bullet points on each page.
+    folder: content/experience
+    format: json
+    extension: json
+    identifier_field: company
+    slug:
+      template: '{{fields.slug}}'
+      editable: false
+    duplicate: false
+    summary: "{{company}} — {{role}} · {{audience}}{{published | ternary('', ' · DRAFT')}}"
+    thumbnail: logo
+    sortable_fields:
+      fields: [company, orderGame, orderSoftdev, startDate, audience]
+      default:
+        field: orderGame
+        direction: ascending
+    view_filters:
+      - { name: drafts, label: 'Drafts (not on the site)', field: published, pattern: false }
+    fields:
+      - name: slug
+        label: Short name (file name)
+        widget: string
+        required: true
+        hint: *slug_hint
+        pattern:
+          - *slug_pattern
+          - *slug_message
+      - name: company
+        label: Company
+        widget: string
+        required: true
+      - name: role
+        label: Job title
+        widget: string
+        required: false
+        default: ''
+      - name: location
+        label: Location
+        widget: string
+        required: false
+        default: ''
+        hint: For example Halifax, Canada. Leave empty to show none.
+      - name: remote
+        label: Remote
+        widget: boolean
+        required: false
+        default: false
+      - name: startDate
+        label: Start (year-month)
+        widget: string
+        required: false
+        default: ''
+        hint: Written as YYYY-MM, for example 2024-06. Leave empty if unknown.
+        pattern:
+          - &year_month_pattern '^\d{4}-(?:0[1-9]|1[0-2])$'
+          - &year_month_message 'Write the year and the month as YYYY-MM, for example 2024-06 — or leave it empty.'
+      - name: endDate
+        label: End (year-month)
+        widget: string
+        required: false
+        default: ''
+        hint: Written as YYYY-MM. Leave empty for a current job.
+        pattern:
+          - *year_month_pattern
+          - *year_month_message
+      - name: present
+        label: I work here now
+        widget: boolean
+        required: false
+        default: false
+      - name: dateDisplay
+        label: Date as shown
+        widget: string
+        required: false
+        default: ''
+        hint: Written the way you want it shown, for example June 2024 - Present.
+      - name: logo
+        label: Company logo
+        widget: image
+        required: false
+        default: ''
+        hint: Optional. A small square logo works best.
+        pattern:
+          - *image_pattern
+          - *image_message
+      - name: bullets
+        label: Bullet points
+        label_singular: Bullet point
+        widget: list
+        required: false
+        default: []
+        hint: Used on every page that has no set of its own below. One sentence per row; drag to reorder.
+      - name: bulletsGame
+        label: Bullet points for the game page only
+        label_singular: Bullet point
+        widget: list
+        required: false
+        default: []
+        hint: Optional. If you add rows here, the game page shows these instead of the bullet points above.
+      - name: bulletsSoftdev
+        label: Bullet points for the software page only
+        label_singular: Bullet point
+        widget: list
+        required: false
+        default: []
+        hint: Optional. If you add rows here, the software page shows these instead of the bullet points above.
+      - name: tags
+        label: Tags
+        label_singular: Tag
+        widget: list
+        required: false
+        default: []
+        hint: The chips under the job, for example Unreal Engine, C++.
+      - name: audience
+        label: Page
+        widget: select
+        required: true
+        options: *audience_options
+        hint: Every published job is on both pages. This chooses the page it belongs to; that page lists it first.
+      - name: orderGame
+        label: Position on the game page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: orderSoftdev
+        label: Position on the software page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: published
+        label: Published
+        widget: boolean
+        required: false
+        default: false
+        hint: *published_hint
+
+  # =======================================================================================
+  # Skill groups — content/skills/<slug>.json
+  # =======================================================================================
+  - name: skills
+    label: Skill groups
+    label_singular: Skill group
+    icon: construction
+    description: One row in the Skills section each — a group name and its skills.
+    folder: content/skills
+    format: json
+    extension: json
+    identifier_field: title
+    slug:
+      template: '{{fields.slug}}'
+      editable: false
+    duplicate: false
+    summary: "{{title}} · highlighted: {{emphasis}}{{published | ternary('', ' · DRAFT')}}"
+    sortable_fields:
+      fields: [title, orderGame, orderSoftdev]
+      default:
+        field: orderGame
+        direction: ascending
+    fields:
+      - name: slug
+        label: Short name (file name)
+        widget: string
+        required: true
+        hint: *slug_hint
+        pattern:
+          - *slug_pattern
+          - *slug_message
+      - name: title
+        label: Group name
+        widget: string
+        required: true
+        hint: For example Game Dev.
+      - name: skills
+        label: Skills
+        label_singular: Skill
+        widget: list
+        required: false
+        default: []
+        hint: One skill per row; drag to reorder.
+      - name: emphasis
+        label: Highlight on
+        widget: select
+        required: true
+        default: none
+        options:
+          - { label: Game page, value: game }
+          - { label: Software page, value: softdev }
+          - { label: Both pages, value: both }
+          - { label: Neither page, value: none }
+        hint: The page(s) on which this group is drawn in the accent colour.
+      - name: orderGame
+        label: Position on the game page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: orderSoftdev
+        label: Position on the software page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: published
+        label: Published
+        widget: boolean
+        required: false
+        default: false
+        hint: *published_hint
+
+  # =======================================================================================
+  # Links — content/links/<slug>.json
+  # =======================================================================================
+  - name: links
+    label: Links
+    label_singular: Link
+    icon: link
+    description: GitHub, LinkedIn, YouTube, email… Each link can show next to your name (top of the page), in the footer, or both.
+    folder: content/links
+    format: json
+    extension: json
+    identifier_field: label
+    slug:
+      template: '{{fields.slug}}'
+      editable: false
+    duplicate: false
+    summary: "{{label}} · {{audience}}{{published | ternary('', ' · DRAFT')}}"
+    sortable_fields:
+      fields: [label, order]
+      default:
+        field: order
+        direction: ascending
+    fields:
+      - name: slug
+        label: Short name (file name)
+        widget: string
+        required: true
+        hint: *slug_hint
+        pattern:
+          - *slug_pattern
+          - *slug_message
+      - name: label
+        label: Link text
+        widget: string
+        required: true
+        hint: For example YouTube.
+      - name: url
+        label: Address
+        widget: string
+        required: false
+        default: ''
+        hint: The full address, for example `https://www.youtube.com/@yourchannel` — or `mailto:you@example.com` for email. A link with an empty address is not shown.
+        pattern:
+          - *link_pattern
+          - *link_message
+      - name: icon
+        label: Icon
+        widget: select
+        required: true
+        default: link
+        options:
+          - { label: GitHub, value: github }
+          - { label: GitLab, value: gitlab }
+          - { label: LinkedIn, value: linkedin }
+          - { label: YouTube, value: youtube }
+          - { label: itch.io, value: itchio }
+          - { label: Steam, value: steam }
+          - { label: Email, value: email }
+          - { label: Blog, value: blog }
+          - { label: X (Twitter), value: x }
+          - { label: Discord, value: discord }
+          - { label: Plain link, value: link }
+      - name: audience
+        label: Page
+        widget: select
+        required: true
+        default: both
+        options: *audience_options
+        hint: The page(s) this link is shown on.
+      - name: order
+        label: Position
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: showInHero
+        label: Show next to your name (top of the page)
+        widget: boolean
+        required: false
+        default: false
+      - name: showInFooter
+        label: Show in the footer
+        widget: boolean
+        required: false
+        default: false
+      - name: published
+        label: Published
+        widget: boolean
+        required: false
+        default: false
+        hint: *published_hint
+
+  # =======================================================================================
+  # Education — content/education/<slug>.json
+  # =======================================================================================
+  - name: education
+    label: Education
+    label_singular: School
+    icon: school
+    folder: content/education
+    format: json
+    extension: json
+    identifier_field: school
+    slug:
+      template: '{{fields.slug}}'
+      editable: false
+    duplicate: false
+    summary: "{{school}} — {{degree}}{{published | ternary('', ' · DRAFT')}}"
+    sortable_fields:
+      fields: [school, order]
+      default:
+        field: order
+        direction: ascending
+    fields:
+      - name: slug
+        label: Short name (file name)
+        widget: string
+        required: true
+        hint: *slug_hint
+        pattern:
+          - *slug_pattern
+          - *slug_message
+      - name: school
+        label: School
+        widget: string
+        required: true
+      - name: degree
+        label: Degree
+        widget: string
+        required: false
+        default: ''
+      - name: dateDisplay
+        label: Date
+        widget: string
+        required: false
+        default: ''
+        hint: Written the way you want it shown, for example Jan 2021 - Aug 2022.
+      - name: grade
+        label: Grade
+        widget: string
+        required: false
+        default: ''
+        hint: For example 8.41 CGPA. Leave empty to show none.
+      - name: description
+        label: Description
+        widget: text
+        required: false
+        default: ''
+      - name: order
+        label: Position
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: published
+        label: Published
+        widget: boolean
+        required: false
+        default: false
+        hint: *published_hint
+
+  # =======================================================================================
+  # Certificates — content/certificates/<slug>.json
+  # =======================================================================================
+  - name: certificates
+    label: Certificates
+    label_singular: Certificate
+    icon: workspace_premium
+    folder: content/certificates
+    format: json
+    extension: json
+    identifier_field: title
+    slug:
+      template: '{{fields.slug}}'
+      editable: false
+    duplicate: false
+    summary: "{{title}}{{published | ternary('', ' · DRAFT')}}"
+    thumbnail: image
+    sortable_fields:
+      fields: [title, orderGame, orderSoftdev]
+      default:
+        field: orderGame
+        direction: ascending
+    fields:
+      - name: slug
+        label: Short name (file name)
+        widget: string
+        required: true
+        hint: *slug_hint
+        pattern:
+          - *slug_pattern
+          - *slug_message
+      - name: title
+        label: Certificate name
+        widget: string
+        required: true
+      - name: dateDisplay
+        label: Date
+        widget: string
+        required: false
+        default: ''
+        hint: Written the way you want it shown, for example Sept 19 2023.
+      - name: description
+        label: Description
+        widget: text
+        required: false
+        default: ''
+      - name: image
+        label: Badge image
+        widget: image
+        required: false
+        default: ''
+        pattern:
+          - *image_pattern
+          - *image_message
+      - name: imageAlt
+        label: Description of the badge image
+        widget: string
+        required: false
+        default: ''
+        hint: For example Unity Junior Programmer badge.
+      - name: url
+        label: Link to the certificate
+        widget: string
+        required: false
+        default: ''
+        pattern:
+          - *link_pattern
+          - *link_message
+      - name: orderGame
+        label: Position on the game page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: orderSoftdev
+        label: Position on the software page
+        widget: number
+        value_type: int
+        required: true
+        default: 0
+        hint: *order_hint
+      - name: published
+        label: Published
+        widget: boolean
+        required: false
+        default: false
+        hint: *published_hint
