@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Viewer fixture</title>
+    <meta name="robots" content="noindex" />
+    <!--
+      Test-only page (tests/pages/viewer-fixture.spec.ts). Served by the Vite dev server at
+      /My-Portfolio/tests/pages/support/viewer-fixture.html; not part of any build. It mounts
+      the media viewer and the projects section with hand-made projects that cover what the
+      real content cannot: several screenshots, a video address that is not YouTube, an image
+      that fails to load, a project without media, and a tab without projects.
+    -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./viewer-fixture.tsx"></script>
+  </body>
+</html>

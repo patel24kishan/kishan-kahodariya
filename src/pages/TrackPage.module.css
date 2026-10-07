@@ -1,0 +1,21 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* The app shell owns the scroll position (src/lib/scroll.ts): a tab change swaps the cards
+     and a late font swap reflows the hero, and the browser's scroll anchoring would nudge the
+     position in both cases. */
+  overflow-anchor: none;
+}
+
+.main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The skip link's target; an outline around the whole page body would say nothing useful. */
+.main:focus {
+  outline: none;
+}

@@ -1,0 +1,106 @@
+/* Accent band + credit strip. Text tokens inside the band come from [data-on-accent]. */
+
+.footer {
+  margin-block-start: calc(var(--section-gap) / 2);
+}
+
+.band {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-10) var(--space-6);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--space-10);
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.heading {
+  margin: 0;
+  color: var(--color-on-accent);
+  font-size: var(--text-caption-upper);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-upper);
+  text-transform: uppercase;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--color-on-accent);
+  font-size: var(--text-body);
+  font-weight: 600;
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+
+@media (hover: hover) {
+  .navLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.connect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.empty {
+  color: var(--color-muted);
+  font-size: var(--text-body-sm);
+}
+
+.bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.toggle {
+  margin-inline-end: -4px;
+}
+
+/* ---- Credit strip: near-black with accent text in both themes ------------------------- */
+
+.credit {
+  padding-block: var(--space-5);
+  background: var(--color-on-accent);
+  color: var(--color-accent);
+  text-align: center;
+}
+
+.creditLine {
+  color: var(--color-accent);
+  font-size: var(--text-caption);
+  line-height: 1.7;
+}

@@ -61,3 +61,12 @@ Phase 2 (pages, admin) starts after the architect has reviewed and integrated ph
 - Proven without a token: every one of the 44 content files survives a save through the real dashboard (39 byte-identical, 5 lose only leading/trailing spaces in a description); new items are written complete and as drafts; bad values are refused by the form.
 - Not verifiable without the owner's token: sign-in, a real commit on `master`, the deploy run, an uploaded image being served. Listed in `docs/admin-guide.md` section 16.
 - Rulings on admin-01 … admin-05: see each issue file.
+
+## 2026-10-07 — pages merged
+
+- pages handed in: the real `TrackPage` (nav with phone menu, hero, project tabs and cards, media viewer with URL state and YouTube embedding, experience, row-style skills, education and certificates, accent footer and credit strip), small additive design-system changes, 9 page test files. Squash-merged with no conflicts on top of the admin commit.
+- First two full dev-suite runs after the merge failed at random (1 failure, then 4 different ones) with Playwright's default of 10 workers; each failing test passed alone. With 4 workers the suite passed twice in a row. `playwright.config.ts` now sets `workers` to 4 (override with `PW_WORKERS`). This is a test-harness load problem, not a page defect.
+- Architect regression after the merge: `tsc` exit 0; both validators exit 0; `PW_PORT=5180 npx playwright test` → 988 passed, 38 skipped, 0 failed (two consecutive runs); `PW_BUILD_PORT=4180 npx playwright test -c playwright.build.config.ts` → 218 passed.
+- The 38 skips: 26 dashboard-driving tests on the mobile project (run on desktop), 2 design hover/touch counterparts, 10 page tests whose case does not exist in today's content (no featured project, no project without a screenshot, no remote job, hover/badge counterparts).
+- Visual review by the architect from `docs/screenshots/`: game page dark desktop, software page light phone, viewer on a screenshot. Layout matches the approved sketches. Several hotlinked project images are dead or blocked and show the designed fallback, as expected.
+- Rulings on pages-01 … pages-03: see each issue file.

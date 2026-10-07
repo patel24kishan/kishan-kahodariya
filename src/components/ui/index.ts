@@ -24,3 +24,4 @@ export { SegmentedTabs, type SegmentedTabsProps, type SegmentedTabItem, type Seg
 export { SkipLink, type SkipLinkProps } from './SkipLink';
 export { VisuallyHidden, visuallyHiddenClass, type VisuallyHiddenProps } from './VisuallyHidden';
 export { cx } from './cx';
+export { useImageFailure, type ImageFailure } from './useImageFailure';

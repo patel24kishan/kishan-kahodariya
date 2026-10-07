@@ -1,0 +1,106 @@
+/* Project card: surface, hairline, 12px radius. Featured: accent border. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.featured {
+  border-color: var(--color-accent-border);
+}
+
+.media {
+  flex: 0 0 auto;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+.title {
+  margin-block-start: var(--space-1);
+  color: var(--color-ink);
+}
+
+.date {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.description {
+  color: var(--color-body);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body);
+  overflow-wrap: anywhere;
+}
+
+/* Action row sits at the bottom so buttons line up across a row of cards. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: auto;
+  padding-block-start: var(--space-1);
+}
+
+.actions > * {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .actions > * {
+    flex: 1 1 auto;
+  }
+}
+
+/* ---- Placeholder media ----------------------------------------------------------------- */
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface-raised);
+  background-image: linear-gradient(135deg, transparent 0 46%, var(--color-hairline) 46% 54%, transparent 54%);
+  background-size: 28px 28px;
+}
+
+.placeholderGlyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-accent-ink);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.placeholderText {
+  color: var(--color-body);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}

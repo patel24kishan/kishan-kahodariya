@@ -21,6 +21,10 @@ export default defineConfig({
   // one run delete the traces another run was still writing).
   outputDir: `./test-results/dev-${PORT}`,
   fullyParallel: true,
+  // The suite drives a real CMS and many layout measurements; with Playwright's default (half
+  // the CPU cores) timing-sensitive tests failed at random on a 20-core machine and passed
+  // with fewer workers. Four is stable; override with PW_WORKERS.
+  workers: Number(process.env.PW_WORKERS ?? 4),
   forbidOnly: true,
   retries: 0,
   reporter: [['list']],

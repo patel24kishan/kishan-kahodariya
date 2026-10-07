@@ -1,10 +1,11 @@
-import type { ButtonHTMLAttributes, CSSProperties } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributeReferrerPolicy, ReactNode } from 'react';
 import { cx } from './cx';
 import { Icon, type IconName } from './Icon';
+import { useImageFailure } from './useImageFailure';
 import styles from './MediaOverlayButton.module.css';
 
 export interface MediaOverlayButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
-  /** Image source (already passed through assetUrl). */
+  /** Image source (already passed through assetUrl). "" shows the fallback. */
   src: string;
   /** Image alt, for example "Scarfall cover image". */
   alt: string;
@@ -20,6 +21,13 @@ export interface MediaOverlayButtonProps extends Omit<ButtonHTMLAttributes<HTMLB
   /** Lazy by default; pass "eager" for the first cards above the fold. */
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
+  /** Referrer policy of the image request; content images from other sites use "no-referrer". */
+  referrerPolicy?: HTMLAttributeReferrerPolicy;
+  /**
+   * Shown in place of the image when `src` is empty or the image fails to load (phrasing
+   * content only — it sits inside the button). Without it a broken image stays as it is.
+   */
+  fallback?: ReactNode;
 }
 
 /**
@@ -29,13 +37,48 @@ export interface MediaOverlayButtonProps extends Omit<ButtonHTMLAttributes<HTMLB
  * The accessible name is the image alt followed by the label.
  *
  *   <MediaOverlayButton src={shot.src} alt={shot.alt} width={1600} height={900}
- *     label={getHoverText(project)} onClick={() => openViewer(project)} />
+ *     label={getHoverText(project)} onClick={() => openViewer(project)}
+ *     referrerPolicy="no-referrer" fallback={<span>No preview</span>} />
  */
-export function MediaOverlayButton({ src, alt, width, height, label, icon = 'play', aspectRatio = '16 / 9', loading = 'lazy', fetchPriority, className, style, type = 'button', ...rest }: MediaOverlayButtonProps) {
+export function MediaOverlayButton({
+  src,
+  alt,
+  width,
+  height,
+  label,
+  icon = 'play',
+  aspectRatio = '16 / 9',
+  loading = 'lazy',
+  fetchPriority,
+  referrerPolicy,
+  fallback,
+  className,
+  style,
+  type = 'button',
+  ...rest
+}: MediaOverlayButtonProps) {
   const boxStyle = { ...style, '--media-aspect': aspectRatio } as CSSProperties;
+  const image = useImageFailure(src);
+  const showFallback = image.failed && fallback !== undefined;
   return (
-    <button type={type} className={cx(styles.media, className)} style={boxStyle} data-media-overlay {...rest}>
-      <img className={styles.image} src={src} alt={alt} width={width} height={height} loading={loading} decoding="async" fetchPriority={fetchPriority} />
+    <button type={type} className={cx(styles.media, className)} style={boxStyle} data-media-overlay data-media-fallback={showFallback || undefined} {...rest}>
+      {showFallback ? (
+        <span className={styles.fallback}>{fallback}</span>
+      ) : (
+        <img
+          ref={image.ref}
+          onError={image.onError}
+          className={styles.image}
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading={loading}
+          decoding="async"
+          fetchPriority={fetchPriority}
+          referrerPolicy={referrerPolicy}
+        />
+      )}
       <span className={styles.label} data-media-label>
         <Icon name={icon} size={22} className={styles.icon} />
         <span className={styles.text}>{label}</span>

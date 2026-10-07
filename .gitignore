@@ -24,3 +24,6 @@ npm-debug.log*
 
 # local agent worktrees and tool state
 /.claude/
+
+# review screenshots (regenerated on demand)
+/docs/screenshots/

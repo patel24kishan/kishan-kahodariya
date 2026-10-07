@@ -191,6 +191,28 @@
   --button-tint: rgba(10, 10, 10, 0.08);
 }
 
+/*
+ * ON-DARK REGIONS — add data-on-dark to any element that keeps a near-black fill in BOTH
+ * themes (the media viewer over the page). Inside it the neutral tokens take their dark-theme
+ * values and accent text / borders / focus use the raw accent, which is legible on near-black
+ * in either theme (yellow 18.5:1, blue 9.1:1).
+ */
+[data-on-dark] {
+  color: #cccccc;
+  --color-canvas: #0a0a0a;
+  --color-surface: #1a1a1a;
+  --color-surface-raised: #242424;
+  --color-hairline: #2a2a2a;
+  --color-hairline-strong: #3a3a3a;
+  --color-ink: #ffffff;
+  --color-body: #cccccc;
+  --color-muted: #888888;
+  --color-accent-ink: var(--color-accent);
+  --color-accent-border: var(--color-accent);
+  --color-focus: var(--color-accent);
+  --button-tint: rgba(255, 255, 255, 0.08);
+}
+
 /* ---- Reduced motion: every duration collapses to zero ---------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   :root {

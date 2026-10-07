@@ -1,0 +1,110 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 880px;
+}
+
+.item {
+  min-width: 0;
+}
+
+.job {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3) var(--space-4);
+}
+
+.logo,
+.logoGap {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+}
+
+.logo {
+  padding: 4px;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  background: #ffffff; /* logos are drawn for a light background; keeps them legible in dark mode */
+  object-fit: contain;
+}
+
+/* A logo that did not load: the same box, invisible, so the header does not reflow. */
+.logoGap {
+  visibility: hidden;
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.company {
+  color: var(--color-ink);
+}
+
+.role {
+  color: var(--color-body);
+  font-weight: 500;
+}
+
+.date {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: var(--leading-title);
+  padding-block-start: 2px;
+}
+
+.where {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline-start: 1.25em;
+  color: var(--color-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+
+.bullets li {
+  overflow-wrap: anywhere;
+}
+
+.bullets li::marker {
+  color: var(--color-accent-ink);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+.empty {
+  color: var(--color-body);
+}

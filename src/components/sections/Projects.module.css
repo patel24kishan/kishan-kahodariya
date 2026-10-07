@@ -1,0 +1,62 @@
+.tabs {
+  margin-block-end: var(--space-8);
+}
+
+/* A tab change swaps the cards under the visitor; the browser must not re-anchor the scroll
+   position to them (it would nudge the page by the difference between old and new cards). */
+.grid,
+.empty {
+  overflow-anchor: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+.cell {
+  display: flex;
+  min-width: 0;
+}
+
+.cell > * {
+  width: 100%;
+}
+
+/* ---- Empty state ----------------------------------------------------------------------- */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-4);
+  border: 1px dashed var(--color-hairline-strong);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.emptyTitle {
+  color: var(--color-ink);
+  font-size: var(--text-title-md);
+  font-weight: 600;
+}
+
+.emptyText {
+  max-width: 48ch;
+  color: var(--color-body);
+}

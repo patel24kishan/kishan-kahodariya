@@ -10,7 +10,9 @@ export type UiIconName =
   | 'menu'
   | 'external'
   | 'sun'
-  | 'moon';
+  | 'moon'
+  | 'image'
+  | 'award';
 
 export type IconName = LinkIcon | UiIconName;
 
@@ -92,6 +94,13 @@ const GLYPHS: Record<IconName, Glyph> = {
   },
   moon: {
     stroke: ['M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z'],
+  },
+  image: {
+    stroke: ['M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z', 'M3.5 16.5 9 11l4 4 2.5-2.5 6 4.5'],
+    fill: ['M15.5 7.3a1.5 1.5 0 1 0 0 3a1.5 1.5 0 0 0 0-3Z'],
+  },
+  award: {
+    stroke: ['M12 15a6 6 0 1 0 0-12a6 6 0 0 0 0 12Z', 'M8.6 13.6 7 21l5-2.6 5 2.6-1.6-7.4'],
   },
 };
 

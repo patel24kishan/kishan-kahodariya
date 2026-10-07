@@ -1,0 +1,119 @@
+import type { MouseEvent } from 'react';
+import { getHoverText, type Project, type ProjectLink } from '@/content';
+import { Button, Chip, LinkButton, MediaOverlayButton, cx, type IconName } from '@/components/ui';
+import { assetUrl, isExternalUrl } from '@/lib/paths';
+import type { ViewerItemRef } from '@/components/viewer/viewerState';
+import styles from './ProjectCard.module.css';
+
+export interface ProjectCardProps {
+  project: Project;
+  /** Open the media viewer at `item`; `opener` is the element focus returns to on close. */
+  onOpen: (project: Project, item: ViewerItemRef, opener: HTMLElement) => void;
+}
+
+/** Icon for a project link: by host when it is a known site, else by the link's kind. */
+export function linkIcon(link: ProjectLink): IconName {
+  let host = '';
+  try {
+    host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    host = '';
+  }
+  if (host === 'github.com') return 'github';
+  if (host === 'gitlab.com') return 'gitlab';
+  if (host === 'itch.io' || host.endsWith('.itch.io')) return 'itchio';
+  if (host === 'youtu.be' || host === 'youtube.com' || host.endsWith('.youtube.com')) return 'youtube';
+  if (host.endsWith('steampowered.com') || host.endsWith('steamcommunity.com')) return 'steam';
+  switch (link.kind) {
+    case 'play':
+      return 'play';
+    case 'code':
+      return 'link';
+    default:
+      // "video" on a host that is not YouTube is just an address somewhere else.
+      return 'external';
+  }
+}
+
+/** The project's links that have somewhere to go. Links with an empty url are not rendered. */
+export function renderableLinks(project: Project): ProjectLink[] {
+  return project.links.filter((link) => link.url.trim() !== '');
+}
+
+/**
+ * ProjectCard — media button (first screenshot, or a designed placeholder), tag chips,
+ * title, date, the owner's short description verbatim, then the link buttons and a filled
+ * "Gameplay" button when there is a video. A featured project gets the accent border.
+ */
+export function ProjectCard({ project, onOpen }: ProjectCardProps) {
+  const shot = project.screenshots[0];
+  const links = renderableLinks(project);
+  const hasVideo = project.videoUrl.trim() !== '';
+  const firstItem: ViewerItemRef = shot ? { kind: 'screenshot', index: 0 } : { kind: 'video' };
+
+  const openFromMedia = (event: MouseEvent<HTMLButtonElement>) => onOpen(project, firstItem, event.currentTarget);
+  const openVideo = (event: MouseEvent<HTMLButtonElement>) => onOpen(project, { kind: 'video' }, event.currentTarget);
+
+  return (
+    <article className={cx(styles.card, project.featured && styles.featured)} data-project={project.slug} data-featured={project.featured || undefined}>
+      <MediaOverlayButton
+        src={shot ? assetUrl(shot.src) : ''}
+        alt={shot?.alt ?? `${project.title} preview`}
+        width={1600}
+        height={900}
+        label={getHoverText(project)}
+        icon={hasVideo ? 'play' : 'image'}
+        referrerPolicy="no-referrer"
+        className={styles.media}
+        onClick={openFromMedia}
+        data-viewer-opener={project.slug}
+        fallback={<MediaPlaceholder title={project.title} />}
+      />
+      <div className={styles.body}>
+        {project.tags.length > 0 && (
+          <ul role="list" className={styles.tags} aria-label="Tags">
+            {project.tags.map((tag, index) => (
+              <Chip key={`${index}-${tag}`} as="li" size="sm" shape="pill">
+                {tag}
+              </Chip>
+            ))}
+          </ul>
+        )}
+        <h3 className={styles.title}>{project.title}</h3>
+        {project.dateDisplay && (
+          <p className={styles.date} data-numeric>
+            {project.dateDisplay}
+          </p>
+        )}
+        {project.shortDescription && <p className={styles.description}>{project.shortDescription}</p>}
+      </div>
+      {(links.length > 0 || hasVideo) && (
+        <div className={styles.actions}>
+          {links.map((link, index) => (
+            <LinkButton key={`${index}-${link.label}`} variant="outline" icon={linkIcon(link)} href={link.url} external={isExternalUrl(link.url)} data-project-link={link.kind}>
+              {link.label}
+            </LinkButton>
+          ))}
+          {hasVideo && (
+            <Button variant="accent" icon="play" onClick={openVideo} data-project-gameplay>
+              Gameplay
+            </Button>
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
+
+/** The media box when a project has no screenshot or its image does not load. */
+function MediaPlaceholder({ title }: { title: string }) {
+  const initial = Array.from(title.trim())[0] ?? '·';
+  return (
+    <span className={styles.placeholder} data-media-placeholder>
+      <span className={styles.placeholderGlyph} aria-hidden="true">
+        {initial}
+      </span>
+      <span className={styles.placeholderText}>No preview yet</span>
+    </span>
+  );
+}

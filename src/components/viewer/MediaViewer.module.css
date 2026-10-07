@@ -1,0 +1,283 @@
+/*
+ * Media viewer. The <dialog> itself fills the viewport and paints the 70% black backdrop
+ * (its native ::backdrop is cleared), so a click anywhere outside the content closes it.
+ * Everything inside is a data-on-dark region: near-black in both themes.
+ */
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-backdrop);
+  color: inherit;
+  overscroll-behavior: contain;
+  animation: fade var(--duration-base) var(--ease);
+}
+
+.viewer::backdrop {
+  background: transparent;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: calc(var(--container-max) + 2 * var(--gutter));
+  height: 100%;
+  margin-inline: auto;
+  padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  .frame {
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+  }
+}
+
+/* ---- Bar ------------------------------------------------------------------------------- */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
+
+.close {
+  flex: 0 0 auto;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.title {
+  color: var(--color-ink);
+  font-size: var(--text-title-md);
+  font-weight: 700;
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
+  overflow-wrap: anywhere;
+}
+
+.position {
+  color: var(--color-body);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .links {
+    flex-basis: 100%;
+  }
+}
+
+/* ---- Stage ----------------------------------------------------------------------------- */
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  touch-action: pan-y pinch-zoom;
+}
+
+@media (min-width: 768px) {
+  .stage {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: var(--space-3);
+  }
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-canvas);
+}
+
+.image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000000;
+}
+
+.fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  max-width: 44ch;
+  padding: var(--space-6);
+  text-align: center;
+}
+
+/* Phones: the arrows sit over the panel's edges, so keep the fallback text clear of them. */
+@media (max-width: 767px) {
+  .fallback {
+    padding-inline: calc(44px + 2 * var(--space-2));
+  }
+}
+
+.fallbackIcon {
+  color: var(--color-muted);
+}
+
+.note {
+  color: var(--color-body);
+  font-size: var(--text-body);
+}
+
+/* Arrows: beside the panel on tablet and up, over its edges on phones. */
+.arrow {
+  z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--color-scrim);
+    color: var(--color-on-scrim);
+    border-color: transparent;
+  }
+
+  .previous {
+    left: var(--space-2);
+  }
+
+  .next {
+    right: var(--space-2);
+  }
+}
+
+.arrow:disabled {
+  opacity: 0.4;
+}
+
+/* ---- Thumbnail strip ------------------------------------------------------------------- */
+
+.thumbs {
+  display: flex;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.thumbItem {
+  flex: 0 0 auto;
+}
+
+.thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 56px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-body);
+  cursor: pointer;
+  opacity: 0.72;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .thumb:hover {
+    opacity: 1;
+  }
+}
+
+.thumb:focus-visible {
+  border-radius: var(--radius-sm);
+  opacity: 1;
+}
+
+.thumbCurrent {
+  border: 2px solid var(--color-accent-border);
+  opacity: 1;
+}
+
+.thumbImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbVideo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent-ink);
+  font-size: var(--text-caption);
+  font-weight: 600;
+}
+
+.thumbFallback {
+  display: inline-flex;
+  color: var(--color-muted);
+}

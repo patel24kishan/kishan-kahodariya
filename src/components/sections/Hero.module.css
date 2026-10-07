@@ -1,0 +1,142 @@
+/* Hero: text column + photo. Phone: photo on top. Reveal: opacity/transform only. */
+
+.hero {
+  padding-block-start: var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding-block-start: var(--space-16);
+  }
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .inner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-12);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* The name wraps at the text column's width (balanced); no ch cap, which put a 17-character
+   name exactly on the wrap boundary and let font-metric rounding decide the line count. */
+.name {
+  overflow-wrap: anywhere;
+}
+
+.headline {
+  color: var(--color-accent-ink);
+  font-size: var(--text-title-lg);
+  font-weight: 600;
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 60ch;
+  color: var(--color-body);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+/* ---- Photo ----------------------------------------------------------------------------- */
+
+.photoRing {
+  flex: 0 0 auto;
+  width: 120px;
+  aspect-ratio: 1;
+  padding: 5px;
+  border: 2px solid var(--color-accent-border);
+  border-radius: 50%;
+  order: -1;
+}
+
+@media (min-width: 768px) {
+  .photoRing {
+    order: 0;
+    width: clamp(180px, 22vw, 280px);
+    padding: 7px;
+  }
+}
+
+.photoRing picture {
+  width: 100%;
+  height: 100%;
+}
+
+.photo,
+.photoFallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-surface-raised);
+}
+
+.photoFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+}
+
+/* ---- Reveal (CSS only; never hides content without JS; off under reduced motion) ------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.name,
+.headline,
+.summary,
+.actions,
+.photoRing {
+  animation: rise 480ms var(--ease) both;
+  animation-delay: calc(var(--reveal-step, 0) * 90ms + 40ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .name,
+  .headline,
+  .summary,
+  .actions,
+  .photoRing {
+    animation: none;
+  }
+}

@@ -25,6 +25,16 @@
   transition: transform var(--duration-slow) var(--ease);
 }
 
+/* Takes the image's place when there is none or it failed to load; the caller designs it. */
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .label {
   position: absolute;
   display: flex;

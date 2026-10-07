@@ -494,6 +494,49 @@ export default function Kit() {
               <h3 className={styles.cardTitle}>Featured card · 4:3 media</h3>
               <p className={styles.cardText}>Accent border on the card; the media box keeps the aspect ratio while the image loads.</p>
             </div>
+            <div className={styles.card}>
+              <MediaOverlayButton
+                data-testid="media-overlay-fallback"
+                src="data:image/png;base64,broken"
+                alt="Broken cover image"
+                width={1600}
+                height={900}
+                label="View Screenshots"
+                icon="image"
+                referrerPolicy="no-referrer"
+                fallback={
+                  <span className={styles.mediaFallback}>
+                    <span className={styles.mediaFallbackGlyph} aria-hidden="true">
+                      B
+                    </span>
+                    <span className={styles.mediaFallbackText}>No preview yet</span>
+                  </span>
+                }
+              />
+              <h3 className={styles.cardTitle}>Image failed · fallback</h3>
+              <p className={styles.cardText}>
+                <code>fallback</code> replaces a broken or missing image; <code>referrerPolicy="no-referrer"</code> for hot-linked images.
+              </p>
+            </div>
+          </div>
+        </Section>
+
+        <Section id="on-dark" title="On-dark region">
+          <div className={styles.darkPanel} data-on-dark data-testid="on-dark-panel">
+            <p className={styles.darkPanelTitle}>
+              <code>data-on-dark</code> — near-black in both themes (the media viewer)
+            </p>
+            <p>
+              Body text, <span className={styles.accentText}>accent-ink text</span> and a <Chip variant="accent">chip</Chip> keep their dark-theme
+              values here even in light mode.
+            </p>
+            <div className={styles.demoBody}>
+              <Button variant="outline">Outline</Button>
+              <Button variant="accent" icon="play">
+                Accent
+              </Button>
+              <IconButton icon="chevron-right" label="Next" shape="circle" />
+            </div>
           </div>
         </Section>
 

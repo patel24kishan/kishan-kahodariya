@@ -1,0 +1,145 @@
+/* Sticky top bar. Canvas background, hairline below; the phone menu hangs under it. */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--nav-height);
+}
+
+.monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .monogram:hover {
+    color: var(--color-accent-ink);
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+/* ---- Phone: the links live in a panel under the bar, shown only while open ------------- */
+
+.nav {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: var(--space-2) var(--gutter) var(--space-4);
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.navOpen {
+  display: block;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.item {
+  display: flex;
+  min-width: 0;
+}
+
+.link {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-body);
+  font-size: var(--text-body);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--button-tint);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-ink);
+  }
+
+  .link:hover::before {
+    opacity: 1;
+  }
+}
+
+.link:active::before {
+  opacity: 1;
+}
+
+.link:focus-visible {
+  border-radius: var(--radius-sm);
+}
+
+/* ---- Tablet and up: inline links, no menu button --------------------------------------- */
+
+@media (min-width: 768px) {
+  .nav {
+    display: flex;
+    position: static;
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0;
+    border-bottom: 0;
+    background: transparent;
+  }
+
+  .list {
+    flex-direction: row;
+    gap: var(--space-1);
+  }
+
+  .link {
+    width: auto;
+    font-size: var(--text-nav);
+  }
+
+  .menuSlot {
+    display: none;
+  }
+}
