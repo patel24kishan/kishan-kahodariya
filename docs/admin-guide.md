@@ -4,11 +4,11 @@ This is the guide for the site owner. No code is needed for anything in it.
 
 ## 1. What the dashboard is
 
-- The dashboard is a page of the site: **`https://patel24kishan.github.io/My-Portfolio/admin/`**
+- The dashboard is a page of the site: **`https://patel24kishan.github.io/kishan-kahodariya/admin/`**
 - It shows every piece of content — projects, jobs, skills, links, education, certificates,
   the two pages and the site settings — as forms.
 - When you press **Save**, the change is stored in the GitHub repository
-  `patel24kishan/My-Portfolio`. GitHub then rebuilds the site by itself. A minute or two later
+  `patel24kishan/kishan-kahodariya`. GitHub then rebuilds the site by itself. A minute or two later
   the change is live.
 - There is no password for the dashboard. Anyone can open the page, but only someone holding
   an **access token** for the repository can save. You create that token once, in your own
@@ -29,7 +29,7 @@ account to create for it.
    - **Token name:** `Portfolio admin` (any name works).
    - **Expiration:** 90 days. A token that expires is safer than one that lasts forever. Put a
      reminder in your calendar; making a new one takes two minutes.
-   - **Repository access:** choose **Only select repositories**, then pick **My-Portfolio**.
+   - **Repository access:** choose **Only select repositories**, then pick **kishan-kahodariya**.
      Do not choose "All repositories".
    - **Permissions → Repository permissions → Contents:** **Read and write**.
      "Metadata: Read-only" is added by GitHub on its own. Leave everything else at "No access".
@@ -42,7 +42,7 @@ done): GitHub → Settings → Developer settings → Personal access tokens →
 
 ## 3. Sign in
 
-1. Open `https://patel24kishan.github.io/My-Portfolio/admin/`.
+1. Open `https://patel24kishan.github.io/kishan-kahodariya/admin/`.
 2. Click **Sign In Using Access Token**, paste the token, click **Sign In**.
 
 Good to know:
@@ -252,7 +252,7 @@ preview, and switch **Published** on when you are happy with it.
 
 Usually one to two minutes after **Save**.
 
-To watch: open `https://github.com/patel24kishan/My-Portfolio/actions`. Each save appears
+To watch: open `https://github.com/patel24kishan/kishan-kahodariya/actions`. Each save appears
 as a run named **Deploy**:
 
 - yellow dot — building;
@@ -314,7 +314,7 @@ If a token may have leaked: delete it on GitHub (section 2) and make a new one.
 These are the things that could not be tested without your token. Please go through them
 once, the first time you sign in on the live site.
 
-1. The dashboard opens at `https://patel24kishan.github.io/My-Portfolio/admin/` and shows
+1. The dashboard opens at `https://patel24kishan.github.io/kishan-kahodariya/admin/` and shows
    **Sign In Using Access Token**.
 2. The link in the sign-in box opens GitHub's new-token page, and **Contents: Read and
    write** is already chosen there.
@@ -333,7 +333,7 @@ once, the first time you sign in on the live site.
 9. Sign out, and check that the dashboard asks for the token again.
 
 If step 3 fails with an error about permissions, the token is missing **Contents: Read and
-write** or was not limited to **My-Portfolio** correctly: delete it and make it again.
+write** or was not limited to **kishan-kahodariya** correctly: delete it and make it again.
 
 ## For developers
 
@@ -350,7 +350,7 @@ write** or was not limited to **My-Portfolio** correctly: delete it and make it 
 - **The production branch** is named once in `config.yml` (`backend.branch`) and once in
   `deploy.yml`. Change both together.
 - **Try the dashboard without a token:** `npm run dev`, open
-  `http://localhost:5173/My-Portfolio/admin/` in Chrome or Edge, click **Work with Local
+  `http://localhost:5173/kishan-kahodariya/admin/` in Chrome or Edge, click **Work with Local
   Repository** and pick the repository folder. Saves then write the files on your disk and
   nothing goes to GitHub. (The button only exists on a local address.)
 - **Upgrade Sveltia CMS** (it is pinned to one exact version on purpose):

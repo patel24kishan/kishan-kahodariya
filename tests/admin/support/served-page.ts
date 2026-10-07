@@ -74,7 +74,7 @@ export function defineServedPageTests(mode: 'dev server' | 'production build'): 
       const body = await response.text();
       expect(body).toBe(configText());
       const config = parse(body) as { backend: { name: string; repo: string; branch: string }; media_folder: string; public_folder: string };
-      expect(config.backend).toMatchObject({ name: 'github', repo: 'patel24kishan/My-Portfolio', branch: 'master' });
+      expect(config.backend).toMatchObject({ name: 'github', repo: 'patel24kishan/kishan-kahodariya', branch: 'master' });
       expect(config.media_folder).toBe('public/uploads');
       expect(config.public_folder).toBe('/uploads');
       // Sveltia asks for the file with a cache-busting query; that must work too.

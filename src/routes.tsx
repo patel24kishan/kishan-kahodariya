@@ -1,6 +1,6 @@
 /**
  * THE ROUTE TABLE (ARCHITECTURE.md section 3). Paths are relative to the Vite base; the
- * router gets the base as its `basename`, so nothing here knows about "/My-Portfolio".
+ * router gets the base as its `basename`, so nothing here knows about "/kishan-kahodariya".
  *
  *   /                    game page, default tab
  *   /<route>             that page, default tab          (<route> = "gamedev" | "softdev")

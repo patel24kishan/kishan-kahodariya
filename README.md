@@ -2,7 +2,7 @@
 
 The portfolio site of Kishan Kahodariya: two public pages that share one layout, a game
 development page and a software page. It is a static site (Vite, React, TypeScript) hosted for
-free on GitHub Pages under `/My-Portfolio/`.
+free on GitHub Pages under `/kishan-kahodariya/`.
 
 - `/` and `/gamedev` — the game page
 - `/softdev` — the software page
@@ -110,9 +110,9 @@ Node 24 and npm are required.
 
 ```bash
 npm ci                # install exactly what the lockfile says
-npm run dev           # dev server → http://localhost:5173/My-Portfolio/
+npm run dev           # dev server → http://localhost:5173/kishan-kahodariya/
 npm run build         # validate content and dashboard config → type-check → build → prerender into dist/
-npm run preview       # serve dist/ the way GitHub Pages does → http://localhost:4173/My-Portfolio/
+npm run preview       # serve dist/ the way GitHub Pages does → http://localhost:4173/kishan-kahodariya/
 ```
 
 Other commands:
@@ -156,7 +156,7 @@ There is no database and no server. The step-by-step guide for the dashboard is
 `docs/admin-guide.md`.
 
 To try the dashboard without a token, run `npm run dev`, open
-`http://localhost:5173/My-Portfolio/admin/` in Chrome or Edge, click **Work with Local
+`http://localhost:5173/kishan-kahodariya/admin/` in Chrome or Edge, click **Work with Local
 Repository** and pick the repository folder. Saves then write the files on your disk, the dev
 server reloads the page with the change, and nothing goes to GitHub. The button only exists on
 a local address.
@@ -167,7 +167,7 @@ deploy stops, and the live site stays as it was.
 Rules worth knowing when touching content by hand:
 
 - Image and file paths are either full `https://` URLs or start with `/` (`/images/profile.jpg`,
-  `/uploads/shot.webp`). Never write `/My-Portfolio` in content; the site adds it.
+  `/uploads/shot.webp`). Never write `/kishan-kahodariya` in content; the site adds it.
 - `"published": false` keeps an item out of the site and out of the JavaScript bundle.
 
 ## How the site is built
@@ -251,9 +251,9 @@ Settings → Pages). Switching over takes these steps, in this order.
 5. **GitHub → Settings → Actions → General:** Actions must be allowed for the repository. The
    default read-only workflow permission is enough; the workflow asks for what it needs.
 6. **Deploy:** push to the production branch, or run Actions → Deploy → Run workflow.
-7. **Check the live site:** `https://patel24kishan.github.io/My-Portfolio/`, a deep link such
-   as `/My-Portfolio/softdev/webapps` (refresh it), and a wrong address (the 404 page).
-8. **Dashboard:** create the access token and sign in at `/My-Portfolio/admin/` as described
+7. **Check the live site:** `https://patel24kishan.github.io/kishan-kahodariya/`, a deep link such
+   as `/kishan-kahodariya/softdev/webapps` (refresh it), and a wrong address (the 404 page).
+8. **Dashboard:** create the access token and sign in at `/kishan-kahodariya/admin/` as described
    in `docs/admin-guide.md`. Save one small change and watch it go live.
 9. Afterwards the `gh-pages` branch is no longer used and can be deleted.
 
@@ -265,5 +265,5 @@ Things that would need a code change:
   message if they differ, rather than publishing a site with broken links.
 - **`robots.txt`.** Crawlers only read `robots.txt` at the root of a host
   (`https://patel24kishan.github.io/robots.txt`), which belongs to a different repository.
-  The file this site publishes under `/My-Portfolio/robots.txt` is therefore informational;
+  The file this site publishes under `/kishan-kahodariya/robots.txt` is therefore informational;
   what actually keeps `/admin/` out of search results is the `noindex` tag on that page.

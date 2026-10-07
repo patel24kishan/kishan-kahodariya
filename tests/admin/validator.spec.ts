@@ -404,7 +404,7 @@ const CASES: Case[] = [
   {
     name: 'another repository',
     config: (config) => {
-      backend(config).repo = 'someone-else/My-Portfolio';
+      backend(config).repo = 'someone-else/kishan-kahodariya';
     },
     expect: [/backend › repo/, new RegExp(`must be "${expectedRepo()}"`)],
   },
@@ -446,7 +446,7 @@ const CASES: Case[] = [
     config: (config) => {
       config.site_url = 'https://patel24kishan.github.io';
     },
-    expect: [/site_url/, /must be "https:\/\/patel24kishan\.github\.io\/My-Portfolio"/],
+    expect: [/site_url/, /must be "https:\/\/patel24kishan\.github\.io\/kishan-kahodariya"/],
   },
   // ---- media and output ----
   {
@@ -459,7 +459,7 @@ const CASES: Case[] = [
   {
     name: 'a public path that carries the base path',
     config: (config) => {
-      config.public_folder = '/My-Portfolio/uploads';
+      config.public_folder = '/kishan-kahodariya/uploads';
     },
     expect: [/public_folder/, /must be "\/uploads"/],
   },
@@ -791,7 +791,7 @@ test.describe('validate:cms on the real project', () => {
     const branch = backend(config).branch;
     expect(deployBranches(readFileSync(deployPath, 'utf8'))).toEqual([branch]);
     expect(configText().match(/^\s*branch:/gm) ?? [], 'config.yml names the branch once').toHaveLength(1);
-    expect(backend(config).repo).toBe('patel24kishan/My-Portfolio');
+    expect(backend(config).repo).toBe('patel24kishan/kishan-kahodariya');
     expect(config.media_folder).toBe('public/uploads');
     expect(config.public_folder).toBe('/uploads');
   });

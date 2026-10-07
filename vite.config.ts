@@ -4,7 +4,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { contentPlugin } from './scripts/lib/content-plugin';
 import { BASE_PATH, DEFAULT_SITE_ORIGIN, DIST_DIR } from './src/lib/site-config';
 
-// GitHub Pages serves this repo under /My-Portfolio/. The value lives in
+// GitHub Pages serves this repo under /kishan-kahodariya/. The value lives in
 // src/lib/site-config.ts (so the Playwright configs and the scripts can read it without
 // loading Vite); change it there, and only if the repo is renamed.
 export const BASE = BASE_PATH;
@@ -18,7 +18,7 @@ export const SITE_ORIGIN = (process.env.SITE_ORIGIN || DEFAULT_SITE_ORIGIN).repl
  * public/admin/index.html, not a route of the app. GitHub Pages and scripts/serve-pages.ts
  * answer "<base>admin/" with that file and redirect "<base>admin" to it; the Vite dev server
  * would answer both with the app's index.html instead. This gives the dev server the same
- * two rules, so /My-Portfolio/admin/ opens the dashboard everywhere.
+ * two rules, so /kishan-kahodariya/admin/ opens the dashboard everywhere.
  */
 function adminPage(): Plugin {
   const folder = `${BASE}admin`;

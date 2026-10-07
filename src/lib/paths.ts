@@ -1,13 +1,13 @@
 /**
- * URL helpers. The only place that knows how the base path ("/My-Portfolio/") and the site
+ * URL helpers. The only place that knows how the base path ("/kishan-kahodariya/") and the site
  * origin are applied. Nothing else in the app may hard-code either of them.
  *
  * Three kinds of address, three helpers:
  *
- *   content asset   "/images/profile.jpg"  → assetUrl()    → "/My-Portfolio/images/profile.jpg"
+ *   content asset   "/images/profile.jpg"  → assetUrl()    → "/kishan-kahodariya/images/profile.jpg"
  *   router path     "/gamedev/unity"       → use as-is with <Link to> / navigate(); the
  *                                            router adds the base itself
- *   plain <a href>  "/gamedev/unity"       → routeHref()   → "/My-Portfolio/gamedev/unity"
+ *   plain <a href>  "/gamedev/unity"       → routeHref()   → "/kishan-kahodariya/gamedev/unity"
  *
  * `createPaths(base, origin)` is the pure implementation (unit-tested in tests/infra). The
  * top-level functions are the same helpers bound to the running build's base and origin.
@@ -45,7 +45,7 @@ export function trackPath(track: string | Pick<TrackProfile, 'route'>, tab?: str
 }
 
 export interface PathHelpers {
-  /** The base path, always with a leading and a trailing slash: "/My-Portfolio/" or "/". */
+  /** The base path, always with a leading and a trailing slash: "/kishan-kahodariya/" or "/". */
   readonly base: string;
   assetUrl(path: string): string;
   routeHref(routePath: string): string;
@@ -99,11 +99,11 @@ function paths(): PathHelpers {
 }
 
 /**
- * `basename` for the router: the base path WITH its trailing slash ("/My-Portfolio/").
+ * `basename` for the router: the base path WITH its trailing slash ("/kishan-kahodariya/").
  * React Router uses the basename verbatim as the href of "/", so the trailing slash is what
- * makes a home link point at "/My-Portfolio/" — the address GitHub Pages actually serves —
- * instead of "/My-Portfolio", which is a redirect. Other links are unaffected
- * ("/My-Portfolio/gamedev").
+ * makes a home link point at "/kishan-kahodariya/" — the address GitHub Pages actually serves —
+ * instead of "/kishan-kahodariya", which is a redirect. Other links are unaffected
+ * ("/kishan-kahodariya/gamedev").
  */
 export function routerBasename(): string {
   return paths().base;

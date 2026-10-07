@@ -7,12 +7,12 @@ import { siteMap } from './support/site-map';
  * same helpers bound to the real base path inside the running app.
  */
 test.describe('paths: pure helpers', () => {
-  const paths = createPaths('/My-Portfolio/', 'https://example.test');
+  const paths = createPaths('/kishan-kahodariya/', 'https://example.test');
 
   test('assetUrl gives root-relative content paths the base', () => {
-    expect(paths.assetUrl('/images/profile.jpg')).toBe('/My-Portfolio/images/profile.jpg');
-    expect(paths.assetUrl('/uploads/scarfall 1.webp')).toBe('/My-Portfolio/uploads/scarfall 1.webp');
-    expect(paths.assetUrl('images/profile.jpg')).toBe('/My-Portfolio/images/profile.jpg');
+    expect(paths.assetUrl('/images/profile.jpg')).toBe('/kishan-kahodariya/images/profile.jpg');
+    expect(paths.assetUrl('/uploads/scarfall 1.webp')).toBe('/kishan-kahodariya/uploads/scarfall 1.webp');
+    expect(paths.assetUrl('images/profile.jpg')).toBe('/kishan-kahodariya/images/profile.jpg');
     expect(paths.assetUrl('//images/profile.jpg')).toBe('//images/profile.jpg'); // protocol-relative URL, not a path
   });
 
@@ -38,9 +38,9 @@ test.describe('paths: pure helpers', () => {
   });
 
   test('the base is normalised however it is written', () => {
-    for (const base of ['/My-Portfolio/', '/My-Portfolio', 'My-Portfolio/', 'My-Portfolio', '//My-Portfolio//']) {
-      expect(createPaths(base).base, base).toBe('/My-Portfolio/');
-      expect(createPaths(base).assetUrl('/a.png'), base).toBe('/My-Portfolio/a.png');
+    for (const base of ['/kishan-kahodariya/', '/kishan-kahodariya', 'kishan-kahodariya/', 'kishan-kahodariya', '//kishan-kahodariya//']) {
+      expect(createPaths(base).base, base).toBe('/kishan-kahodariya/');
+      expect(createPaths(base).assetUrl('/a.png'), base).toBe('/kishan-kahodariya/a.png');
     }
     expect(createPaths('/').base).toBe('/');
     expect(createPaths('').base).toBe('/');
@@ -59,22 +59,22 @@ test.describe('paths: pure helpers', () => {
   });
 
   test('routeHref and trackHref apply the base', () => {
-    expect(paths.routeHref('/')).toBe('/My-Portfolio/');
-    expect(paths.routeHref('/gamedev/unity')).toBe('/My-Portfolio/gamedev/unity');
-    expect(paths.routeHref('/softdev#projects')).toBe('/My-Portfolio/softdev#projects');
-    expect(paths.trackHref('gamedev')).toBe('/My-Portfolio/gamedev');
-    expect(paths.trackHref({ route: 'softdev' }, 'all')).toBe('/My-Portfolio/softdev/all');
+    expect(paths.routeHref('/')).toBe('/kishan-kahodariya/');
+    expect(paths.routeHref('/gamedev/unity')).toBe('/kishan-kahodariya/gamedev/unity');
+    expect(paths.routeHref('/softdev#projects')).toBe('/kishan-kahodariya/softdev#projects');
+    expect(paths.trackHref('gamedev')).toBe('/kishan-kahodariya/gamedev');
+    expect(paths.trackHref({ route: 'softdev' }, 'all')).toBe('/kishan-kahodariya/softdev/all');
     expect(createPaths('/').routeHref('/')).toBe('/');
     expect(createPaths('/').trackHref('gamedev', 'unity')).toBe('/gamedev/unity');
   });
 
   test('absoluteUrl and absoluteAssetUrl add the site origin', () => {
-    expect(paths.absoluteUrl('/')).toBe('https://example.test/My-Portfolio/');
-    expect(paths.absoluteUrl('/softdev')).toBe('https://example.test/My-Portfolio/softdev');
-    expect(createPaths('/My-Portfolio/', 'https://example.test/').absoluteUrl('/softdev')).toBe(
-      'https://example.test/My-Portfolio/softdev',
+    expect(paths.absoluteUrl('/')).toBe('https://example.test/kishan-kahodariya/');
+    expect(paths.absoluteUrl('/softdev')).toBe('https://example.test/kishan-kahodariya/softdev');
+    expect(createPaths('/kishan-kahodariya/', 'https://example.test/').absoluteUrl('/softdev')).toBe(
+      'https://example.test/kishan-kahodariya/softdev',
     );
-    expect(paths.absoluteAssetUrl('/images/profile.jpg')).toBe('https://example.test/My-Portfolio/images/profile.jpg');
+    expect(paths.absoluteAssetUrl('/images/profile.jpg')).toBe('https://example.test/kishan-kahodariya/images/profile.jpg');
     expect(paths.absoluteAssetUrl('https://cdn.example.com/a.png')).toBe('https://cdn.example.com/a.png');
     expect(paths.absoluteAssetUrl('')).toBe('');
   });

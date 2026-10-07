@@ -13,7 +13,7 @@
  *   5. anything else                       → 404, body of 404.html
  *
  * Paths are matched with exact letter case on every operating system (GitHub Pages is
- * case-sensitive). "/My-Portfolio" (the base without its slash) is a 301 to the base.
+ * case-sensitive). "/kishan-kahodariya" (the base without its slash) is a 301 to the base.
  * Outside the base nothing is served (404), except that "/" redirects to the base for
  * convenience. Only GET and HEAD are allowed.
  *
@@ -35,8 +35,8 @@ if (!existsSync(path.join(DIST_AS_CONFIGURED, 'index.html'))) {
 // The folder's real spelling, so request paths can be compared against it letter for letter.
 const DIST = realpathSync.native(DIST_AS_CONFIGURED);
 const PORT = Number(process.env.PORT ?? 4173);
-const BASE = BASE_PATH; // "/My-Portfolio/"
-const BASE_NO_SLASH = BASE.replace(/\/+$/, ''); // "/My-Portfolio", or "" when the base is "/"
+const BASE = BASE_PATH; // "/kishan-kahodariya/"
+const BASE_NO_SLASH = BASE.replace(/\/+$/, ''); // "/kishan-kahodariya", or "" when the base is "/"
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',

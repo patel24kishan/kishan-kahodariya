@@ -3,7 +3,7 @@
  * because playwright.build.config.ts only runs tests/build/).
  *
  * dist/ is served by scripts/serve-pages.ts, which answers the way GitHub Pages does, so
- * this is the closest thing to the live address /My-Portfolio/admin/ that can be checked
+ * this is the closest thing to the live address /kishan-kahodariya/admin/ that can be checked
  * without deploying.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';

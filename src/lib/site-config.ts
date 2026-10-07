@@ -14,7 +14,7 @@
  * Change it only if the repository is renamed (or to "/" for a custom domain).
  * Must start and end with "/".
  */
-export const BASE_PATH: string = '/My-Portfolio/';
+export const BASE_PATH: string = '/kishan-kahodariya/';
 
 /**
  * Scheme + host of the live site, without a trailing slash. Used for canonical and Open

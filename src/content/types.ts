@@ -9,7 +9,7 @@
  * - Every string field is always present; "" means "not set". Renderers skip empty values.
  * - Asset paths are either absolute https URLs or site-root-relative paths starting with "/"
  *   (for example "/images/profile.jpg", "/uploads/scarfall-1.webp"). Never include the
- *   "/My-Portfolio" base; use assetUrl() from src/lib/paths.ts when rendering.
+ *   "/kishan-kahodariya" base; use assetUrl() from src/lib/paths.ts when rendering.
  * - "published: false" items are never rendered and never shipped in the client bundle.
  */
 

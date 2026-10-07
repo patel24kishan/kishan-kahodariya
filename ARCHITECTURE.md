@@ -10,7 +10,7 @@ A rebuild of Kishan Kahodariya's portfolio (old site: Create React App, one page
 
 - **Two public pages, one layout.** The game page and the software page are the same component
   fed different content. `/` shows the game page.
-- **Free hosting only.** GitHub Pages, deployed by GitHub Actions, served under `/My-Portfolio/`.
+- **Free hosting only.** GitHub Pages, deployed by GitHub Actions, served under `/kishan-kahodariya/`.
 - **Content lives in the repo** as JSON files under `/content`. The owner edits it at `/admin`
   (Sveltia CMS, GitHub backend, token sign-in). A save is a commit; the commit triggers a
   rebuild; the change is live a minute or two later. No database, no server.
@@ -35,7 +35,7 @@ No new dependencies. If you believe one is needed, stop and say so in your repor
 
 ## 3. Routes
 
-All paths below are relative to the base `/My-Portfolio/`.
+All paths below are relative to the base `/kishan-kahodariya/`.
 
 | Path | Page | Project tab open |
 |---|---|---|
@@ -76,7 +76,7 @@ All paths below are relative to the base `/My-Portfolio/`.
 - Every field in the types is always present in every file (`""`, `[]`, `false`, `0` when unset),
   so the CMS and the loader never deal with missing keys.
 - Asset paths: absolute `https://` URLs, or site-root-relative paths starting with `/`
-  (`/images/profile.jpg`, `/uploads/x.webp`). Never store the `/My-Portfolio` base in content.
+  (`/images/profile.jpg`, `/uploads/x.webp`). Never store the `/kishan-kahodariya` base in content.
   Render through `assetUrl()` (`src/lib/paths.ts`).
 - Uploaded media goes to `public/uploads/` (CMS `media_folder: public/uploads`,
   `public_folder: /uploads`).
@@ -180,7 +180,7 @@ an accessible name.
 - **SSR-safe code.** Every component is rendered to a string at build time: no `window`,
   `document` or `localStorage` during render or at module top level; use effects.
   Server and first client render must match (no hydration warnings in the console).
-- **Base path.** Never hard-code `/My-Portfolio`. Use `import.meta.env.BASE_URL`, the router,
+- **Base path.** Never hard-code `/kishan-kahodariya`. Use `import.meta.env.BASE_URL`, the router,
   and the helpers in `src/lib/paths.ts`.
 - **TypeScript strict**, no `any`, no `@ts-ignore`. `npx tsc --noEmit` must pass for your files.
 - **CSS Modules** next to the component (`Thing.module.css`); colours, radii, spacing and type
@@ -308,7 +308,7 @@ skipped, build suite 194 passed.
 - No `lazy()` / `<Suspense>` in anything rendered on first load (the prerender fails the build).
 - Never read the theme, `window`, `document` or `localStorage` during render — the dev
   hydration test renders every route as a dark and as a light visitor and fails on a mismatch.
-- `public/admin/**` is copied to `dist/admin/` and served at `/My-Portfolio/admin/`.
+- `public/admin/**` is copied to `dist/admin/` and served at `/kishan-kahodariya/admin/`.
   `scripts/serve-pages.ts` (the GitHub Pages emulator used by the build suite) serves `.yml`.
 - Canonical URLs: `/` for the game default view, `/softdev` for the software default view.
 - Production branch: `master` (named once, in `.github/workflows/deploy.yml`). The CMS branch
@@ -319,7 +319,7 @@ skipped, build suite 194 passed.
 - Build suite: `PW_BUILD_PORT=<port> npx playwright test -c playwright.build.config.ts`
   (it runs `npm run build` first; `PW_SKIP_BUILD=1` reuses an existing `dist/`).
 - Git Bash rewrites env values that start with `/`; use `MSYS_NO_PATHCONV=1` when passing paths
-  such as `PAGES_BASE_PATH=/My-Portfolio`.
+  such as `PAGES_BASE_PATH=/kishan-kahodariya`.
 
 **Phase 2 isolation:** the `pages` and `admin` agents each work in their own git worktree, so
 one agent's edits cannot reload another's dev server. Inside its worktree an agent runs

@@ -202,7 +202,7 @@ function withoutAppScripts(template: string): string {
 
 /**
  * In the deploy workflow, PAGES_BASE_PATH is the path GitHub Pages will really serve the site
- * under ("/My-Portfolio", or "" for a custom domain). If the build was configured with a
+ * under ("/kishan-kahodariya", or "" for a custom domain). If the build was configured with a
  * different base, every asset URL in it would be wrong — stop before publishing that.
  */
 function assertBaseMatchesHost(base: string): void {

@@ -23,7 +23,7 @@ export interface SiteMapTrack {
 }
 
 export interface SiteMap {
-  /** Base path with a trailing slash ("/My-Portfolio/"). */
+  /** Base path with a trailing slash ("/kishan-kahodariya/"). */
   base: string;
   /** Scheme + host used for canonical URLs. */
   origin: string;
@@ -99,7 +99,7 @@ export function expectedView(route: string): ExpectedView {
   return { route, track, tab, canonicalPath, canonicalUrl: `${siteMap.origin}${withBase(canonicalPath)}` };
 }
 
-/** Router path → URL path with the base: "/gamedev/unity" → "/My-Portfolio/gamedev/unity". */
+/** Router path → URL path with the base: "/gamedev/unity" → "/kishan-kahodariya/gamedev/unity". */
 export function withBase(routePath: string): string {
   return `${siteMap.base}${routePath.replace(/^\/+/, '')}`;
 }

@@ -28,7 +28,7 @@ export const TRACK_IDS: readonly TrackId[] = ['game', 'softdev'];
 export const SECTION_IDS = ['about', 'projects', 'experience', 'skills', 'education'] as const;
 export const SECTION_LABELS = ['About', 'Projects', 'Experience', 'Skills', 'Education'] as const;
 
-/** Base path with its trailing slash ("/My-Portfolio/"). */
+/** Base path with its trailing slash ("/kishan-kahodariya/"). */
 export const base = BASE_PATH;
 
 /** Router path of a page view: "/gamedev", "/gamedev/unity". */
@@ -36,7 +36,7 @@ export function routeOf(track: TrackProfile, tab?: string): string {
   return tab ? `/${track.route}/${tab}` : `/${track.route}`;
 }
 
-/** Router path → URL path with the base ("/gamedev/unity" → "/My-Portfolio/gamedev/unity"). */
+/** Router path → URL path with the base ("/gamedev/unity" → "/kishan-kahodariya/gamedev/unity"). */
 export function withBase(routePath: string): string {
   return `${base}${routePath.replace(/^\/+/, '')}`;
 }

@@ -3,7 +3,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 /**
  * The design kit, served by the Vite dev server from the design agent's own entry
  * (src/dev/kit.html) so these specs do not depend on the /__kit route owned by infra.
- * Relative to the Playwright baseURL (http://localhost:<PW_PORT>/My-Portfolio/).
+ * Relative to the Playwright baseURL (http://localhost:<PW_PORT>/kishan-kahodariya/).
  */
 export const KIT_PATH = 'src/dev/kit.html';
 

@@ -4,7 +4,7 @@
  *
  * Shows every token group and every primitive in every state, with controls for the theme
  * (the real ThemeToggle) and the accent track (?track=game|softdev is kept in the URL).
- * Also reachable without the router at /My-Portfolio/src/dev/kit.html (see kit.html).
+ * Also reachable without the router at /kishan-kahodariya/src/dev/kit.html (see kit.html).
  */
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { TrackId } from '@/content/types';

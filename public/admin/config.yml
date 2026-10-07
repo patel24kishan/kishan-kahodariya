@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://unpkg.com/@sveltia/cms@0.230.0/schema/sveltia-cms.json
 #
-# Settings of the content dashboard (Sveltia CMS) served at /My-Portfolio/admin/.
+# Settings of the content dashboard (Sveltia CMS) served at /kishan-kahodariya/admin/.
 #
 # The dashboard edits the JSON files under /content. A save is a commit; the commit starts
 # the deploy workflow; `npm run validate:content` runs first, so a bad save can stop a
@@ -23,7 +23,7 @@
 
 backend:
   name: github
-  repo: patel24kishan/My-Portfolio
+  repo: patel24kishan/kishan-kahodariya
   # -------------------------------------------------------------------------------------
   # PRODUCTION BRANCH — the one place the dashboard names it.
   # Every save is committed to this branch. It must be the branch that
@@ -43,11 +43,11 @@ backend:
 
 # Where the live site is. Used for the "View on Live Site" links and for showing uploaded
 # images. Must equal DEFAULT_SITE_ORIGIN + BASE_PATH in src/lib/site-config.ts.
-site_url: https://patel24kishan.github.io/My-Portfolio
+site_url: https://patel24kishan.github.io/kishan-kahodariya
 app_title: Portfolio Admin
 
 # Uploaded images are committed to public/uploads and are served at /uploads/… .
-# Content stores the path without the /My-Portfolio base (the site adds it).
+# Content stores the path without the /kishan-kahodariya base (the site adds it).
 media_folder: public/uploads
 public_folder: /uploads
 
