@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 560" width="880" height="560" role="img" aria-labelledby="wf-title wf-desc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif">
+  <title id="wf-title">How a content change goes live, and how a visitor is served</title>
+  <desc id="wf-desc">Publishing: the owner saves in the admin dashboard, the save is a commit to the GitHub repository, the commit starts the GitHub Actions deploy workflow, which validates content, validates the dashboard config, type-checks, builds the site, prerenders every page and publishes to GitHub Pages. Visiting: a visitor opens a link, GitHub Pages sends the ready-made page file, and React takes over in the browser.</desc>
+  <style>
+    .bg { fill: #0a0a0a; }
+    .lane { fill: none; stroke: #3a3a3a; stroke-width: 1; stroke-dasharray: 5 5; }
+    .label { fill: #9a9a9a; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; }
+    .box { fill: #1a1a1a; stroke: #3a3a3a; stroke-width: 1; }
+    .title { fill: #ffffff; font-size: 15px; font-weight: 600; text-anchor: middle; }
+    .sub { fill: #cccccc; font-size: 12px; text-anchor: middle; }
+    .wire { fill: none; stroke: #5a5a5a; stroke-width: 1.5; }
+    .cap { fill: #ffffff; font-size: 14px; opacity: 0; animation: show 20s linear infinite; }
+    .capLast { animation-name: showLast; }
+    .static { fill: #ffffff; font-size: 14px; display: none; }
+    .pub .box { animation: hl 20s linear infinite; }
+    .pub.last .box { animation-name: hlLast; }
+    .vis .box { animation: hlBlue 7.5s linear infinite; }
+    .d1 .box, .cap.d1 { animation-delay: 1.8s; }
+    .d2 .box, .cap.d2 { animation-delay: 3.6s; }
+    .d3 .box, .cap.d3 { animation-delay: 5.4s; }
+    .d4 .box, .cap.d4 { animation-delay: 7.2s; }
+    .d5 .box, .cap.d5 { animation-delay: 9s; }
+    .d6 .box, .cap.d6 { animation-delay: 10.8s; }
+    .d7 .box, .cap.d7 { animation-delay: 12.6s; }
+    .d8 .box, .cap.d8 { animation-delay: 14.4s; }
+    .d9 .box, .cap.d9 { animation-delay: 16.2s; }
+    .v1 .box { animation-delay: 2.5s; }
+    .v2 .box { animation-delay: 5s; }
+    @keyframes hl { 0%, 9% { stroke: #faff69; stroke-width: 2.5; } 9.01%, 100% { stroke: #3a3a3a; stroke-width: 1; } }
+    @keyframes hlLast { 0%, 19% { stroke: #faff69; stroke-width: 2.5; } 19.01%, 100% { stroke: #3a3a3a; stroke-width: 1; } }
+    @keyframes hlBlue { 0%, 33.3% { stroke: #7cb2ff; stroke-width: 2.5; } 33.31%, 100% { stroke: #3a3a3a; stroke-width: 1; } }
+    @keyframes show { 0%, 9% { opacity: 1; } 9.01%, 100% { opacity: 0; } }
+    @keyframes showLast { 0%, 19% { opacity: 1; } 19.01%, 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .pub .box, .vis .box, .cap { animation: none; }
+      .cap, .dot { display: none; }
+      .static { display: inline; }
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="880" height="560" rx="14"/>
+
+  <!-- Lane 1: publishing a change -->
+  <rect class="lane" x="24" y="24" width="832" height="330" rx="10"/>
+  <text class="label" x="44" y="52">PUBLISHING A CHANGE</text>
+
+  <!-- Arrows between the four services -->
+  <path class="wire" d="M214 102 H240 M416 102 H442 M618 102 H644"/>
+  <path class="wire" d="M240 102 l-7 -4 M240 102 l-7 4 M442 102 l-7 -4 M442 102 l-7 4 M644 102 l-7 -4 M644 102 l-7 4"/>
+  <!-- GitHub Actions down into the workflow -->
+  <path class="wire" d="M533 134 V152 H176 V198"/>
+  <path class="wire" d="M176 198 l-4 -7 M176 198 l4 -7"/>
+  <!-- Workflow steps -->
+  <path class="wire" d="M292 228 H308 M546 228 H562 M684 252 V264 M568 294 H552 M314 294 H298"/>
+  <path class="wire" d="M308 228 l-7 -4 M308 228 l-7 4 M562 228 l-7 -4 M562 228 l-7 4 M684 264 l-4 -7 M684 264 l4 -7 M552 294 l7 -4 M552 294 l7 4 M298 294 l7 -4 M298 294 l7 4"/>
+  <!-- Publish back up to GitHub Pages -->
+  <path class="wire" d="M176 318 V344 H838 V102 H820"/>
+  <path class="wire" d="M820 102 l7 -4 M820 102 l7 4"/>
+
+  <g class="pub d0"><rect class="box" x="44" y="70" width="170" height="64" rx="8"/><text class="title" x="129" y="98">Admin dashboard</text><text class="sub" x="129" y="118">Sveltia CMS</text></g>
+  <g class="pub d1"><rect class="box" x="246" y="70" width="170" height="64" rx="8"/><text class="title" x="331" y="98">GitHub repo</text><text class="sub" x="331" y="118">Content as JSON files</text></g>
+  <g class="pub d2"><rect class="box" x="448" y="70" width="170" height="64" rx="8"/><text class="title" x="533" y="98">GitHub Actions</text><text class="sub" x="533" y="118">Deploy workflow starts</text></g>
+  <g class="pub last d9"><rect class="box" x="650" y="70" width="170" height="64" rx="8"/><text class="title" x="735" y="98">GitHub Pages</text><text class="sub" x="735" y="118">Live site</text></g>
+
+  <rect class="lane" x="44" y="166" width="772" height="168" rx="10"/>
+  <text class="label" x="800" y="190" text-anchor="end">DEPLOY WORKFLOW</text>
+
+  <g class="pub d3"><rect class="box" x="60" y="204" width="232" height="48" rx="8"/><text class="title" x="176" y="233">Validate content</text></g>
+  <g class="pub d4"><rect class="box" x="314" y="204" width="232" height="48" rx="8"/><text class="title" x="430" y="233">Validate dashboard config</text></g>
+  <g class="pub d5"><rect class="box" x="568" y="204" width="232" height="48" rx="8"/><text class="title" x="684" y="233">Type-check</text></g>
+  <g class="pub d6"><rect class="box" x="568" y="270" width="232" height="48" rx="8"/><text class="title" x="684" y="299">Build site (Vite)</text></g>
+  <g class="pub d7"><rect class="box" x="314" y="270" width="232" height="48" rx="8"/><text class="title" x="430" y="299">Prerender every page</text></g>
+  <g class="pub d8"><rect class="box" x="60" y="270" width="232" height="48" rx="8"/><text class="title" x="176" y="299">Publish</text></g>
+
+  <!-- The dot waits beside the highlighted step, then moves around the boxes to the next one -->
+  <circle class="dot" r="6" fill="#faff69" stroke="#0a0a0a" stroke-width="2">
+    <animateMotion dur="20s" repeatCount="indefinite" calcMode="linear"
+      keyTimes="0;0.06;0.09;0.15;0.18;0.24;0.27;0.33;0.36;0.42;0.45;0.51;0.54;0.60;0.63;0.69;0.72;0.75;0.81;1"
+      keyPoints="0;0;0.0968;0.0968;0.1957;0.1957;0.3149;0.3149;0.3741;0.3741;0.4856;0.4856;0.5417;0.5417;0.5978;0.5978;0.71;0.71;1;1"
+      path="M34 102 L34 62 L230 62 L230 102 L230 62 L432 62 L432 102 L432 152 L176 152 L176 186 L303 186 L303 228 L303 196 L557 196 L557 228 L557 261 L684 261 L557 261 L557 294 L557 261 L303 261 L303 294 L303 344 L838 344 L838 102"/>
+  </circle>
+
+  <!-- Lane 2: visiting the site -->
+  <rect class="lane" x="24" y="374" width="832" height="120" rx="10"/>
+  <text class="label" x="44" y="402">VISITING THE SITE</text>
+
+  <path class="wire" d="M294 446 H309 M565 446 H580"/>
+  <path class="wire" d="M309 446 l-7 -4 M309 446 l-7 4 M580 446 l-7 -4 M580 446 l-7 4"/>
+
+  <g class="vis v0"><rect class="box" x="44" y="416" width="250" height="60" rx="8"/><text class="title" x="169" y="442">Visitor opens a link</text><text class="sub" x="169" y="462">/gamedev/unreal, /softdev …</text></g>
+  <g class="vis v1"><rect class="box" x="315" y="416" width="250" height="60" rx="8"/><text class="title" x="440" y="442">GitHub Pages</text><text class="sub" x="440" y="462">Sends the ready-made page file</text></g>
+  <g class="vis v2"><rect class="box" x="586" y="416" width="250" height="60" rx="8"/><text class="title" x="711" y="442">Browser</text><text class="sub" x="711" y="462">React takes over: tabs, viewer, theme</text></g>
+
+  <circle class="dot" r="6" fill="#7cb2ff" stroke="#0a0a0a" stroke-width="2">
+    <animateMotion dur="7.5s" repeatCount="indefinite" calcMode="linear"
+      keyTimes="0;0.22;0.333;0.553;0.666;1" keyPoints="0;0;0.4993;0.4993;1;1"
+      path="M34 446 L34 485 L304 485 L304 446 L304 485 L575 485 L575 446"/>
+  </circle>
+
+  <!-- Captions for the publishing flow, one per step -->
+  <text class="cap d0" x="44" y="530">1. You edit content in the dashboard and press save.</text>
+  <text class="cap d1" x="44" y="530">2. The save is a commit. GitHub only accepts it with your access token.</text>
+  <text class="cap d2" x="44" y="530">3. The commit starts the deploy workflow automatically.</text>
+  <text class="cap d3" x="44" y="530">4. Every content file is checked. A bad file stops the run here.</text>
+  <text class="cap d4" x="44" y="530">5. The dashboard config is checked against the content schema.</text>
+  <text class="cap d5" x="44" y="530">6. The code is type-checked.</text>
+  <text class="cap d6" x="44" y="530">7. Vite builds the site from published content only.</text>
+  <text class="cap d7" x="44" y="530">8. Every address gets its own HTML file, so refresh and pasted links work.</text>
+  <text class="cap d8" x="44" y="530">9. The built folder is uploaded and published.</text>
+  <text class="cap capLast d9" x="44" y="530">10. Live a minute or two after the save. If a check fails, the old site stays up.</text>
+  <text class="static" x="44" y="530">Save in the dashboard → commit → checks → build → published. If a check fails, the old site stays up.</text>
+</svg>

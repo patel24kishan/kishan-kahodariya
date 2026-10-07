@@ -11,6 +11,91 @@ free on GitHub Pages under `/My-Portfolio/`.
 
 `ARCHITECTURE.md` is the full build contract; `DESIGN.md` is the visual system.
 
+## How it works
+
+![Animated diagram. Publishing: a save in the admin dashboard becomes a commit in the GitHub repo, which starts the GitHub Actions deploy workflow (validate content, validate dashboard config, type-check, build, prerender every page, publish) and ends on GitHub Pages. Visiting: a visitor opens a link, GitHub Pages sends the ready-made page file, and React takes over in the browser.](docs/workflow.svg)
+
+**Publishing a change**
+
+1. The owner edits content in the dashboard at `/admin/` and saves.
+2. The save is a commit to the production branch. GitHub accepts it only with the owner's
+   access token; the dashboard page itself holds no secret.
+3. The commit starts the deploy workflow (`.github/workflows/deploy.yml`).
+4. The workflow validates every content file, validates the dashboard config, type-checks,
+   builds the site, writes one HTML file per address and publishes the result to GitHub Pages.
+5. The change is live a minute or two after the save. If any check fails, nothing is published
+   and the live site stays as it was.
+
+**Visiting the site**
+
+1. A visitor opens any address, for example `/gamedev/unreal`.
+2. GitHub Pages returns that page as a finished HTML file. No server code runs.
+3. React attaches to the page in the browser, and the tabs, the theme toggle and the media
+   viewer become interactive.
+
+There is no database and no server to pay for or maintain.
+
+## Tech stack
+
+| Area | What is used | Why |
+|---|---|---|
+| Build tool | Vite 8 | fast dev server and production build |
+| UI | React 19, TypeScript 7 | components with strict types |
+| Routing | React Router 7 | one page component behind `/`, `/gamedev/<tab>`, `/softdev/<tab>` |
+| Styling | CSS Modules and design tokens (CSS custom properties) | no UI library; light and dark themes, one accent colour per page |
+| Font | Inter Variable, self-hosted (`@fontsource-variable/inter`) | no third-party font requests |
+| Content | JSON files under `content/`, checked with zod 4 | editable through the dashboard, validated before every build |
+| Prerender | a custom script (`scripts/prerender.ts`) using React's server renderer | every address is a real HTML file, so refresh and pasted links work |
+| Dashboard | Sveltia CMS 0.230.0 (pinned, with an integrity hash), GitHub backend, token sign-in | free, no server, saves straight to the repo |
+| Hosting | GitHub Pages | free static hosting |
+| Deploy | GitHub Actions | rebuilds and publishes on every commit to the production branch |
+| Tests | Playwright 1.63 (desktop and phone projects), `@axe-core/playwright` | feature, accessibility and production-build tests |
+| Scripts | tsx, yaml | run the TypeScript scripts and read the dashboard config |
+
+## Folder structure
+
+```
+.
+├── content/                 the site's content, one JSON file per item
+│   ├── site.json            name, credit lines, project tabs
+│   ├── tracks/              the two pages: game.json, softdev.json
+│   ├── projects/            one file per project
+│   ├── experience/  skills/  links/  education/  certificates/
+├── public/                  files served as they are
+│   ├── admin/               the dashboard: index.html, config.yml, slug guard, preview
+│   ├── images/              profile photo and logos
+│   └── uploads/             images uploaded through the dashboard (created on first upload)
+├── src/
+│   ├── pages/               TrackPage: the one public page, used for both pages
+│   ├── components/
+│   │   ├── layout/          nav and footer
+│   │   ├── sections/        hero, projects, experience, skills, education
+│   │   ├── viewer/          the media viewer
+│   │   └── ui/              buttons, chips, tabs, icons and other building blocks
+│   ├── content/             content types, schema and the content API (`@/content`)
+│   ├── styles/              design tokens, reset, base styles
+│   ├── theme/               light/dark theme provider and the sun/moon toggle
+│   ├── lib/                 base-path helpers, document head, scroll rules
+│   ├── dev/                 component showcase, dev server only (`/__kit`)
+│   ├── routes.tsx  App.tsx  route table and app shell
+│   └── main.tsx  entry-server.tsx   browser entry and build-time render entry
+├── scripts/                 prerender, GitHub Pages-like preview server, validators, migration
+├── tests/                   Playwright specs, one folder per area
+│   ├── content/  design/  infra/  pages/  admin/
+│   └── build/               run against the production build
+├── docs/
+│   ├── admin-guide.md       how the owner uses the dashboard
+│   ├── migration-report.md  what was imported from the old site, and what to review
+│   ├── workflow.svg         the animated diagram above
+│   └── sketches/            the approved page wireframes
+├── legacy/constants.js      the old site's content, kept as the migration source
+├── logs/                    notes from the build: progress, issues and decisions
+├── .github/workflows/       deploy.yml (publish) and ci.yml (checks on pull requests)
+├── ARCHITECTURE.md          the build contract: routes, content model, design rules
+├── DESIGN.md                the visual system
+└── index.html, vite.config.ts, tsconfig.json, playwright*.config.ts, package.json
+```
+
 ## Run it
 
 Node 24 and npm are required.
@@ -135,10 +220,11 @@ The old site was built from the `Deploy` branch and published by pushing its bui
 Settings → Pages). Switching over takes these steps, in this order.
 
 1. **Choose the production branch.** `deploy.yml` names it in exactly one place
-   (`on.push.branches`, marked `PRODUCTION BRANCH`). It is set to `master`, which does not
-   exist on GitHub yet. Either create `master` from the finished `redesign/v2`, or change that
-   one line to the branch you want. A manual run (step 6) is only offered when `deploy.yml`
-   is on the repository's default branch, so the production branch should be the default one.
+   (`on.push.branches`, marked `PRODUCTION BRANCH`). It is set to `master`, the repository's
+   default branch, which today holds only the original Create React App starter commit.
+   Either bring the finished `redesign/v2` onto `master`, or change that one line to the
+   branch you want. A manual run (step 6) is only offered when `deploy.yml` is on the
+   repository's default branch, so the production branch should be the default one.
 2. **Get the new site onto that branch** (merge or push `redesign/v2` into it). The dashboard
    must be configured to commit to the same branch.
 3. **GitHub → Settings → Pages → Build and deployment → Source: "GitHub Actions".**
