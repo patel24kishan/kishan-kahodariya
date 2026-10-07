@@ -1,16 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { openKit, presetTheme, THEMES } from './helpers';
+import { focusRingOf, openKit, presetTheme, THEMES } from './helpers';
 
 /** Every interactive element in the kit (links, buttons, the switch, the radio inputs). */
 function interactive(page: Page): Locator {
   return page.locator('main a[href], main button, header a[href], header button, header input, a[href][class*="skip"]');
-}
-
-async function outlineOf(locator: Locator) {
-  return locator.evaluate((el) => {
-    const cs = getComputedStyle(el);
-    return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), color: cs.outlineColor, focused: el === document.activeElement };
-  });
 }
 
 test.describe('focus', () => {
@@ -32,7 +25,9 @@ test.describe('focus', () => {
           void prev;
         });
         await page.keyboard.press('Shift');
-        const ring = await outlineOf(el);
+        // The ring is on the element itself, or on the part it marks with data-focus-ring (the
+        // theme toggle rings its 48 × 22 pill, not its 44px-tall hit area).
+        const ring = await focusRingOf(el);
         if (!ring.focused) continue; // not focusable in this project (e.g. hidden radio) — skipped, not failed
         if (ring.style === 'none' || ring.width < 2) {
           failures.push(`${await el.evaluate((n) => n.tagName)} "${(await el.getAttribute('aria-label')) ?? (await el.innerText()).slice(0, 30)}" → ${ring.style} ${ring.width}px`);

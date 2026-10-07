@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hero fixture</title>
+    <meta name="robots" content="noindex" />
+    <!--
+      Test-only page (tests/pages/hero-fixture.spec.ts). Served by the Vite dev server at
+      /My-Portfolio/tests/pages/support/hero-fixture.html; not part of any build. It mounts
+      the real nav bar, hero and project tabs over hand-made content that covers what the
+      real content cannot: a resume of its own on one project tab, a row with no address,
+      a page without a main resume, and a logo that is missing or does not load.
+        ?track=game|softdev   which hand-made page
+        ?path=/gamedev/unreal the address the page starts at (a "deep link")
+        ?logo=ok|none|broken  the nav logo
+      The theme follows the stored choice like the app.
+    -->
+    <script>
+      (function () {
+        var theme = 'dark';
+        try {
+          var stored = localStorage.getItem('kk-theme');
+          theme = stored === 'light' || stored === 'dark' ? stored : 'dark';
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./hero-fixture.tsx"></script>
+  </body>
+</html>

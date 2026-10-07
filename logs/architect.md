@@ -70,3 +70,35 @@ Phase 2 (pages, admin) starts after the architect has reviewed and integrated ph
 - The 38 skips: 26 dashboard-driving tests on the mobile project (run on desktop), 2 design hover/touch counterparts, 10 page tests whose case does not exist in today's content (no featured project, no project without a screenshot, no remote job, hover/badge counterparts).
 - Visual review by the architect from `docs/screenshots/`: game page dark desktop, software page light phone, viewer on a screenshot. Layout matches the approved sketches. Several hotlinked project images are dead or blocked and show the designed fallback, as expected.
 - Rulings on pages-01 … pages-03: see each issue file.
+
+## 2026-10-07 — Round 2: seven owner changes after review
+
+The owner reviewed the local build and asked for seven changes. A before/after board ("Requested changes: now and after") was added to the design canvas and approved with three notes (avatar logo, slimmer toggle, hover overlay kept on the sliding images).
+
+| # | Change | Decision |
+|---|---|---|
+| 1 | Nav "KK" text becomes a logo | The avatar from the old site's nav (`public/images/logo-cloud.png`) on a white disc, 40px. New `site.logo` / `site.logoAlt`; empty logo falls back to the monogram. |
+| 2 | "Play" buttons highlighted | Project links of kind `play` use the accent button, like "Gameplay". |
+| 3 | One icon on "View Code" | Links of kind `code` always use the GitLab glyph, whatever the host. |
+| 4 | Smaller theme toggle; swap on phones | Pill 48×22 (was 80×36) in nav and footer, hit area stays 44px; under 768px the order is menu button, then toggle. |
+| 5 | Footer "Connect" order | New `orderFooter` on links (email 10, itchio 20, linkedin 30, github 40, blog 50). `order` still drives the hero, which does not change. |
+| 6 | Card images slide | 3s auto-advance for projects with 2+ screenshots, dots, pause on hover/focus, hover overlay kept, off under reduced motion. No project has 2+ screenshots today, so it is proven on a kit fixture. |
+| 7 | Resume per tab | New `tabResumes` on each track and `getResume(track, tab)`. The game track ships an empty "unreal" entry for the owner to fill; empty falls back to the main resume. |
+
+Three builders, each in its own git worktree from the start:
+
+| Agent | Model | Scope | Ports |
+|---|---|---|---|
+| round2-content | Opus 5.5 | contract fields, schema, selectors, content values, dashboard config, owner guide (changes 1, 5, 7 data side) | 5186 / 4186 |
+| round2-cards | Fable 5.1 | project card buttons, icon and image slider (changes 2, 3, 6) | 5187 / 4187 |
+| round2-chrome | Opus 5.5 | part 1: toggle and phone nav order (change 4); part 2 after the content merge: nav logo, hero resume per tab, footer order tests (changes 1, 5, 7 UI side) | 5188 / 4188 |
+
+## 2026-10-07 — Round 2 merged
+
+- All three builders finished; each branch was squash-merged in order: cards (`6ba2fac`), content (`89c2656`), chrome (this commit). No merge conflicts. The architect added `tabResumes: []` to two hand-built page test fixtures at the content merge (round2-content-01).
+- Architect regression on the merged tree: `npx tsc --noEmit` exit 0; `validate:content` and `validate:cms` exit 0 (123 dashboard fields, was 112); `PW_PORT=5180 npx playwright test` → 1294 passed, 60 skipped, 0 failed; `PW_BUILD_PORT=4180 npx playwright test -c playwright.build.config.ts` → 244 passed.
+- Visual review from `docs/screenshots/r2-*.png`: logo on its white disc in the nav (desktop and phone), slim toggle, phone order menu then toggle, accent Play buttons, one View Code icon, footer order on the game page. Matches the approved board.
+- Accepted builder decisions: toggle hit area 48×44 with the focus ring on the pill; logo artwork drawn at 28px inside the 40px disc so the round crop does not cut it; the links field label "Position" renamed "Position next to your name"; slide duration 450ms; slider dots move to the bottom-left on touch screens to stay clear of the badge.
+- Rulings: round2-content-01 … 04 and round2-chrome-01 closed (see each file). round2-cards-01 (visible pause control for the slider, WCAG 2.2.2) is an open owner decision; nothing moves on the site today because no project has a second screenshot.
+- Not provable with today's content: the slider on a real project (fixture only), and a tab's own resume in the built site (the Unreal row is empty until the owner pastes a link; proven on a fixture and with an intercepted content module in dev).
+- A resume-to-site content document was produced for the owner by a separate read-only agent in the git-ignored `private/` folder. It is not part of the repo.

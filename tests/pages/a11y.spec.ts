@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { focusRingOf } from '../design/helpers';
 import { content, hasParseableVideo, routeOf, TRACK_IDS } from './support/content';
 import { openRoute, THEMES, viewer } from './support/page';
 
@@ -66,6 +67,9 @@ for (const trackId of TRACK_IDS) {
   });
 
   test(`${track.route}: keyboard focus is visible on every interactive element`, async ({ page }) => {
+    // About a hundred elements, several browser round trips each: 12 to 14 s on a quiet machine,
+    // past the 30 s limit on a busy one (logs/issues/round2-chrome-01). Three times the budget.
+    test.slow();
     await openRoute(page, routeOf(track, 'all'));
     const elements = await page.locator('a[href], button').all();
     const failures: string[] = [];
@@ -74,14 +78,31 @@ for (const trackId of TRACK_IDS) {
       if (!visible) continue;
       await element.evaluate((node) => (node as HTMLElement).focus());
       await page.keyboard.press('Shift');
-      const ring = await element.evaluate((node) => {
-        const style = getComputedStyle(node);
-        return { focused: node === document.activeElement, outline: style.outlineStyle, width: parseFloat(style.outlineWidth) };
-      });
+      // The ring is on the element itself, or on the part it marks with data-focus-ring (the
+      // theme toggle rings its 48 × 22 pill, not its 44px-tall hit area).
+      const ring = await focusRingOf(element);
       if (!ring.focused) continue;
-      if (ring.outline === 'none' || ring.width < 2) failures.push(`${await element.evaluate((node) => node.tagName)} "${(await element.textContent())?.trim().slice(0, 30)}"`);
+      if (ring.style === 'none' || ring.width < 2) {
+        failures.push(`${await element.evaluate((node) => node.tagName)} "${((await element.getAttribute('aria-label')) ?? (await element.textContent()))?.trim().slice(0, 30)}"`);
+      }
     }
     expect(failures, failures.join('\n')).toEqual([]);
+  });
+
+  test(`${track.route}: the theme toggles draw their focus ring around the pill, in the nav and in the footer`, async ({ page }) => {
+    await openRoute(page, routeOf(track, 'all'));
+    const toggles = await page.getByRole('switch').all();
+    expect(toggles).toHaveLength(2);
+    for (const toggle of toggles) {
+      await toggle.focus();
+      await page.keyboard.press('Shift'); // keeps :focus-visible on
+      const ring = await focusRingOf(toggle);
+      expect(ring.focused).toBe(true);
+      expect(ring.onChild, 'the ring is drawn on the pill').toBe(true);
+      expect(ring.style).toBe('solid');
+      expect(ring.width).toBeGreaterThanOrEqual(2);
+      expect(ring.ownStyle, 'no second ring around the hit area').toBe('none');
+    }
   });
 }
 

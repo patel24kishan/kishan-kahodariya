@@ -641,7 +641,7 @@ export default function Kit() {
             </div>
           </div>
           <p className={styles.note}>
-            <code>&lt;button role="switch"&gt;</code>, <code>aria-checked</code> true in light mode, name states the action. 88 × 44px hit area.
+            <code>&lt;button role="switch"&gt;</code>, <code>aria-checked</code> true in light mode, name states the action. 48 × 22px pill in a 48 × 44px hit area.
           </p>
         </Section>
 

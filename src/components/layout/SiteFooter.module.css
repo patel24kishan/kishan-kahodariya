@@ -81,13 +81,10 @@
   font-size: var(--text-body-sm);
 }
 
+/* The toggle's pill is as wide as its hit area, so it ends flush with the gutter. */
 .bottom {
   display: flex;
   justify-content: flex-end;
-}
-
-.toggle {
-  margin-inline-end: -4px;
 }
 
 /* ---- Credit strip: near-black with accent text in both themes ------------------------- */

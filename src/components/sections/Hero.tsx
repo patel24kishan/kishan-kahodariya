@@ -12,6 +12,11 @@ export interface HeroProps {
   name: string;
   /** site.monogram — the photo's fallback. */
   monogram: string;
+  /**
+   * getResume(track, openTab) — the resume for the project tab that is open now. An empty url
+   * hides the button; an empty label reads "Resume".
+   */
+  resume: { url: string; label: string };
   /** getLinks(track, 'hero'). */
   links: SocialLink[];
 }
@@ -24,14 +29,15 @@ function reveal(step: number): CSSProperties {
 }
 
 /**
- * Hero (#about) — name, headline in the accent, summary, the resume button and the hero
- * links, the profile photo in a circle (right on desktop, on top on phones). The short
- * staggered reveal is CSS only (it also runs with JavaScript off) and is switched off under
- * prefers-reduced-motion. The photo is the LCP candidate: eager, high priority, sized.
+ * Hero (#about) — name, headline in the accent, summary, the resume button (it follows the open
+ * project tab) and the hero links, the profile photo in a circle (right on desktop, on top on
+ * phones). The short staggered reveal is CSS only (it also runs with JavaScript off) and is
+ * switched off under prefers-reduced-motion. The photo is the LCP candidate: eager, high
+ * priority, sized.
  */
-export function Hero({ track, name, monogram, links }: HeroProps) {
+export function Hero({ track, name, monogram, resume, links }: HeroProps) {
   const photo = assetUrl(track.photo);
-  const resumeUrl = track.resumeUrl.trim();
+  const resumeUrl = resume.url.trim();
 
   return (
     <Section id="about" aria-labelledby={TITLE_ID} className={styles.hero} containerClassName={styles.inner}>
@@ -53,7 +59,7 @@ export function Hero({ track, name, monogram, links }: HeroProps) {
           <div className={styles.actions} style={reveal(3)}>
             {resumeUrl && (
               <LinkButton variant="accent" size="lg" href={resumeUrl} data-hero-resume>
-                {track.resumeLabel || 'Resume'}
+                {resume.label.trim() || 'Resume'}
               </LinkButton>
             )}
             {links.map((link) => (

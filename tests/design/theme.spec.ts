@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { headerToggle, openKit, presetTheme } from './helpers';
+import { expectToggleGeometry, focusRingOf, headerToggle, openKit, presetTheme, THEMES, TOGGLE, TRACKS } from './helpers';
 
 test.describe('theme toggle', () => {
   test('is a named switch that flips data-theme, aria-checked and its name', async ({ page }) => {
@@ -112,4 +112,105 @@ test.describe('theme toggle', () => {
     expect(box!.height).toBeGreaterThanOrEqual(44);
     expect(box!.width).toBeGreaterThanOrEqual(44);
   });
+
+  for (const theme of THEMES) {
+    test(`draws a 48 × 22 pill in a 44px hit area with the knob inside it, by night and by day — starting ${theme}`, async ({ page }) => {
+      await presetTheme(page, theme);
+      await openKit(page);
+      // The header, the canvas, the surface, the accent cell and the footer band sample.
+      const switches = await page.getByRole('switch').all();
+      expect(switches.length).toBeGreaterThanOrEqual(5);
+
+      const first = theme === 'light' ? 'day' : 'night';
+      for (const [index, toggle] of switches.entries()) await expectToggleGeometry(toggle, first, `toggle ${index + 1}`);
+
+      // Switched from the keyboard, so no pointer rests on a knob while it is measured.
+      await headerToggle(page).focus();
+      await page.keyboard.press('Space');
+      const second = first === 'day' ? 'night' : 'day';
+      await expect(page.locator('html')).toHaveAttribute('data-theme', second === 'day' ? 'light' : 'dark');
+      for (const [index, toggle] of switches.entries()) await expectToggleGeometry(toggle, second, `toggle ${index + 1}`);
+    });
+  }
+
+  test('the knob stays inside the pill while the pointer rests on it', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'no hover on touch devices');
+    await presetTheme(page, 'dark');
+    await openKit(page);
+    const toggle = headerToggle(page);
+    await toggle.hover();
+    // The hover state enlarges the knob a little: wait for that, then measure both states.
+    await expect
+      .poll(() => toggle.locator('[data-theme-toggle-knob]').evaluate((knob) => knob.getBoundingClientRect().width))
+      .toBeGreaterThan(TOGGLE.knobSize + 0.5);
+    await expectToggleGeometry(toggle, 'night');
+    await toggle.click();
+    await expectToggleGeometry(toggle, 'day');
+  });
+
+  for (const theme of THEMES) {
+    test(`the ring separates the pill from what is behind it — ${theme}`, async ({ page }) => {
+      await presetTheme(page, theme);
+      await openKit(page);
+      const ringOf = (selector: string) =>
+        page
+          .locator(selector)
+          .first()
+          .evaluate((pill) => {
+            const ring = getComputedStyle(pill, '::after');
+            return { color: ring.borderTopColor, style: ring.borderTopStyle, width: parseFloat(ring.borderTopWidth) };
+          });
+      const onCanvas = await ringOf('#kit-theme-toggle [data-theme-toggle-pill]');
+      const onAccent = await ringOf('[data-on-accent] [data-theme-toggle-pill]');
+      const nearBlack = await page.evaluate(() => {
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--color-on-accent)';
+        document.querySelector('[data-on-accent]')!.append(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      });
+      for (const ring of [onCanvas, onAccent]) {
+        expect(ring.style).toBe('solid');
+        // Browsers snap border widths to whole device pixels: 1.5px is drawn 1px to 1.5px wide.
+        expect(ring.width).toBeGreaterThanOrEqual(1);
+        expect(ring.width).toBeLessThanOrEqual(TOGGLE.ring);
+      }
+      // Inside an accent band the ring is near-black; on the canvas it is the theme's own blue.
+      expect(onAccent.color).toBe(nearBlack);
+      expect(onCanvas.color).not.toBe(nearBlack);
+    });
+  }
+
+  for (const track of TRACKS) {
+    test(`keyboard focus draws one ring, around the pill — ${track}`, async ({ page }) => {
+      await presetTheme(page, 'dark');
+      await openKit(page, track);
+      for (const toggle of await page.getByRole('switch').all()) {
+        await toggle.focus();
+        await page.keyboard.press('Shift'); // keeps :focus-visible on
+        const ring = await focusRingOf(toggle);
+        expect(ring.focused).toBe(true);
+        expect(ring.onChild, 'the ring is drawn on the pill').toBe(true);
+        expect(ring.style).toBe('solid');
+        expect(ring.width).toBeGreaterThanOrEqual(2);
+        expect(ring.ownStyle, 'no second ring around the hit area').toBe('none');
+        // The ring uses the focus colour of the region it is in (near-black inside an accent band).
+        const colours = await toggle.evaluate((button) => {
+          const pill = button.querySelector('[data-focus-ring]')!;
+          const probe = document.createElement('span');
+          probe.style.color = 'var(--color-focus)';
+          button.append(probe);
+          const token = getComputedStyle(probe).color;
+          probe.remove();
+          return { ring: getComputedStyle(pill).outlineColor, token };
+        });
+        expect(colours.ring).toBe(colours.token);
+      }
+      // Without keyboard focus there is no ring.
+      await page.locator('main#kit-main').focus();
+      const idle = await focusRingOf(headerToggle(page));
+      expect(idle.style).toBe('none');
+    });
+  }
 });

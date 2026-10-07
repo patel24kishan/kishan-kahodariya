@@ -1,10 +1,12 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { expectToggleGeometry, toggleBoxes } from '../design/helpers';
 import { assetHref, content, isExternal, routeOf, SECTION_IDS, SECTION_LABELS, TRACK_IDS, withBase } from './support/content';
-import { openRoute, sectionsNav, tabsNav, trackPage } from './support/page';
+import { cssVar, openRoute, sectionsNav, tabsNav, THEMES, trackPage } from './support/page';
 
 /**
  * The page's skeleton on both pages: landmarks, section order, headings, the nav and its
- * anchors, the skip link, the phone menu, image and link hygiene, no overflow at 320px.
+ * anchors, the skip link, the phone menu, the theme toggle in the bar, image and link hygiene,
+ * no overflow at 320px.
  */
 const site = content.getSite();
 
@@ -64,7 +66,7 @@ for (const trackId of TRACK_IDS) {
       await expect(page.locator('#education').getByRole('heading', { level: 2 })).toHaveText(/Education/);
     });
 
-    test('the nav links the sections in order and the monogram goes to the top', async ({ page }) => {
+    test('the nav links the sections in order and the logo goes to the top', async ({ page }) => {
       await openRoute(page, routeOf(track));
       // A CSS locator: behind the closed phone menu the nav is display:none, which role queries skip.
       const links = sectionsNav(page).locator('a[href]');
@@ -74,10 +76,39 @@ for (const trackId of TRACK_IDS) {
         await expect(links.nth(index)).toHaveText(SECTION_LABELS[index]!);
         await expect(page.locator(`#${id}`)).toHaveCount(1);
       }
-      const monogram = page.getByRole('banner').getByRole('link', { name: new RegExp(`${site.name}.*top`) });
-      await expect(monogram).toHaveText(site.monogram);
-      await expect(monogram).toHaveAttribute('href', '#top');
+      // One link, named once, whether it shows the logo picture or the monogram text.
+      const brand = page.getByRole('banner').getByRole('link', { name: `${site.name} — top of page`, exact: true });
+      await expect(brand).toHaveCount(1);
+      await expect(brand).toHaveAttribute('href', '#top');
       await expect(page.locator('#top')).toHaveCount(1);
+      if (site.logo) {
+        // The logo picture: the content path with the base in front, sized, eager, and it loads.
+        await expect(brand).toHaveAttribute('data-nav-brand', 'logo');
+        const logo = brand.locator('img[data-nav-logo]');
+        await expect(logo).toHaveCount(1);
+        await expect(logo).toHaveAttribute('src', assetHref(site.logo));
+        await expect(logo).toHaveAttribute('alt', site.logoAlt);
+        await expect(logo).toHaveAttribute('width', /^\d+$/);
+        await expect(logo).toHaveAttribute('height', /^\d+$/);
+        await expect(logo).toHaveAttribute('loading', 'eager');
+        await expect(logo).toHaveAttribute('decoding', 'async');
+        await expect.poll(() => logo.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+        expect((await brand.innerText()).trim(), 'no monogram text next to the picture').toBe('');
+        // 40px white disc, round, in a link of at least 44px, at the left end of the bar.
+        const disc = brand.locator('[data-nav-logo-disc]');
+        await expect(disc).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+        await expect(disc).toHaveCSS('border-top-left-radius', '50%');
+        const [discBox, brandBox] = await Promise.all([disc.boundingBox(), brand.boundingBox()]);
+        expect(discBox!.width).toBeCloseTo(40, 1);
+        expect(discBox!.height).toBeCloseTo(40, 1);
+        expect(brandBox!.width).toBeGreaterThanOrEqual(44);
+        expect(brandBox!.height).toBeGreaterThanOrEqual(44);
+        const gutter = parseFloat(await cssVar(page.locator('html'), '--gutter'));
+        expect(discBox!.x, 'the disc starts at the gutter').toBeCloseTo(gutter, 0);
+      } else {
+        await expect(brand).toHaveAttribute('data-nav-brand', 'monogram');
+        await expect(brand).toHaveText(site.monogram);
+      }
       // No link between the two pages, on purpose.
       const other = content.getTracks().find((candidate) => candidate.id !== trackId);
       if (other) {
@@ -123,7 +154,8 @@ for (const trackId of TRACK_IDS) {
           if (!image.getAttribute('width') || !image.getAttribute('height')) problems.push(`${src}: no width/height`);
           const external = /^(?:https?:)?\/\//i.test(src) && new URL(src, location.href).origin !== location.origin;
           if (external && image.getAttribute('referrerpolicy') !== 'no-referrer') problems.push(`${src}: no referrerpolicy`);
-          const aboveTheFold = image.closest('#about') !== null;
+          // The hero photo and the logo in the bar are on screen at once: those load eagerly.
+          const aboveTheFold = image.closest('#about') !== null || image.closest('header') !== null;
           if (!aboveTheFold && image.getAttribute('loading') !== 'lazy') problems.push(`${src}: not lazy`);
           return problems;
         }),
@@ -217,6 +249,138 @@ test.describe('phone menu', () => {
     await expect(page.getByRole('button', { name: 'Open menu' })).toBeHidden();
     await expect(sectionsNav(page)).toBeVisible();
     await expect(sectionsNav(page).getByRole('link')).toHaveCount(SECTION_IDS.length);
+  });
+
+  test('the menu button sits left of the theme toggle, in the DOM and in the tab order too', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'there is no menu button above 768px');
+    await openRoute(page, routeOf(track));
+    const banner = page.getByRole('banner');
+    const button = banner.locator('[data-menu-button]');
+    const toggle = banner.getByRole('switch');
+    const monogram = banner.getByRole('link', { name: new RegExp(`${site.name}.*top`) });
+    await expect(button).toBeVisible();
+    await expect(toggle).toBeVisible();
+
+    // On screen: logo … [menu button] [theme toggle], on one line, without overlapping.
+    const [logoBox, buttonBox, toggleBox] = await Promise.all([monogram.boundingBox(), button.boundingBox(), toggle.boundingBox()]);
+    expect(logoBox!.x + logoBox!.width).toBeLessThanOrEqual(buttonBox!.x);
+    expect(buttonBox!.x + buttonBox!.width).toBeLessThanOrEqual(toggleBox!.x);
+    expect(toggleBox!.x - (buttonBox!.x + buttonBox!.width), 'gap between the two hit areas').toBeGreaterThanOrEqual(8);
+    expect(buttonBox!.y + buttonBox!.height / 2).toBeCloseTo(toggleBox!.y + toggleBox!.height / 2, 0);
+
+    // In the DOM: the menu button comes before the toggle.
+    const follows = await button.evaluate((menuButton) => {
+      const themeToggle = menuButton.closest('header')!.querySelector('[role="switch"]')!;
+      return (menuButton.compareDocumentPosition(themeToggle) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    });
+    expect(follows, 'the theme toggle follows the menu button in the DOM').toBe(true);
+
+    // With the keyboard: Tab goes from the menu button to the toggle, Shift+Tab comes back.
+    await button.focus();
+    await page.keyboard.press('Tab');
+    await expect(toggle).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(button).toBeFocused();
+
+    // Still true while the menu is open (the button becomes "Close menu").
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    const [openButtonBox, openToggleBox] = await Promise.all([button.boundingBox(), toggle.boundingBox()]);
+    expect(openButtonBox).toEqual(buttonBox);
+    expect(openToggleBox).toEqual(toggleBox);
+  });
+});
+
+test.describe('theme toggle in the nav', () => {
+  const track = content.getTrack('game');
+
+  /** The right edge of the bar's content box: where the gutter starts. */
+  function barContentRight(page: Page): Promise<number> {
+    return page
+      .getByRole('banner')
+      .locator('> *')
+      .first()
+      .evaluate((bar) => bar.getBoundingClientRect().right - parseFloat(getComputedStyle(bar).paddingRight));
+  }
+
+  for (const theme of THEMES) {
+    test(`is a 48 × 22 pill in a 44px hit area, the right-most control, knob inside by night and by day — ${theme}`, async ({ page }) => {
+      await openRoute(page, routeOf(track), { theme });
+      const banner = page.getByRole('banner');
+      const toggle = banner.getByRole('switch');
+      await expect(toggle).toHaveCount(1);
+      const first = theme === 'light' ? 'day' : 'night';
+      await expectToggleGeometry(toggle, first, 'nav toggle');
+
+      // Nothing in the bar is further right, and the pill ends flush with the gutter.
+      const { button, pill } = await toggleBoxes(toggle);
+      expect(pill.right).toBeCloseTo(await barContentRight(page), 1);
+      const others = await banner.locator('a[href], button').evaluateAll((controls) =>
+        controls.filter((control) => control.getAttribute('role') !== 'switch' && control.getClientRects().length > 0).map((control) => control.getBoundingClientRect().right),
+      );
+      expect(others.length).toBeGreaterThan(0);
+      for (const right of others) expect(right).toBeLessThanOrEqual(button.left + 0.05);
+
+      // The bar keeps its height: the smaller pill does not pull it in, the hit area does not push it out.
+      const navHeight = await cssVar(page.locator('html'), '--nav-height');
+      const barHeight = await banner.locator('> *').first().evaluate((bar) => bar.getBoundingClientRect().height);
+      expect(barHeight).toBe(parseFloat(navHeight));
+
+      // Switched from the keyboard, so no pointer rests on the knob while it is measured.
+      await toggle.focus();
+      await page.keyboard.press('Space');
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
+      await expectToggleGeometry(toggle, first === 'day' ? 'night' : 'day', 'nav toggle');
+    });
+  }
+
+  test('switches the theme, keeps the choice in localStorage["kk-theme"] and comes back with it after a reload', async ({ page }) => {
+    await openRoute(page, routeOf(track), { theme: 'dark' });
+    const html = page.locator('html');
+    const toggle = page.getByRole('banner').getByRole('switch');
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(toggle).toHaveAccessibleName('Switch to light mode');
+
+    await toggle.click();
+    await expect(html).toHaveAttribute('data-theme', 'light');
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    await expect(toggle).toHaveAccessibleName('Switch to dark mode');
+    expect(await page.evaluate(() => localStorage.getItem('kk-theme'))).toBe('light');
+
+    await page.reload();
+    await expect(html).toHaveAttribute('data-theme', 'light');
+    const reloaded = page.getByRole('banner').getByRole('switch');
+    await expect(reloaded).toHaveAttribute('aria-checked', 'true');
+    await expectToggleGeometry(reloaded, 'day', 'nav toggle after a reload');
+    await expectToggleGeometry(page.getByRole('contentinfo').getByRole('switch'), 'day', 'footer toggle after a reload');
+
+    await reloaded.click();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    expect(await page.evaluate(() => localStorage.getItem('kk-theme'))).toBe('dark');
+  });
+
+  test('the bar controls do not move while the page loads', async ({ page }) => {
+    // Record every layout shift from the first paint on, with the elements that moved.
+    await page.addInitScript(() => {
+      const moved: string[] = [];
+      (window as unknown as { __navShifts: string[] }).__navShifts = moved;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          const sources = (entry as unknown as { sources?: { node: Node | null }[] }).sources ?? [];
+          for (const source of sources) {
+            const element = source.node instanceof Element ? source.node : source.node?.parentElement;
+            if (!element?.closest('header')) continue;
+            // A control (the logo link included), a part of one, or a box in the bar that holds one.
+            const controls = '[data-theme-toggle], [data-menu-button], [data-nav-brand]';
+            if (element.closest(controls) || element.querySelector(controls)) moved.push(`${element.tagName.toLowerCase()}.${element.className}`);
+          }
+        }
+      }).observe({ type: 'layout-shift', buffered: true });
+    });
+    await openRoute(page, routeOf(track), { theme: 'light' });
+    await expect(page.getByRole('banner').getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => (window as unknown as { __navShifts: string[] }).__navShifts)).toEqual([]);
   });
 });
 

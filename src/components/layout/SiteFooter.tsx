@@ -53,7 +53,7 @@ export function SiteFooter({ links, credit }: SiteFooterProps) {
             </div>
           </div>
           <div className={styles.bottom}>
-            <ThemeToggle className={styles.toggle} />
+            <ThemeToggle />
           </div>
         </Container>
       </div>

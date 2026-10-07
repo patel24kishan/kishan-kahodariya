@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { assetHref, content, isExternal, routeOf, SECTION_IDS, SECTION_LABELS, TRACK_IDS } from './support/content';
-import { cssVar, hexToRgb, openRoute, trackPage } from './support/page';
+import { expectToggleGeometry, toggleBoxes } from '../design/helpers';
+import { cssVar, hexToRgb, openRoute, THEMES, trackPage } from './support/page';
 
 /** Experience, Skills, Education & Certificates and the footer, per page, against the content API. */
 const site = content.getSite();
@@ -221,6 +222,10 @@ for (const trackId of TRACK_IDS) {
       const [bandBox, toggleBox, connectBox] = await Promise.all([band.boundingBox(), toggle.boundingBox(), connect.first().boundingBox()]);
       expect(toggleBox!.x + toggleBox!.width).toBeGreaterThan(bandBox!.x + bandBox!.width - 80);
       expect(toggleBox!.y).toBeGreaterThan(connectBox!.y);
+      // The pill ends flush with the band's content edge (the gutter), like the columns above it.
+      const { pill } = await toggleBoxes(toggle);
+      const contentRight = await band.locator('> *').first().evaluate((inner) => inner.getBoundingClientRect().right - parseFloat(getComputedStyle(inner).paddingRight));
+      expect(pill.right).toBeCloseTo(contentRight, 1);
 
       // The credit strip: one line each, accent on near-black.
       const credit = footer.locator('p').filter({ hasText: site.credit[0] ?? '' }).first();
@@ -245,5 +250,45 @@ for (const trackId of TRACK_IDS) {
       await page.getByRole('banner').getByRole('switch').click();
       await expect(html).toHaveAttribute('data-theme', 'dark');
     });
+
+    test('the Connect buttons follow the footer order and the hero buttons the hero order, each from the content API', async ({ page }) => {
+      await openRoute(page, routeOf(track));
+      const hero = content.getLinks(trackId, 'hero');
+      // The footer buttons carry no short name: they are told apart by their address.
+      const footerOnPage = await page.getByRole('contentinfo').locator('a[data-variant="onAccent"]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('href')));
+      expect(footerOnPage).toEqual(links.map((link) => link.url));
+      const heroOnPage = await page.locator('#about [data-hero-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('data-hero-link')));
+      expect(heroOnPage).toEqual(hero.map((link) => link.slug));
+
+      // The two places are ordered on their own: a link that is in both keeps its hero position
+      // in the hero and its footer position in the footer, even where the two orders disagree.
+      const heroUrls = await page.locator('#about [data-hero-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('href')));
+      const shared = (list: readonly string[], other: readonly string[]) => list.filter((url) => other.includes(url));
+      const apiHero = hero.map((link) => link.url);
+      const apiFooter = links.map((link) => link.url);
+      expect(shared(heroUrls as string[], footerOnPage as string[])).toEqual(shared(apiHero, apiFooter));
+      expect(shared(footerOnPage as string[], heroUrls as string[])).toEqual(shared(apiFooter, apiHero));
+    });
+
+    for (const theme of THEMES) {
+      test(`the footer toggle is a 48 × 22 pill in a 44px hit area on the accent band, knob inside — ${theme}`, async ({ page }) => {
+        await openRoute(page, routeOf(track), { theme });
+        const band = page.getByRole('contentinfo').locator('[data-on-accent]');
+        const toggle = band.getByRole('switch');
+        await toggle.scrollIntoViewIfNeeded();
+        const first = theme === 'light' ? 'day' : 'night';
+        await expectToggleGeometry(toggle, first, 'footer toggle');
+
+        // Inside the accent band the pill's ring is near-black, on yellow and on blue alike.
+        const ring = await toggle.locator('[data-theme-toggle-pill]').evaluate((pill) => getComputedStyle(pill, '::after').borderTopColor);
+        expect(ring).toBe(hexToRgb(await cssVar(band, '--color-on-accent')));
+
+        // Switched from the keyboard, so no pointer rests on the knob while it is measured.
+        await toggle.focus();
+        await page.keyboard.press('Space');
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
+        await expectToggleGeometry(toggle, first === 'day' ? 'night' : 'day', 'footer toggle');
+      });
+    }
   });
 }

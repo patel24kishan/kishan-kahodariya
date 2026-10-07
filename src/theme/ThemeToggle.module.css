@@ -1,15 +1,20 @@
-/* Sun / moon pill switch. Only transform and opacity animate; the ring colour snaps. */
+/*
+ * Sun / moon pill switch. Only transform and opacity animate; the ring colour snaps.
+ *
+ * Geometry (CSS px): the button is the 48 × 44 hit area; the visible pill is 48 × 22, centred
+ * in it. The knob is 16 × 16 with 3px of sky around it, so it travels from x=3 to x=29.
+ */
 
 .toggle {
   --toggle-ring: #5a6a8a; /* 3.6:1 on the dark canvas */
-  --knob-shift: 44px;     /* 80 − 2·(5 + 2) − 26 → knob travels from x=5 to x=49 */
+  --knob-shift: 26px;     /* 48 − 2·3 − 16 → knob travels from x=3 to x=29 */
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 88px;
+  width: 48px;
   height: 44px;
-  padding: 4px;
+  padding: 0;
   flex-shrink: 0;
   border-radius: var(--radius-pill);
   cursor: pointer;
@@ -17,8 +22,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/*
+ * The focus ring hugs the pill instead of the taller hit area: the button's own outline is
+ * replaced by the same 2px ring on the pill (never a bare outline: none).
+ */
 .toggle:focus-visible {
-  border-radius: var(--radius-pill);
+  outline: none;
+}
+
+.toggle:focus-visible .pill {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 :global([data-theme='light']) .toggle {
@@ -33,23 +47,38 @@
 .pill {
   position: relative;
   display: block;
-  width: 80px;
-  height: 36px;
+  flex: none;
+  width: 48px;
+  height: 22px;
   overflow: hidden;
-  border: 2px solid var(--toggle-ring);
   border-radius: var(--radius-pill);
   background: #0f1b33;
   isolation: isolate;
 }
 
+/*
+ * The ring is an overlay, not a border on the pill: browsers snap border widths to whole device
+ * pixels, and a border would move the knob by that rounding. Drawn over the skies, it leaves
+ * the knob's position exact at every zoom level and pixel ratio.
+ */
+.pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--toggle-ring);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
 .sky {
   position: absolute;
-  inset: -2px; /* cover the border box so the sky reaches the ring */
+  inset: 0; /* the sky runs under the ring */
   display: block;
   transition: opacity var(--duration-slow) var(--ease);
 }
 
 .sky svg {
+  display: block;
   width: 100%;
   height: 100%;
 }
@@ -68,8 +97,8 @@
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 26px;
-  height: 26px;
+  width: 16px;
+  height: 16px;
   display: block;
   border-radius: 50%;
   transform: translateX(var(--knob-shift));
@@ -81,6 +110,8 @@
 .sun {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   transition: opacity var(--duration-slow) var(--ease);
 }
 

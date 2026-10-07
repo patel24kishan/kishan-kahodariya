@@ -36,11 +36,69 @@
   }
 }
 
+/*
+ * With the logo: the link is a 44px circle around the 40px disc, pulled 2px into the gutter so
+ * the disc itself (not its hit area) lines up with the page's left edge.
+ */
+.withLogo {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-inline-start: -2px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.withLogo:focus-visible {
+  border-radius: 50%;
+}
+
+/*
+ * The 40px disc. The artwork is drawn with black outlines on a transparent background, so it
+ * always sits on white (raw white on purpose: it is the picture's paper, the same in both
+ * themes). The border is always there, so nothing changes size between themes; it only shows
+ * in the light theme, where a white disc would otherwise melt into the off-white canvas.
+ */
+.logoFrame {
+  --logo-disc: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--logo-disc);
+}
+
+:global([data-theme='light']) .logoFrame {
+  border-color: var(--color-hairline-strong);
+}
+
+/*
+ * The picture is a square that uses its corners, and a round crop would cut them off (a
+ * rounded <img> clips its own content). So the disc is the frame above and the picture is the
+ * largest square that fits inside it: 40 / √2 ≈ 28px. `contain` keeps any other shape whole.
+ */
+.logo {
+  display: block;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Menu button (phones only), then the theme toggle, whose pill ends flush with the gutter. */
 .controls {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-inline-start: auto;
+}
+
+.menuSlot {
+  display: flex;
 }
 
 /* ---- Phone: the links live in a panel under the bar, shown only while open ------------- */
