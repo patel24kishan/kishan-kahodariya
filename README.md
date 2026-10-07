@@ -2,7 +2,11 @@
 
 The portfolio site of Kishan Kahodariya: two public pages that share one layout, a game
 development page and a software page. It is a static site (Vite, React, TypeScript) hosted for
-free on GitHub Pages under `/kishan-kahodariya/`.
+free on GitHub Pages.
+
+**Live site: https://patel24kishan.github.io/kishan-kahodariya/**
+
+Dashboard: https://patel24kishan.github.io/kishan-kahodariya/admin/
 
 - `/` and `/gamedev` — the game page
 - `/softdev` — the software page
@@ -226,41 +230,41 @@ Two workflows live in `.github/workflows/`:
 - **`ci.yml`** — on pull requests only: type-check, content validation, build, both test
   suites. It never deploys.
 
-Neither workflow runs for plain pushes to `redesign/v2`. **Nothing is published until the
-go-live checklist below is done.**
+`master` is the production branch. A push to it, which includes every dashboard save,
+publishes the site. Pushes to any other branch, `redesign/v2` included, do not.
 
-## Go-live checklist (owner)
+## Live setup (and how to recreate it)
 
-The old site was built from the `Deploy` branch and published by pushing its build to the
-`gh-pages` branch, so that is presumably what GitHub Pages serves today (check under
-Settings → Pages). Switching over takes these steps, in this order.
+The site is live at `https://patel24kishan.github.io/kishan-kahodariya/`. These are the
+settings it depends on. If the site ever shows the wrong thing, check them in this order.
 
-1. **Choose the production branch.** `deploy.yml` names it in exactly one place
-   (`on.push.branches`, marked `PRODUCTION BRANCH`). It is set to `master`, the repository's
-   default branch, which today holds only the original Create React App starter commit.
-   Either bring the finished `redesign/v2` onto `master`, or change that one line to the
-   branch you want. A manual run (step 6) is only offered when `deploy.yml` is on the
-   repository's default branch, so the production branch should be the default one.
-2. **Get the new site onto that branch** (merge or push `redesign/v2` into it). The dashboard
-   must be configured to commit to the same branch.
-3. **GitHub → Settings → Pages → Build and deployment → Source: "GitHub Actions".**
-   This is the switch that stops GitHub serving the old `gh-pages` build and lets
-   `deploy.yml` publish instead. Until it is set, GitHub keeps serving the old site.
-4. **GitHub → Settings → Environments → `github-pages` → Deployment branches:** allow only the
+1. **Production branch.** `deploy.yml` names it in exactly one place (`on.push.branches`,
+   marked `PRODUCTION BRANCH`). It is `master`, the repository's default branch, and the
+   dashboard commits to the same branch (`public/admin/config.yml`, `backend.branch`).
+2. **GitHub → Settings → Pages → Build and deployment → Source: "GitHub Actions".** This is the
+   switch that lets `deploy.yml` publish. **If it is set back to "Deploy from a branch", GitHub
+   serves the old `gh-pages` build instead** and the site shows a blank page with 404s.
+   Deleting or restoring the `gh-pages` branch can do this. Do not use that branch.
+3. **GitHub → Settings → Environments → `github-pages` → Deployment branches:** only the
    production branch, so a manual run from another branch cannot publish.
-5. **GitHub → Settings → Actions → General:** Actions must be allowed for the repository. The
-   default read-only workflow permission is enough; the workflow asks for what it needs.
-6. **Deploy:** push to the production branch, or run Actions → Deploy → Run workflow.
-7. **Check the live site:** `https://patel24kishan.github.io/kishan-kahodariya/`, a deep link such
-   as `/kishan-kahodariya/softdev/webapps` (refresh it), and a wrong address (the 404 page).
-8. **Dashboard:** create the access token and sign in at `/kishan-kahodariya/admin/` as described
-   in `docs/admin-guide.md`. Save one small change and watch it go live.
-9. Afterwards the `gh-pages` branch is no longer used and can be deleted.
+4. **GitHub → Settings → Actions → General:** Actions allowed. The default read-only workflow
+   permission is enough; the workflow asks for what it needs.
+5. **Deploy by hand:** Actions → Deploy → Run workflow, on `master`.
+6. **Check the site:** the home page, a deep link such as `/softdev/webapps` (refresh it), and
+   a wrong address (the 404 page).
+7. **Dashboard:** create a fine-grained access token for this repository only (Contents: read
+   and write) and sign in at `/admin/` as described in `docs/admin-guide.md`. A save appears
+   on the site a few minutes later; the Actions tab shows the run, and a red run means the
+   save broke a content rule and the previous site stays up.
+8. The `gh-pages` branch holds the old Create React App build. Nothing uses it.
 
 Things that would need a code change:
 
 - **Renaming the repository or adding a custom domain** changes the path the site is served
-  under. Update `BASE_PATH` (and `DEFAULT_SITE_ORIGIN`) in `src/lib/site-config.ts`. The
+  under (the repository is `kishan-kahodariya`, so the path is `/kishan-kahodariya/`). Update
+  `BASE_PATH` (and `DEFAULT_SITE_ORIGIN`) in `src/lib/site-config.ts`, the repository and site
+  address in `public/admin/config.yml`, then rename on GitHub and push to `master` straight
+  away. A link to the old address stops working. The
   deploy build compares its base path with the one GitHub reports and fails with a clear
   message if they differ, rather than publishing a site with broken links.
 - **`robots.txt`.** Crawlers only read `robots.txt` at the root of a host
