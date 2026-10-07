@@ -102,3 +102,11 @@ Three builders, each in its own git worktree from the start:
 - Rulings: round2-content-01 … 04 and round2-chrome-01 closed (see each file). round2-cards-01 (visible pause control for the slider, WCAG 2.2.2) is an open owner decision; nothing moves on the site today because no project has a second screenshot.
 - Not provable with today's content: the slider on a real project (fixture only), and a tab's own resume in the built site (the Unreal row is empty until the owner pastes a link; proven on a fixture and with an intercepted content module in dev).
 - A resume-to-site content document was produced for the owner by a separate read-only agent in the git-ignored `private/` folder. It is not part of the repo.
+
+## 2026-10-07 — Go-live
+
+- On the owner's instruction ("merge to master and go live"): the owner's local dashboard test edit to `content/experience/astro-game-studio.json` was discarded, and `master` on GitHub was fast-forwarded from `2a4b901` to `856fd93` (`git push origin redesign/v2:master`, no force).
+- The Deploy workflow ran for the first time (run 37655330456): build job and deploy job both succeeded, every step green. The repository's Pages source was evidently already able to take a workflow deployment, so the new site went live with this run; the earlier note that a settings switch was still needed turned out not to apply.
+- Checked on `https://patel24kishan.github.io/My-Portfolio/` after the run: `/`, `/gamedev`, `/gamedev/unreal`, `/softdev`, `/softdev/webapps`, `/admin/` and the logo return 200; `/gamedev/typo` and an unknown address return 404; the prerendered HTML carries the right title and open tab per route. In Chromium at desktop and Pixel 7 sizes: pages hydrate, a tab click moves to `/gamedev/unreal`, no sideways scroll, the admin page offers only "Sign In Using Access Token". Four console errors on desktop are the known blocked hotlinked project images.
+- Still unverified, and only the owner can do it: token sign-in, a real dashboard save, and the deploy that follows it (docs/admin-guide.md, section 16).
+- From now on every push to `master` publishes. Work continues on `redesign/v2`; nothing goes to `master` without the owner's word.
