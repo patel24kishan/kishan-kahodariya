@@ -9,7 +9,8 @@
     "C#",
     "Blender",
     "UI Builder",
-    "Photoshop"
+    "Photoshop",
+    "Android/iOS"
   ],
   "category": "unity",
   "audience": "game",
@@ -27,12 +28,7 @@
   "videoUrl": "",
   "links": [
     {
-      "label": "View Code",
-      "url": "",
-      "kind": "code"
-    },
-    {
-      "label": "Gameplay",
+      "label": "Referenced Game",
       "url": "https://apps.apple.com/us/app/kolor-it/id1477042251",
       "kind": "store"
     }
