@@ -13,7 +13,7 @@
   ],
   "category": "unreal",
   "audience": "game",
-  "featured": false,
+  "featured": true,
   "published": true,
   "orderGame": 40,
   "orderSoftdev": 40,
@@ -22,6 +22,30 @@
     {
       "src": "https://gameassetsfree.com/assets/105953-invector-shooter-cover-add-on-0-8-unity/105953-invector-shooter-cover-add-on-0-8-unity.webp",
       "alt": "Third Person Shooter cover image"
+    },
+    {
+      "src": "/uploads/screenshot-2026-10-08-164025.webp",
+      "alt": "shooting enemies"
+    },
+    {
+      "src": "/uploads/screenshot-2026-10-08-163925.webp",
+      "alt": "more ai"
+    },
+    {
+      "src": "/uploads/screenshot-2026-10-08-163904.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/screenshot-2026-10-08-163741.webp",
+      "alt": "scenic view"
+    },
+    {
+      "src": "/uploads/screenshot-2026-10-08-163602.webp",
+      "alt": "shooting enemy"
+    },
+    {
+      "src": "/uploads/screenshot-2026-10-08-163533.webp",
+      "alt": "losing scene"
     }
   ],
   "videoUrl": "https://youtu.be/x_k_9Ft1_pk",
