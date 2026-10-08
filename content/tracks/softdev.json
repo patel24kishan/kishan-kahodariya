@@ -11,6 +11,6 @@
   "photo": "/images/profile-640.webp",
   "photoAlt": "Kishan Kahodariya",
   "certificatesFirst": true,
-  "metaTitle": "Kishan Kahodariya — Software Developer",
-  "metaDescription": "As creative developer, I build APIs and full-stack web apps with C#, .NET and React, with 5+ years of backend and API design behind me. I’ve run SaaS transactional apps on multi-region cloud backends across Azure, AWS and GCP, and I turn business requirements into code teams can maintain."
+  "metaTitle": "Kishan Kahodariya",
+  "metaDescription": "I build APIs and full-stack web apps with C#, .NET and React, with 5+ years of backend and API design behind me. I’ve run SaaS transactional apps on multi-region cloud backends across Azure, AWS and GCP, and I turn business requirements into code teams can maintain."
 }
