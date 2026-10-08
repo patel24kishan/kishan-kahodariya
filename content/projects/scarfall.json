@@ -23,13 +23,8 @@
       "alt": "Scarfall cover image"
     }
   ],
-  "videoUrl": "",
+  "videoUrl": "https://www.youtube.com/watch?v=FOES50Z8zIg",
   "links": [
-    {
-      "label": "View Code",
-      "url": "",
-      "kind": "code"
-    },
     {
       "label": "Play",
       "url": "https://scarfall.in/",
