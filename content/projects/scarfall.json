@@ -13,7 +13,7 @@
   ],
   "category": "unity",
   "audience": "game",
-  "featured": false,
+  "featured": true,
   "published": true,
   "orderGame": 60,
   "orderSoftdev": 60,
