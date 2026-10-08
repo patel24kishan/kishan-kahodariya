@@ -124,3 +124,9 @@ Three builders, each in its own git worktree from the start:
 - Architect decisions: the stack stays (CSS Modules, no Tailwind); Inter for all type, because the prompt's display font is a demo with an unconfirmed licence; `lucide-react` added for the new glyphs; hero numbers are counted from the content at build time, never invented; the video is the prompt's link, editable in the dashboard, with a poster, a pause control and no autoplay under reduced motion or data saver; the profile photo leaves the hero.
 - Three builders in worktrees: motion-content (Opus 5.5; contract fields, `getHeroStats`, poster, dashboard), motion-sections (Fable 5.1; reveal on scroll, Projects, Experience timeline, Skills marquee, Education, Get in touch), motion-chrome (Opus 5.5; part 1 nav and full-screen phone menu, part 2 the hero after the content merge).
 - The harness created the three worktrees from `e02d513` (the last pushed commit), not from the local spec commit `d3dbca8`. Each agent was messaged to fast-forward to `redesign/motion-v1` before starting.
+
+## 2026-10-08 — Motion build stopped; back to design
+
+- The owner stopped the build minutes after it started and asked to go back to designing. All three builder agents were stopped. None had written or committed anything; no servers were running. Their worktrees and branches were removed.
+- `lucide-react` was uninstalled again. `redesign/motion-v1` now differs from `master` only by documents: `docs/motion/MOTION.md` (marked DRAFT, design only), the three mockups in `docs/sketches/motion/`, and this log.
+- No site code changed. The live site is untouched. Nothing is built until the owner approves a design and says to go ahead.

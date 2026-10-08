@@ -1,4 +1,6 @@
-# Motion redesign — build spec (branch `redesign/motion-v1`)
+# Motion redesign — design spec, DRAFT (branch `redesign/motion-v1`)
+
+> **Status: design only.** The owner stopped the build on 2026-10-08 before any code was written, to keep working on the design. Nothing in this file is built. `lucide-react` is not installed. Do not build from this file until the owner approves a design and says to go ahead.
 
 Owned by the architect. The owner supplied a prompt for an agency hero page ("VANGUARD") and
 asked for the site to be re-imagined from it **using his own content**. He approved three
