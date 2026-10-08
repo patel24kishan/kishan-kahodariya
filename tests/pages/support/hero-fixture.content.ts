@@ -34,14 +34,24 @@ function link(overrides: Partial<SocialLink> & Pick<SocialLink, 'slug' | 'label'
   return { audience: 'both', order: 10, orderFooter: 10, showInHero: true, showInFooter: true, published: true, ...overrides };
 }
 
+/** The game page's main summary, and the summaries two of its tabs have of their own. */
+export const MAIN_SUMMARY = 'Fixture main summary.';
+/** Two paragraphs, the second with a line break, and longer than the main one. */
+export const UNREAL_SUMMARY = 'Fixture Unreal summary, first paragraph.\n\nSecond paragraph, first line.\nSecond paragraph, second line.';
+export const UNITY_SUMMARY = 'Fixture Unity summary.';
+export const SOFTDEV_UNITY_SUMMARY = 'Fixture software-page Unity summary.';
+
 /**
- * Game page: a main resume, and one row per case —
- *   unreal   its own address and its own label,
- *   unity    a row with no address (falls back to the main resume and the main label),
- *   all      its own address, no label (keeps the main label),
- *   webapps  no row at all (main resume).
- * Software page: no main resume; only the webapps tab has one, without a label (the button
- * reads "Resume"); on every other tab there is no resume button.
+ * Game page: a main resume and a main summary, and one row per case —
+ *   unreal   its own address and its own label; its own summary (resume and summary),
+ *   unity    a row with no address (falls back to the main resume and the main label), but
+ *            with its own summary (summary only),
+ *   all      its own address, no label (keeps the main label); a summary of spaces only
+ *            (resume only: the main summary),
+ *   webapps  no row at all (main resume, main summary).
+ * Software page: no main resume and no main summary; only the webapps tab has a resume,
+ * without a label (the button reads "Resume"), and only the unity tab has a summary; on every
+ * other tab there is no resume button and no summary block.
  */
 export const FIXTURE_CONTENT: ContentBundle = {
   site: {
@@ -67,10 +77,11 @@ export const FIXTURE_CONTENT: ContentBundle = {
       defaultTab: 'unity',
       resumeUrl: 'https://example.com/resume/game.pdf',
       resumeLabel: 'Game Dev Resume',
+      summary: MAIN_SUMMARY,
       tabResumes: [
-        { tab: 'unreal', url: 'https://example.com/resume/unreal.pdf', label: 'Unreal Resume' },
-        { tab: 'unity', url: '', label: 'Unity Resume' },
-        { tab: 'all', url: 'https://example.com/resume/everything.pdf', label: '' },
+        { tab: 'unreal', url: 'https://example.com/resume/unreal.pdf', label: 'Unreal Resume', summary: UNREAL_SUMMARY },
+        { tab: 'unity', url: '', label: 'Unity Resume', summary: UNITY_SUMMARY },
+        { tab: 'all', url: 'https://example.com/resume/everything.pdf', label: '', summary: '   ' },
       ],
     }),
     track({
@@ -80,7 +91,11 @@ export const FIXTURE_CONTENT: ContentBundle = {
       defaultTab: 'webapps',
       resumeUrl: '',
       resumeLabel: '',
-      tabResumes: [{ tab: 'webapps', url: 'https://example.com/resume/web.pdf', label: '' }],
+      summary: '',
+      tabResumes: [
+        { tab: 'webapps', url: 'https://example.com/resume/web.pdf', label: '', summary: '' },
+        { tab: 'unity', url: '', label: '', summary: SOFTDEV_UNITY_SUMMARY },
+      ],
     }),
   ],
   projects: [],

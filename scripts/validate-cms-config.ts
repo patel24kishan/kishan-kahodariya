@@ -190,7 +190,7 @@ function sampleTrack(id: (typeof TRACK_IDS)[number]): TrackProfile {
     summary: 'Summary.',
     resumeUrl: 'https://example.com/resume',
     resumeLabel: 'Resume',
-    tabResumes: [{ tab: 'sample-tab', url: 'https://example.com/tab-resume', label: 'Tab Resume' }],
+    tabResumes: [{ tab: 'sample-tab', url: 'https://example.com/tab-resume', label: 'Tab Resume', summary: 'Tab summary.' }],
     defaultTab: 'sample-tab',
     photo: '/images/profile.jpg',
     photoAlt: 'Sample Person',

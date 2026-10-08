@@ -112,6 +112,14 @@ export function getResume(track: TrackId, tabId: string): { url: string; label: 
   return api.getResume(track, tabId);
 }
 
+/**
+ * The hero summary for one page while `tabId` is the open tab: the tab's own summary when its
+ * row has one (not blank), otherwise the track's summary. Independent of the tab's resume.
+ */
+export function getSummary(track: TrackId, tabId: string): string {
+  return api.getSummary(track, tabId);
+}
+
 /** Published education entries sorted by order. */
 export function getEducation(): Education[] {
   return api.getEducation();

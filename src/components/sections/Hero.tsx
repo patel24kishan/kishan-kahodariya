@@ -13,6 +13,11 @@ export interface HeroProps {
   /** site.monogram — the photo's fallback. */
   monogram: string;
   /**
+   * getSummary(track, openTab) — the summary for the project tab that is open now (the tab's
+   * own text, or the page's). A blank text renders no summary block.
+   */
+  summary: string;
+  /**
    * getResume(track, openTab) — the resume for the project tab that is open now. An empty url
    * hides the button; an empty label reads "Resume".
    */
@@ -29,13 +34,13 @@ function reveal(step: number): CSSProperties {
 }
 
 /**
- * Hero (#about) — name, headline in the accent, summary, the resume button (it follows the open
- * project tab) and the hero links, the profile photo in a circle (right on desktop, on top on
+ * Hero (#about) — name, headline in the accent, the summary and the resume button (both follow
+ * the open project tab) and the hero links, the profile photo in a circle (right on desktop, on top on
  * phones). The short staggered reveal is CSS only (it also runs with JavaScript off) and is
  * switched off under prefers-reduced-motion. The photo is the LCP candidate: eager, high
  * priority, sized.
  */
-export function Hero({ track, name, monogram, resume, links }: HeroProps) {
+export function Hero({ track, name, monogram, summary, resume, links }: HeroProps) {
   const photo = assetUrl(track.photo);
   const resumeUrl = resume.url.trim();
 
@@ -50,9 +55,9 @@ export function Hero({ track, name, monogram, resume, links }: HeroProps) {
             {track.headline}
           </p>
         )}
-        {track.summary && (
-          <div className={styles.summary} style={reveal(2)}>
-            <Paragraphs text={track.summary} />
+        {summary.trim() !== '' && (
+          <div className={styles.summary} style={reveal(2)} data-hero-summary>
+            <Paragraphs text={summary} />
           </div>
         )}
         {(resumeUrl || links.length > 0) && (

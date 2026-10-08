@@ -523,16 +523,17 @@ function changedLines(before: string, after: string): number {
   return a.length === b.length ? a.filter((line, index) => line !== b[index]).length : -1;
 }
 
-test.describe('a resume for one project tab', () => {
+test.describe('a resume and a summary for one project tab', () => {
   const gamePath = 'content/tracks/game.json';
-  const LIST = 'Resume for a specific tab';
-  const TAB = 'Tab with its own resume';
+  const LIST = 'Resume and summary for a specific tab';
+  const TAB = 'Tab this row is for';
   const LINK = 'Resume link for this tab';
   const TEXT = 'Button text for this tab';
+  const SUMMARY = 'Summary on this tab';
   const [firstTab, secondTab] = tabs;
 
   /** The real content, with the game page holding one prepared row (a tab, no link yet). */
-  function seeded(rows: Dict[] = [{ tab: firstTab?.id, url: '', label: '' }]): { files: Record<string, string>; start: Dict } {
+  function seeded(rows: Dict[] = [{ tab: firstTab?.id, url: '', label: '', summary: '' }]): { files: Record<string, string>; start: Dict } {
     const start = { ...parsed(gamePath), tabResumes: rows };
     return { files: { ...tree, [gamePath]: serialise(writeEntry(targetFor(targets, gamePath).fields, start)) }, start };
   }
@@ -561,7 +562,7 @@ test.describe('a resume for one project tab', () => {
 
     // The prepared row: the hint, the tab choices of Site settings, its tab selected, no link.
     const list = await openList(dashboard, 1);
-    await expect(list).toContainText('Leave empty to use the main resume on every tab.');
+    await expect(list).toContainText('Leave empty to use the main resume and the main summary on every tab.');
     const choice = list.getByRole('radiogroup', { name: TAB, exact: true });
     await expect(choice.getByRole('radio')).toHaveCount(tabs.length);
     for (const tab of tabs) await expect(choice.getByRole('radio', { name: tab.label, exact: true })).toBeVisible();
@@ -571,7 +572,7 @@ test.describe('a resume for one project tab', () => {
     // 1. Paste the link (with spaces around it, as a paste often has).
     await list.getByRole('textbox', { name: LINK, exact: true }).fill('  https://example.com/first-tab-resume  ');
     await dashboard.save();
-    const withLink = { ...start, tabResumes: [{ tab: firstTab.id, url: 'https://example.com/first-tab-resume', label: '' }] };
+    const withLink = { ...start, tabResumes: [{ tab: firstTab.id, url: 'https://example.com/first-tab-resume', label: '', summary: '' }] };
     const afterLink = serialise(writeEntry(fields, withLink));
     await expect.poll(() => dashboard.file(gamePath), 'after pasting the link').toBe(afterLink);
     expect(changedLines(files[gamePath] ?? '', afterLink), 'one line of the file changed').toBe(1);
@@ -581,7 +582,7 @@ test.describe('a resume for one project tab', () => {
 
     // 2. Add a row for another tab, with a button text of its own.
     const again = await openList(dashboard, 1);
-    await again.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
+    await again.getByRole('button', { name: /Add.*Resume and summary for one tab/ }).click();
     await expect(again.getByRole('radiogroup', { name: TAB, exact: true })).toHaveCount(2);
     await again.getByRole('radiogroup', { name: TAB, exact: true }).last().getByRole('radio', { name: secondTab.label, exact: true }).check();
     await again.getByRole('textbox', { name: LINK, exact: true }).last().fill('https://example.com/second-tab-resume');
@@ -589,11 +590,11 @@ test.describe('a resume for one project tab', () => {
     await dashboard.save();
     const withRow = {
       ...withLink,
-      tabResumes: [...withLink.tabResumes, { tab: secondTab.id, url: 'https://example.com/second-tab-resume', label: 'Second Tab Resume' }],
+      tabResumes: [...withLink.tabResumes, { tab: secondTab.id, url: 'https://example.com/second-tab-resume', label: 'Second Tab Resume', summary: '' }],
     };
     const afterRow = serialise(writeEntry(fields, withRow));
     await expect.poll(() => dashboard.file(gamePath), 'after adding a row').toBe(afterRow);
-    expect(Object.keys((parsed(gamePath, { [gamePath]: afterRow }).tabResumes as Dict[])[1] ?? {}), 'the new row has every key, in order').toEqual(['tab', 'url', 'label']);
+    expect(Object.keys((parsed(gamePath, { [gamePath]: afterRow }).tabResumes as Dict[])[1] ?? {}), 'the new row has every key, in order').toEqual(['tab', 'url', 'label', 'summary']);
 
     // No other file was touched; the content check passes; the site answers with both.
     expect(await dashboard.contentFiles()).toEqual({ ...files, [gamePath]: afterRow });
@@ -617,6 +618,61 @@ test.describe('a resume for one project tab', () => {
     expect(api.getResume('game', firstTab.id)).toEqual({ url: track.resumeUrl, label: track.resumeLabel });
   });
 
+  test('typing a summary in the prepared row changes one line; a summary alone is used by the site; emptying it gives the tab the main summary back', async ({ page }) => {
+    test.setTimeout(150_000);
+    test.skip(!firstTab || !secondTab, 'the content has fewer than two project tabs');
+    if (!firstTab || !secondTab) return;
+    const { files, start } = seeded();
+    const fields = targetFor(targets, gamePath).fields;
+    const dashboard = await Dashboard.start(page, files);
+    const track = parsed(gamePath);
+    // Test-only text: it lives in the dashboard's private copy and never reaches /content.
+    const OWN = 'Test-only summary, first paragraph.\n\nTest-only summary, second paragraph.';
+    expect(String(track.summary).trim(), 'the game page has a main summary to fall back to').not.toBe('');
+
+    // The prepared row: an empty multi-line box with its hint; the link is described as optional.
+    const list = await openList(dashboard, 1);
+    const box = await dashboard.reveal(list.getByRole('textbox', { name: SUMMARY, exact: true }));
+    await expect(box).toHaveValue('');
+    expect(await box.evaluate((element) => element.tagName), 'a multi-line box').toBe('TEXTAREA');
+    await expect(list).toContainText('Leave empty to use the main summary above.');
+    await expect(list).toContainText('Leave empty to use the main resume above.');
+
+    // 1. Type two paragraphs (with spaces around them); the row has no resume link.
+    await box.fill(`  ${OWN}  `);
+    await dashboard.save();
+    const withSummary = { ...start, tabResumes: [{ tab: firstTab.id, url: '', label: '', summary: OWN }] };
+    const afterSummary = serialise(writeEntry(fields, withSummary));
+    await expect.poll(() => dashboard.file(gamePath), 'after typing the summary').toBe(afterSummary);
+    expect(changedLines(files[gamePath] ?? '', afterSummary), 'one line of the file changed').toBe(1);
+    expect((parsed(gamePath, { [gamePath]: afterSummary }).tabResumes as Dict[])[0]).toEqual({ tab: firstTab.id, url: '', label: '', summary: OWN });
+    expect(await dashboard.contentFiles()).toEqual({ ...files, [gamePath]: afterSummary });
+    expect(dashboard.configComplaints()).toEqual([]);
+    const check = await contentCheck(dashboard, 'tab-summary');
+    expect(check.status, check.output).toBe(0);
+    expect(check.stdout, 'every key was written: the reader filled in nothing').not.toContain('NOTE');
+
+    // The site: that tab shows the text, every other tab and the other page keep their own,
+    // and the resume of the tab is still the main one.
+    let api = await siteApi(dashboard, 'tab-summary-1');
+    expect(api.getSummary('game', firstTab.id)).toBe(OWN);
+    expect(api.getSummary('game', secondTab.id)).toBe(track.summary);
+    expect(api.getSummary('game', 'all')).toBe(track.summary);
+    expect(api.getSummary('softdev', firstTab.id), 'the other page keeps its own summary').toBe(parsed('content/tracks/softdev.json').summary);
+    expect(api.getResume('game', firstTab.id)).toEqual({ url: track.resumeUrl, label: track.resumeLabel });
+    expect(api.getTrack('game').summary, 'the main summary is untouched').toBe(track.summary);
+
+    // 2. The saved text comes back in the form as it was saved; emptying it restores the file.
+    const again = await openList(dashboard, 1);
+    const boxAgain = await dashboard.reveal(again.getByRole('textbox', { name: SUMMARY, exact: true }));
+    await expect(boxAgain).toHaveValue(OWN);
+    await boxAgain.fill('');
+    await dashboard.save();
+    await expect.poll(() => dashboard.file(gamePath), 'after emptying the summary').toBe(files[gamePath]);
+    api = await siteApi(dashboard, 'tab-summary-2');
+    expect(api.getSummary('game', firstTab.id)).toBe(track.summary);
+  });
+
   for (const value of ['drive.google.com/file/d/1', 'mailto:someone@example.com', '/uploads/resume.pdf']) {
     test(`the link of a row must be a web address: ${JSON.stringify(value)} is refused`, async ({ page }) => {
       const { files } = seeded();
@@ -635,7 +691,7 @@ test.describe('a resume for one project tab', () => {
     const { files } = seeded();
     const dashboard = await Dashboard.start(page, files);
     const list = await openList(dashboard, 1);
-    await list.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
+    await list.getByRole('button', { name: /Add.*Resume and summary for one tab/ }).click();
     await expect(list.getByRole('radiogroup', { name: TAB, exact: true })).toHaveCount(2);
     await list.getByRole('radiogroup', { name: TAB, exact: true }).last().getByRole('radio', { name: firstTab.label, exact: true }).check();
     await dashboard.save();
@@ -653,14 +709,14 @@ test.describe('a resume for one project tab', () => {
     const fields = targetFor(targets, gamePath).fields;
     const dashboard = await Dashboard.start(page, files);
     const list = await openList(dashboard, 0);
-    await list.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
+    await list.getByRole('button', { name: /Add.*Resume and summary for one tab/ }).click();
     await expect(list.getByRole('radiogroup', { name: TAB, exact: true })).toHaveCount(1);
     // The tab is required: a row without one is not saved.
     const messages = await dashboard.saveExpectingErrors();
     expect(messages).toContain('This field is required.');
     await list.getByRole('radiogroup', { name: TAB, exact: true }).getByRole('radio', { name: firstTab.label, exact: true }).check();
     await dashboard.save();
-    const expected = serialise(writeEntry(fields, { ...start, tabResumes: [{ tab: firstTab.id, url: '', label: '' }] }));
+    const expected = serialise(writeEntry(fields, { ...start, tabResumes: [{ tab: firstTab.id, url: '', label: '', summary: '' }] }));
     await expect.poll(() => dashboard.file(gamePath)).toBe(expected);
     expect((await contentCheck(dashboard, 'tab-resume-new')).status).toBe(0);
   });

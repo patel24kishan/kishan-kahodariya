@@ -145,7 +145,7 @@ All text, links and project data live in the repository as JSON, one file per it
 
 ```
 content/site.json            name, nav logo, credit lines, project categories (the tabs)
-content/tracks/*.json        the two pages: headline, summary, resume (and a resume per tab), default tab, page title
+content/tracks/*.json        the two pages: headline, summary, resume (and a resume and a summary per tab), default tab, page title
 content/projects/*.json      one project each: text, tags, screenshots, video, buttons
 content/links/*.json         social links, with one order for the hero and one for the footer
 content/experience/*.json    content/skills/*.json

@@ -10,7 +10,14 @@
     {
       "tab": "unreal",
       "url": "",
-      "label": ""
+      "label": "",
+      "summary": ""
+    },
+    {
+      "tab": "unity",
+      "url": "",
+      "label": "",
+      "summary": ""
     }
   ],
   "defaultTab": "unity",

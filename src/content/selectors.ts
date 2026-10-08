@@ -47,6 +47,7 @@ export interface ContentApi {
   getSkillGroups(track: TrackId): SkillGroup[];
   getLinks(track: TrackId, placement: 'hero' | 'footer'): SocialLink[];
   getResume(track: TrackId, tabId: string): ResumeButton;
+  getSummary(track: TrackId, tabId: string): string;
   getEducation(): Education[];
   getCertificates(track: TrackId): Certificate[];
   getAllRoutes(): string[];
@@ -181,6 +182,15 @@ export function createContentApi(content: ContentBundle): ContentApi {
     return { url: own.url, label: own.label.trim() !== '' ? own.label : profile.resumeLabel };
   }
 
+  function getSummary(track: TrackId, tabId: string): string {
+    const profile = getTrack(track);
+    // Independent of the row's resume link: a row may hold a summary, a resume, or both.
+    const own = (profile.tabResumes ?? []).find(
+      (entry) => entry.tab === tabId && typeof entry.summary === 'string' && entry.summary.trim() !== '',
+    );
+    return own ? own.summary : profile.summary;
+  }
+
   function getEducation(): Education[] {
     return published(content.education).sort(
       (a, b) => a.order - b.order || compareText(a.school, b.school) || compareText(a.slug, b.slug),
@@ -216,6 +226,7 @@ export function createContentApi(content: ContentBundle): ContentApi {
     getSkillGroups,
     getLinks,
     getResume,
+    getSummary,
     getEducation,
     getCertificates,
     getAllRoutes,

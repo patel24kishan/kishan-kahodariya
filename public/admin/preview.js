@@ -37,6 +37,7 @@ import {
   projectButtons,
   resolvedBullets,
   resumeForTab,
+  summaryForTab,
   tabLabel,
   tabs,
 } from './preview-logic.js';
@@ -468,18 +469,28 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
             ${str(data.resumeUrl) !== '' ? `Opens ${data.resumeUrl}` : 'Hidden — there is no resume link.'}
           <//>
           ${tabResumeRows.length === 0
-            ? html`<${Fact} label="Resume per tab">None — every tab uses the resume button above.<//>`
+            ? html`<${Fact} label="Resume per tab">None — every tab uses the resume button above.<//>
+                <${Fact} label="Summary per tab">None — every tab uses the summary above.<//>`
             : tabResumeRows.map((row, index) => {
                 const name = (site ? tabLabel(site, row.tab) : '') || row.tab;
                 const repeated = tabResumeRows.findIndex((other) => other.tab === row.tab) !== index;
                 const used = resumeForTab(data, row.tab);
-                return html`<${Fact} key=${index} label=${`Resume on the ${name} tab`}>
-                  ${repeated
-                    ? 'This tab already has a row above — remove one of the two, or the next update of the site is stopped.'
-                    : row.url.trim() === ''
-                      ? 'No link yet — this tab uses the resume button above.'
-                      : `Opens ${used.url} — button text “${used.label || 'Resume'}”.`}
-                <//>`;
+                const usedSummary = summaryForTab(data, row.tab);
+                const twice = 'This tab already has a row above — remove one of the two, or the next update of the site is stopped.';
+                return html`<${Fact} key=${`resume-${index}`} label=${`Resume on the ${name} tab`}>
+                    ${repeated
+                      ? twice
+                      : row.url.trim() === ''
+                        ? 'No link yet — this tab uses the resume button above.'
+                        : `Opens ${used.url} — button text “${used.label || 'Resume'}”.`}
+                  <//>
+                  <${Fact} key=${`summary-${index}`} label=${`Summary on the ${name} tab`}>
+                    ${repeated
+                      ? twice
+                      : usedSummary.from === 'main'
+                        ? 'No text yet — this tab uses the summary above.'
+                        : usedSummary.text}
+                  <//>`;
               })}
           <${Fact} label="Tab that opens first">
             ${firstTab !== '' ? firstTab : site ? 'This tab does not exist any more — choose another.' : ''}

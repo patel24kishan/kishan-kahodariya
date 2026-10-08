@@ -151,15 +151,48 @@ the other page; the rest keep their order.
 Your name, the logo, the footer credit lines and the project tabs are under
 **Site settings**.
 
+### Give a project tab its own summary
+
+The summary is the paragraph under the headline. Each page has one main summary (the
+**Summary** field above). A project tab can have a summary of its own: while a visitor has
+that tab open, the page shows that text instead of the main one.
+
+**The software page.** Its summary is its own **Summary** field: click **Pages**, then
+**Software page**, write the text in **Summary** and press **Save**. It is separate from the
+game page's summary.
+
+**The Unity tab and the Unreal tab of the game page.** Each has a row of its own:
+
+1. Click **Pages**, then **Game page**.
+2. Under **Resume and summary for a specific tab**, open the row of the tab. The game page
+   already has an empty row for **Unreal** and one for **Unity3D**; **Tab this row is for**
+   shows which tab a row belongs to.
+3. Write the text in **Summary on this tab**. Leave an empty line between two paragraphs.
+4. Press **Save**. Do the same in the other row for the other tab.
+
+For any other tab, click **Add Resume and summary for one tab**, choose the tab in **Tab this
+row is for** and write its summary.
+
+Good to know:
+
+- A row whose **Summary on this tab** is empty changes nothing: that tab shows the main
+  summary. To go back to the main summary, empty the box and save.
+- The summary and the resume of a row are independent. You can fill in only the summary, only
+  the resume link, or both.
+- A tab's summary can be longer or shorter than the main one. The rest of the page simply
+  moves down or up when a visitor changes tab.
+- Tabs without a row (and the "All" tab) show the main summary.
+- The summary belongs to the page: a row on the game page does not change the software page.
+
 ### Add a resume for one project tab
 
 A page has one main resume (the **Resume link** above). A project tab can have a resume of
 its own: while a visitor has that tab open, the resume button opens that one instead.
 
 1. Click **Pages**, then the page (for example **Game page**).
-2. Under **Resume for a specific tab**, open the row of the tab — the game page already has
-   an empty row for **Unreal** — or click **Add Resume for one tab** and choose the tab in
-   **Tab with its own resume**.
+2. Under **Resume and summary for a specific tab**, open the row of the tab — the game page
+   already has an empty row for **Unreal** and one for **Unity3D** — or click **Add Resume and
+   summary for one tab** and choose the tab in **Tab this row is for**.
 3. Paste the link in **Resume link for this tab**. It must be a full address starting with
    `https://`, for example a Google Drive share link.
 4. **Button text for this tab** is optional, for example `Unreal Resume`. Left empty, the
@@ -168,11 +201,13 @@ its own: while a visitor has that tab open, the resume button opens that one ins
 
 Good to know:
 
-- Leave the list empty to use the main resume on every tab.
-- A row without a link changes nothing: that tab uses the main resume until you paste one.
+- Leave the list empty to use the main resume and the main summary on every tab.
+- A row without a link does not change the resume: that tab uses the main resume until you
+  paste one. (Its summary still counts, if you wrote one.)
 - Use each tab in one row only. Two rows for the same tab are refused (section 13).
-- The "All" tab cannot be chosen here. It always uses the main resume.
-- To go back to the main resume, delete the row (or empty its link) and save.
+- The "All" tab cannot be chosen here. It always uses the main resume and the main summary.
+- To go back to the main resume, empty the link of the row and save. Delete the row only when
+  the tab should use the main summary as well.
 
 ### Change the logo
 
@@ -204,7 +239,7 @@ Two rules:
 - **Never change the ID of a tab that already has projects.** The projects point at the ID.
   Changing the *name* is always fine.
 - Do not delete a tab that still has projects. Move the projects to another tab first.
-  If a page has a resume row for that tab (section 8), delete that row too.
+  If a page has a resume and summary row for that tab (section 8), delete that row too.
 
 If you break either rule the site does not break — the update is refused (section 13).
 
@@ -236,7 +271,7 @@ What you can rely on:
 - which buttons are shown and which are hidden because they have no address;
 - whether a link appears next to your name, in the footer, or not at all on a page, and its
   position in each place;
-- which resume each project tab opens (its own, or the main one);
+- which resume each project tab opens and which summary it shows (its own, or the main one);
 - whether the top-left corner shows the logo picture or the logo letters;
 - each page's colour, and a notice when the item is still a draft.
 
@@ -268,7 +303,7 @@ stops. **The live site stays exactly as it was** — a refused update never brea
 The forms already stop most mistakes (a missing title, more than 4 hover words, an address
 without `https://`). What can still slip through is something that involves two items, such
 as deleting a tab that projects still use, or two rows of one list that clash, such as two
-resumes for the same tab.
+"resume and summary" rows for the same tab.
 
 To find the reason:
 

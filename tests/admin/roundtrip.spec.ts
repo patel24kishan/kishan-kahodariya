@@ -139,7 +139,7 @@ test.describe('the logo, the footer order and the resume per tab through a save'
       expect(Array.isArray(track.tabResumes), `${repoPath}: tabResumes`).toBe(true);
       const keys = Object.keys(track);
       expect(keys[keys.indexOf('resumeLabel') + 1], `${repoPath}: tabResumes comes right after resumeLabel`).toBe('tabResumes');
-      for (const row of track.tabResumes as Dict[]) expect(Object.keys(row), `${repoPath}: a row`).toEqual(['tab', 'url', 'label']);
+      for (const row of track.tabResumes as Dict[]) expect(Object.keys(row), `${repoPath}: a row`).toEqual(['tab', 'url', 'label', 'summary']);
     }
   });
 
@@ -150,12 +150,37 @@ test.describe('the logo, the footer order and the resume per tab through a save'
     // Keys in another order than the form's, as a hand edit might leave them.
     const original = { ...parsed(repoPath), tabResumes: [{ label: ' Own Resume ', url: ' https://example.com/own ', tab: firstTab }] };
     const written = writeEntry(fields, original);
-    expect(written.tabResumes).toEqual([{ tab: firstTab, url: 'https://example.com/own', label: 'Own Resume' }]);
-    expect(Object.keys((written.tabResumes as Dict[])[0] ?? {})).toEqual(['tab', 'url', 'label']);
+    expect(written.tabResumes).toEqual([{ tab: firstTab, url: 'https://example.com/own', label: 'Own Resume', summary: '' }]);
+    expect(Object.keys((written.tabResumes as Dict[])[0] ?? {})).toEqual(['tab', 'url', 'label', 'summary']);
     expect(Object.keys(written)).toEqual(Object.keys(parsed(repoPath)));
     const result = check('tab-resume-row', repoPath, written);
     expect(result.status, result.output).toBe(0);
     expect(result.stdout).not.toContain('NOTE');
+
+    // The same with a summary: only the spaces around it go, the paragraphs inside stay.
+    const withSummary = { ...parsed(repoPath), tabResumes: [{ summary: '  First paragraph.\n\nSecond paragraph.  ', tab: firstTab }] };
+    const writtenSummary = writeEntry(fields, withSummary);
+    expect(writtenSummary.tabResumes).toEqual([{ tab: firstTab, url: '', label: '', summary: 'First paragraph.\n\nSecond paragraph.' }]);
+    const summaryResult = check('tab-summary-row', repoPath, writtenSummary);
+    expect(summaryResult.status, summaryResult.output).toBe(0);
+    expect(summaryResult.stdout).not.toContain('NOTE');
+  });
+
+  test('a row saved before the summary existed is read with "" for it, and a save writes the key last', () => {
+    const repoPath = 'content/tracks/game.json';
+    const fields = targetFor(targets, repoPath).fields;
+    const firstTab = String((parsed('content/site.json').categories as Dict[])[0]?.id);
+    const oldRow = { tab: firstTab, url: 'https://example.com/own', label: 'Own Resume' };
+    const old = { ...parsed(repoPath), tabResumes: [oldRow] };
+    const before = check('old-tab-row', repoPath, old);
+    expect(before.status, before.output).toBe(0);
+    expect(before.stdout).toContain('tabResumes[0].summary: was missing, read as ""');
+    const saved = writeEntry(fields, old);
+    expect(saved.tabResumes).toEqual([{ ...oldRow, summary: '' }]);
+    expect(Object.keys((saved.tabResumes as Dict[])[0] ?? {})).toEqual(['tab', 'url', 'label', 'summary']);
+    const after = check('old-tab-row-saved', repoPath, saved);
+    expect(after.status, after.output).toBe(0);
+    expect(after.stdout).not.toContain('NOTE');
   });
 
   test('a file from before these fields existed is read with defaults, and a save writes the keys in place', () => {
