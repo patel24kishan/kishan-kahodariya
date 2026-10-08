@@ -1,0 +1,32 @@
+{
+  "slug": "volta",
+  "company": "Volta Effect",
+  "role": "AI Builder",
+  "location": "Halifax, CAD",
+  "remote": false,
+  "startDate": "2026-09",
+  "endDate": "",
+  "present": true,
+  "dateDisplay": "Sept 26 - Present",
+  "logo": "/uploads/screenshot-2026-10-08-120813.webp",
+  "bullets": [
+    "Building Founders Circle, a engagement portal for founders to get help, or offer one.",
+    "Develop AI-driven tools with Claude/Chatgpt, including a newsletter-automation tool shipped in 2 weeks.",
+    "Built Billable, a time-tracking app, on my first day."
+  ],
+  "bulletsGame": [],
+  "bulletsSoftdev": [],
+  "tags": [
+    "NodeJS",
+    "Claude",
+    "Python",
+    "Testing",
+    "AI Plugins",
+    "Typescript",
+    "C# | .NET"
+  ],
+  "audience": "both",
+  "orderGame": 0,
+  "orderSoftdev": 0,
+  "published": true
+}
