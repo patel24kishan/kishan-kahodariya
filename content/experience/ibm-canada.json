@@ -31,7 +31,7 @@
     "Postman"
   ],
   "audience": "both",
-  "orderGame": 30,
-  "orderSoftdev": 30,
+  "orderGame": 40,
+  "orderSoftdev": 40,
   "published": true
 }
