@@ -26,7 +26,7 @@
     "New Relic"
   ],
   "audience": "both",
-  "orderGame": 40,
-  "orderSoftdev": 40,
+  "orderGame": 50,
+  "orderSoftdev": 50,
   "published": true
 }
