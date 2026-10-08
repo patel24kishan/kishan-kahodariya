@@ -21,8 +21,16 @@
   "hoverText": "",
   "screenshots": [
     {
-      "src": "https://img.itch.zone/aW1nLzEzNDM3Njc4LnBuZw==/347x500/T9M7B%2B.png",
-      "alt": "My Runner cover image"
+      "src": "/uploads/mr-3.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/mr-2.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/mr-1.webp",
+      "alt": ""
     }
   ],
   "videoUrl": "",
@@ -31,11 +39,6 @@
       "label": "View Code",
       "url": "https://github.com/patel24kishan/My-Runner",
       "kind": "code"
-    },
-    {
-      "label": "Play",
-      "url": "",
-      "kind": "play"
     }
   ],
   "legacyId": 6
