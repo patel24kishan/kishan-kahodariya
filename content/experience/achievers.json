@@ -3,25 +3,29 @@
   "company": "Achievers",
   "role": "Software Developer Intern",
   "location": "",
-  "remote": false,
+  "remote": true,
   "startDate": "2022-05",
   "endDate": "2022-08",
   "present": false,
   "dateDisplay": "May - August 2022",
-  "logo": "https://media.licdn.com/dms/image/C560BAQFi2lc_IOfaGQ/company-logo_200_200/0/1656594783502/achievers_logo?e=1717027200&v=beta&t=BJrwNA3XKPSsOK7E8HB5g2zMJnVQdIpoNJmKIWfEfqc",
+  "logo": "/uploads/screenshot-2026-10-08-113747.webp",
   "bullets": [
     "Working on the frontend of the web application using ReactJS, Redux, and Material UI."
   ],
   "bulletsGame": [],
-  "bulletsSoftdev": [],
+  "bulletsSoftdev": [
+    "Helped migrate backend services to Google Cloud Platform, moving onto Pub/Sub for event-driven messaging, while building features in React, Python and GraphQL.",
+    "Set up SonarQube gates in Jenkins and GitLab pipelines (+23% code-quality metrics) and New Relic alerting on GCP that cut issue-resolution time by 20%."
+  ],
   "tags": [
     "Python",
     "PHP",
     "Google cloud",
     "GraphQL",
-    "pub/sub"
+    "Pub/Sub",
+    "New Relic"
   ],
-  "audience": "softdev",
+  "audience": "both",
   "orderGame": 40,
   "orderSoftdev": 40,
   "published": true
