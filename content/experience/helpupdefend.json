@@ -30,7 +30,7 @@
     "AI - Gemini, Chatgpt"
   ],
   "audience": "both",
-  "orderGame": 20,
-  "orderSoftdev": 20,
+  "orderGame": 30,
+  "orderSoftdev": 30,
   "published": true
 }
