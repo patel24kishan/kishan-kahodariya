@@ -3,7 +3,7 @@
   "route": "gamedev",
   "label": "Game Dev",
   "headline": "Game Developer",
-  "summary": "As creative developer, I build backend, immerise gameplay experience in Unity and C#, with 5+ years shipping titles on mobile and PC. My focus is networked play (Photon Fusion, Netcode) and fast, data-oriented code with DOTS, ECS and multiplayer titles.",
+  "summary": "As creative developer, I build backend, immersive gameplay experience in Unity and C#, with 5+ years shipping titles on mobile and PC. My focus is networked play (Photon Fusion, Netcode) and fast, data-oriented code with DOTS, ECS and multiplayer titles.",
   "resumeUrl": "https://drive.google.com/file/d/1z_387ScBj88egRoruByswhw9fr0X585i/view?usp=drive_link",
   "resumeLabel": "Resume",
   "tabResumes": [
@@ -11,13 +11,13 @@
       "tab": "unreal",
       "url": "https://drive.google.com/file/d/1KLNO1ZuneU3zz8byhdO8vbtBjCwkHP9b/view?usp=drive_link",
       "label": "Resume",
-      "summary": ""
+      "summary": "I build gameplay and 3D/XR experiences in Unreal Engine 5 with C++ and Blueprints, backed by [6+] years of shipped mobile titles. I’m comfortable with latency-sensitive systems like client-side prediction and synchronization, and I work best where prototyping and iteration move fast."
     },
     {
       "tab": "unity",
       "url": "https://drive.google.com/file/d/1z_387ScBj88egRoruByswhw9fr0X585i/view?usp=drive_link",
       "label": "Resume",
-      "summary": ""
+      "summary": "As creative developer, I build backend, immersive gameplay experience in Unity and C#, with 5+ years shipping titles on mobile and PC. My focus is networked play (Photon Fusion, Netcode) and fast, data-oriented code with DOTS, ECS and multiplayer titles."
     }
   ],
   "defaultTab": "unity",
