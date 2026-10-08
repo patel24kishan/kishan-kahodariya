@@ -21,14 +21,30 @@
   "hoverText": "",
   "screenshots": [
     {
+      "src": "/uploads/oc-1.webp",
+      "alt": ""
+    },
+    {
       "src": "https://files.ably.io/ghost/prod/2022/06/multiplayer-unity-game-with-ably.png",
       "alt": "OuiChef cover image"
+    },
+    {
+      "src": "/uploads/oc-2.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/oc-3.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/oc-5.webp",
+      "alt": ""
     }
   ],
   "videoUrl": "",
   "links": [
     {
-      "label": "View Code",
+      "label": "Code",
       "url": "https://github.com/patel24kishan/OuiChef-SinglePlayer",
       "kind": "code"
     },
@@ -36,6 +52,11 @@
       "label": "Play",
       "url": "https://ghosts24.itch.io/oui-chef",
       "kind": "play"
+    },
+    {
+      "label": "Watch Demo",
+      "url": "https://youtu.be/ItOnz4qoq3g",
+      "kind": "video"
     }
   ],
   "legacyId": 1
