@@ -1,16 +1,17 @@
 {
   "slug": "ouichef",
   "title": "OuiChef",
-  "shortDescription": "Multiplayer cookoff with single palyer mode offering time-based challenges for PC.",
+  "shortDescription": "Built multiplayer cooking game for PC with Unity Netcode, Lobby and Relay, RPC, saved progress with Cloud Save, and loaded content with Addressables.",
   "longDescription": "",
   "dateDisplay": "Dec 2023 - Mar 2024",
   "tags": [
     "Unity",
     "C#",
-    "Cinemachine",
+    "RPC",
     "Netcode",
     "Unity Cloud",
-    "Addressables"
+    "Addressables",
+    "Networking"
   ],
   "category": "unity",
   "audience": "game",
