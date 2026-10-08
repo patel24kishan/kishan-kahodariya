@@ -1,7 +1,7 @@
 {
   "slug": "ship-simulator",
   "title": "Ship Simulator",
-  "shortDescription": "Enhanced existing 3D mobile project with upgrades and optimized game performance with in-game sorting logic utilizing Quicksort algorithm.",
+  "shortDescription": "Enhanced mobile ship simulator with Unity and C#. I designed 10 physics-based levels and the ship upgrade progression, and sped up in-game sorting with Quicksort.",
   "longDescription": "",
   "dateDisplay": "Dec 2023 - Jan 2024",
   "tags": [
