@@ -24,7 +24,7 @@
     "Meta Ads"
   ],
   "audience": "both",
-  "orderGame": 0,
-  "orderSoftdev": 0,
+  "orderGame": 10,
+  "orderSoftdev": 10,
   "published": true
 }
