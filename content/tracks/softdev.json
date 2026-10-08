@@ -3,14 +3,14 @@
   "route": "softdev",
   "label": "Software",
   "headline": "Software Engineer",
-  "summary": "As creative developer focused on building engaging gameplay systems and interactive experiences. I’m passionate about creating memorable experiences and exploring new ideas in Gaming as a Services, Cloud Gaming, and AR.",
-  "resumeUrl": "https://drive.google.com/file/d/1IDqMwEJxBzXq9XgQcefFmeDTMmLGUlZl/view?usp=drive_link",
-  "resumeLabel": "Software Resume",
+  "summary": "As creative developer, I build APIs and full-stack web apps with C#, .NET and React, with 5+ years of backend and API design behind me. I’ve run SaaS transactional apps on multi-region cloud backends across Azure, AWS and GCP, and I turn business requirements into code teams can maintain.",
+  "resumeUrl": "https://drive.google.com/file/d/1C4ohxPJ-9c_1JwMUi7Ue4C4-gLslJj8T/view?usp=sharing",
+  "resumeLabel": "My Resume",
   "tabResumes": [],
   "defaultTab": "webapps",
   "photo": "/images/profile-640.webp",
   "photoAlt": "Kishan Kahodariya",
   "certificatesFirst": true,
-  "metaTitle": "Kishan Kahodariya — Software Engineer",
-  "metaDescription": ""
+  "metaTitle": "Kishan Kahodariya — Software Developer",
+  "metaDescription": "As creative developer, I build APIs and full-stack web apps with C#, .NET and React, with 5+ years of backend and API design behind me. I’ve run SaaS transactional apps on multi-region cloud backends across Azure, AWS and GCP, and I turn business requirements into code teams can maintain."
 }
