@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motion sections, below the hero</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rise{opacity:0;animation:ms-up .9s ease-out forwards}
+.r2{animation-delay:.15s}.r3{animation-delay:.3s}
+@keyframes ms-up{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
+.mq{display:flex;gap:12px;width:max-content;animation:ms-left 38s linear infinite}
+.mq.rev{animation-name:ms-right}
+@keyframes ms-left{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes ms-right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.slide{animation:ms-slide 9s ease-in-out infinite}
+@keyframes ms-slide{0%,28%{transform:translateX(0)}33.3%,61%{transform:translateX(-33.3333%)}66.6%,94%{transform:translateX(-66.6667%)}100%{transform:translateX(0)}}
+.line{transform-origin:top;animation:ms-grow 1.6s ease-out forwards;transform:scaleY(0)}
+@keyframes ms-grow{to{transform:scaleY(1)}}
+@media (prefers-reduced-motion: reduce){.rise{animation:none;opacity:1}.mq,.slide{animation:none}.line{animation:none;transform:none}}
+</style>
+</helmet>
+<div style="width: 1440px; height: 2600px; box-sizing: border-box; padding: 0 64px; background: #0a0a0a; color: #ffffff; font-family: Inter, sans-serif; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column">
+
+<div style="padding: 96px 0 0; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; align-items: flex-end; justify-content: space-between">
+<div class="rise" style="font-size: 88px; font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; text-transform: uppercase">Projects</div>
+<div style="display: flex; border: 1px solid #3a3a3a; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase"><div style="padding: 14px 22px">Unreal</div><div style="padding: 14px 22px; background: #faff69; color: #0a0a0a; font-weight: 700">Unity3D</div><div style="padding: 14px 22px">Web Apps</div><div style="padding: 14px 22px">All</div></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+
+<div class="rise" style="background: #141414; border: 1px solid #262626; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative; height: 210px; overflow: hidden"><div class="slide" style="display: flex; width: 300%; height: 100%"><div style="width: 33.3333%; background: #23324a; display: flex; align-items: center; justify-content: center; color: #cccccc; font-size: 12px">Screenshot 1</div><div style="width: 33.3333%; background: #3a2a45; display: flex; align-items: center; justify-content: center; color: #cccccc; font-size: 12px">Screenshot 2</div><div style="width: 33.3333%; background: #24402f; display: flex; align-items: center; justify-content: center; color: #cccccc; font-size: 12px">Screenshot 3</div></div></div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Unity</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">C#</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Photon</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Unity Cloud</div></div>
+<div style="font-size: 22px; font-weight: 700">Scarfall</div>
+<div style="font-size: 12px; color: #888888">2019-2020</div>
+<div style="color: #cccccc">Developed scalable cloud-backed services and gameplay systems for ScarFall 2.0 Mobile title.</div>
+<div style="display: flex"><div style="padding: 12px 18px; background: #faff69; color: #0a0a0a; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase">Play</div></div>
+</div>
+
+<div class="rise r2" style="background: #141414; border: 1px solid #262626; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="height: 210px; background: #2a2f38; display: flex; align-items: center; justify-content: center; color: #cccccc; font-size: 12px">Screenshot</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Mobile</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Unity</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">C#</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Agora</div></div>
+<div style="font-size: 22px; font-weight: 700">Dating Square</div>
+<div style="font-size: 12px; color: #888888">Dec 2024 - Mar 2025</div>
+<div style="color: #cccccc">Developd Agora-based chat feature for 65Square, a privacy-focused social media platform with 1,000+ Android/iOS users.</div>
+<div style="display: flex"><div style="padding: 11px 18px; border: 1px solid #3a3a3a; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase">Watch</div></div>
+</div>
+
+<div class="rise r3" style="background: #141414; border: 1px solid #262626; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="height: 210px; background: #1f2a36; display: flex; align-items: center; justify-content: center; color: #cccccc; font-size: 12px">Screenshot</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #cccccc"><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Unity</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">C#</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Cinemachine</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Netcode</div></div>
+<div style="font-size: 22px; font-weight: 700">OuiChef</div>
+<div style="font-size: 12px; color: #888888">Dec 2023 - Mar 2024</div>
+<div style="color: #cccccc">Multiplayer cookoff with single palyer mode offering time-based challenges for PC.</div>
+<div style="display: flex; gap: 8px"><div style="padding: 11px 18px; border: 1px solid #3a3a3a; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase">View Code</div><div style="padding: 12px 18px; background: #faff69; color: #0a0a0a; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase">Play</div></div>
+</div>
+
+</div>
+<div style="font-size: 12px; color: #888888">Cards rise in as they scroll into view. A card with several screenshots slides through them (3 seconds each), and hovering shows the dark overlay as today.</div>
+</div>
+
+<div style="padding: 120px 0 0; display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 64px">
+<div class="rise" style="font-size: 88px; font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; text-transform: uppercase">Experi&shy;ence</div>
+<div style="position: relative; padding-left: 40px; display: flex; flex-direction: column">
+<div class="line" style="position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; background: #faff69"></div>
+<div class="rise" style="padding: 0 0 36px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; position: relative"><div style="position: absolute; left: -46px; top: 8px; width: 14px; height: 14px; border-radius: 999px; background: #faff69"></div><div style="color: #888888; font-size: 13px; padding-top: 2px">June 2024 - Present</div><div><div style="font-size: 26px; font-weight: 700">Astro Game Studio</div><div style="color: #faff69; font-size: 13px; margin-top: 2px">Game Developer</div><div style="margin-top: 10px; color: #cccccc; max-width: 640px">Developing Battleground themed AAA title for Astro Games using Unreal Engine, Blueprint, and C++.</div><div style="margin-top: 12px; display: flex; gap: 6px; font-size: 11px; color: #cccccc"><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Unreal Engine</div><div style="padding: 2px 10px; border: 1px solid #3a3a3a; border-radius: 999px">Blueprint</div></div></div></div>
+<div class="rise r2" style="padding: 0 0 36px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; position: relative"><div style="position: absolute; left: -46px; top: 8px; width: 14px; height: 14px; border-radius: 999px; background: #5a5a5a"></div><div style="color: #888888; font-size: 13px; padding-top: 2px">Dec 2024 - Feb 2025</div><div><div style="font-size: 26px; font-weight: 700">HelpUsDefend</div><div style="color: #cccccc; font-size: 13px; margin-top: 2px">Game Developer</div></div></div>
+<div class="rise r3" style="padding: 0; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; position: relative"><div style="position: absolute; left: -46px; top: 8px; width: 14px; height: 14px; border-radius: 999px; background: #5a5a5a"></div><div style="color: #888888; font-size: 13px; padding-top: 2px">June 2019 - Sept 2020</div><div><div style="font-size: 26px; font-weight: 700">Xsquad Studios</div><div style="color: #cccccc; font-size: 13px; margin-top: 2px">Game Developer</div></div></div>
+</div>
+</div>
+
+<div style="padding: 120px 0 0; display: flex; flex-direction: column; gap: 32px">
+<div class="rise" style="font-size: 88px; font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; text-transform: uppercase">Skills</div>
+<div style="margin: 0 -64px; overflow: hidden; display: flex; flex-direction: column; gap: 12px">
+<div class="mq" style="padding-left: 0"><div style="display: flex; gap: 12px"><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Unity3D</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Unreal Engine</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">AR/VR</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Netcode</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Photon</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Unity Cloud</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Git</div></div><div style="display: flex; gap: 12px"><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Unity3D</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Unreal Engine</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">AR/VR</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Netcode</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Photon</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Unity Cloud</div><div style="padding: 14px 26px; border: 1px solid #faff69; color: #faff69; font-size: 18px; font-weight: 600">Git</div></div></div>
+<div class="mq rev"><div style="display: flex; gap: 12px"><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">C#</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">C++</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">.NET</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">Python</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">Java</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">AWS (Amazon Web Services)</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">AZURE</div></div><div style="display: flex; gap: 12px"><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">C#</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">C++</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">.NET</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">Python</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">Java</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">AWS (Amazon Web Services)</div><div style="padding: 14px 26px; border: 1px solid #5a5a5a; color: #cccccc; font-size: 18px; font-weight: 600">AZURE</div></div></div>
+</div>
+<div style="font-size: 12px; color: #888888">Two rows of your skills drift in opposite directions; the accent row is your game skills. Hover or focus pauses them. Under reduced motion they stop and wrap into a normal grid, so nothing is hidden.</div>
+</div>
+
+<div style="padding: 120px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px">
+<div style="display: flex; flex-direction: column; gap: 20px">
+<div class="rise" style="font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; text-transform: uppercase">Education</div>
+<div class="rise r2" style="padding: 22px; border: 1px solid #262626; background: #141414"><div style="font-size: 20px; font-weight: 700">Dalhousie University</div><div style="color: #cccccc; margin-top: 4px">Masters of Applied Computer Science</div><div style="color: #888888; font-size: 13px; margin-top: 6px">Jan 2021 - Aug 2022 · 8.41 CGPA</div></div>
+<div class="rise r3" style="padding: 22px; border: 1px solid #262626; background: #141414"><div style="font-size: 20px; font-weight: 700">G H Patel College of Tech &amp; Engg.</div><div style="color: #cccccc; margin-top: 4px">Bachelors of Computer Engineering</div><div style="color: #888888; font-size: 13px; margin-top: 6px">June 2015 - May 2019 · 8.6 CGPA</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px">
+<div class="rise" style="font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; text-transform: uppercase">Certificates</div>
+<div class="rise r2" style="padding: 22px; border: 1px solid #262626; background: #141414; display: flex; gap: 16px; align-items: center"><div style="width: 56px; height: 56px; border: 1px solid #5a5a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888888">Badge</div><div><div style="font-size: 18px; font-weight: 700">AWS Solution Architect - Associate</div><div style="color: #888888; font-size: 13px; margin-top: 2px">16 Feb 2023 - 16 Feb 2027</div></div></div>
+<div class="rise r3" style="padding: 22px; border: 1px solid #262626; background: #141414; display: flex; gap: 16px; align-items: center"><div style="width: 56px; height: 56px; border: 1px solid #5a5a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888888">Badge</div><div><div style="font-size: 18px; font-weight: 700">AWS Developer - Associate</div><div style="color: #888888; font-size: 13px; margin-top: 2px">14 Dec 2023 - 14 Dec 2026</div></div></div>
+</div>
+</div>
+
+<div style="margin-top: 120px; padding: 80px 0; border-top: 1px solid #262626; display: flex; flex-direction: column; gap: 28px">
+<div class="rise" style="font-size: 88px; font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; text-transform: uppercase">Get in touch</div>
+<div class="rise r2" style="display: flex; align-items: center; gap: 14px; font-size: 40px; font-weight: 600; letter-spacing: -0.02em; color: #faff69">kishankahodariya.work@gmail.com<svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 13v6H5V6h6"/></svg></div>
+<div class="rise r3" style="display: flex; gap: 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase"><div style="padding: 14px 24px; border: 1px solid #3a3a3a">itch.io</div><div style="padding: 14px 24px; border: 1px solid #3a3a3a">LinkedIn</div><div style="padding: 14px 24px; border: 1px solid #3a3a3a">GitHub</div><div style="padding: 14px 24px; border: 1px solid #3a3a3a">Blog</div></div>
+</div>
+<div style="margin: 0 -64px; padding: 20px 64px; background: #faff69; color: #0a0a0a; font-size: 12px">Then the accent footer as today (Navigate, Connect, credit strip), without the theme toggle.</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
