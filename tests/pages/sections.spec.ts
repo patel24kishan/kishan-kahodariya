@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { assetHref, content, isExternal, routeOf, SECTION_IDS, SECTION_LABELS, TRACK_IDS } from './support/content';
+import { assetHref, content, isExternal, routeOf, TRACK_IDS } from './support/content';
 import { cssVar, hexToRgb, openRoute, trackPage } from './support/page';
 
 /** Experience, Skills, Education & Certificates and the footer, per page, against the content API. */
@@ -183,22 +183,12 @@ for (const trackId of TRACK_IDS) {
   test.describe(`${track.route} footer`, () => {
     const links = content.getLinks(trackId, 'footer');
 
-    test('has the Navigate links, the contact block and the credit lines', async ({ page }) => {
+    test('has the contact block and the credit lines, and no section links', async ({ page }) => {
       await openRoute(page, routeOf(track));
       const footer = page.getByRole('contentinfo');
-      const navigate = footer.getByRole('navigation', { name: 'Footer' });
-      await expect(navigate.getByRole('heading', { level: 2 })).toHaveText('Navigate');
-      const navLinks = navigate.getByRole('link');
-      await expect(navLinks).toHaveCount(SECTION_IDS.length);
-      for (const [index, id] of SECTION_IDS.entries()) {
-        await expect(navLinks.nth(index)).toHaveAttribute('href', `#${id}`);
-        await expect(navLinks.nth(index)).toHaveText(SECTION_LABELS[index]!);
-      }
-      // Stacked.
-      if (SECTION_IDS.length > 1) {
-        const [first, second] = await Promise.all([navLinks.nth(0).boundingBox(), navLinks.nth(1).boundingBox()]);
-        expect(first!.y + first!.height).toBeLessThanOrEqual(second!.y + 1);
-      }
+      // No section links in the footer: the nav bar stays docked at the top of every page.
+      await expect(footer.getByRole('navigation')).toHaveCount(0);
+      await expect(footer.locator('a[href^="#"]')).toHaveCount(0);
 
       // The contact block: the title, the email address as one large link, the other links as
       // small outlined buttons in the footer order.
@@ -226,6 +216,9 @@ for (const trackId of TRACK_IDS) {
         expect(box!.height).toBeGreaterThanOrEqual(44);
         expect(box!.width).toBeGreaterThanOrEqual(44);
       }
+      const titleBox = await footer.getByRole('heading', { level: 2, name: 'Get in touch' }).boundingBox();
+      const gutter = parseFloat(await cssVar(page.locator('html'), '--gutter'));
+      expect(titleBox!.x, 'left-aligned with the page gutter').toBeLessThanOrEqual(gutter + 64);
       if (emailLink && others.length > 0) {
         const [emailBox, firstBox] = await Promise.all([email.boundingBox(), connect.first().boundingBox()]);
         expect(emailBox!.y + emailBox!.height, 'the buttons sit under the email').toBeLessThanOrEqual(firstBox!.y + 1);

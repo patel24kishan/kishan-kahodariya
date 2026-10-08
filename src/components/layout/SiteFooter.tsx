@@ -1,7 +1,6 @@
 import type { SocialLink } from '@/content';
 import { Container, Icon } from '@/components/ui';
 import { isExternalUrl } from '@/lib/paths';
-import { PAGE_SECTIONS } from './sections';
 import styles from './SiteFooter.module.css';
 
 export interface SiteFooterProps {
@@ -13,9 +12,9 @@ export interface SiteFooterProps {
 
 /**
  * SiteFooter — the accent band (data-on-accent: near-black text and focus ring inside) with
- * the Navigate column and the contact block ("Get in touch": the email address as one large
- * link, the other links as small outlined buttons), then the near-black credit strip in accent
- * text. The theme toggle lives in the nav bar only. The strip sits outside the band so its colours are the raw
+ * the contact block, left-aligned ("Get in touch": the email address as one large link, the
+ * other links as small outlined buttons), then the near-black credit strip in accent text. The
+ * section links and the theme toggle live in the docked nav bar only. The strip sits outside the band so its colours are the raw
  * accent on near-black in both themes.
  */
 export function SiteFooter({ links, credit }: SiteFooterProps) {
@@ -27,49 +26,35 @@ export function SiteFooter({ links, credit }: SiteFooterProps) {
     <footer className={styles.footer}>
       <div className={styles.band} data-on-accent>
         <Container className={styles.inner}>
-          <div className={styles.columns}>
-            <nav aria-label="Footer" className={styles.column}>
-              <h2 className={styles.heading}>Navigate</h2>
-              <ul role="list" className={styles.navList}>
-                {PAGE_SECTIONS.map((section) => (
-                  <li key={section.id}>
-                    <a href={`#${section.id}`} className={styles.navLink}>
-                      {section.label}
-                    </a>
-                  </li>
-                ))}
+          <div className={styles.contact}>
+            <h2 className={styles.contactTitle}>Get in touch</h2>
+            {email && address && (
+              <a href={email.url} className={styles.email} data-footer-email>
+                <span className={styles.emailText}>{address}</span>
+                <Icon name="external" size={24} className={styles.emailIcon} />
+              </a>
+            )}
+            {others.length > 0 && (
+              <ul role="list" className={styles.connect}>
+                {others.map((link) => {
+                  const external = isExternalUrl(link.url);
+                  return (
+                    <li key={link.slug}>
+                      <a
+                        href={link.url}
+                        className={styles.chip}
+                        data-footer-link={link.slug}
+                        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      >
+                        {link.label}
+                        {external && <span className={styles.srOnly}> (opens in a new tab)</span>}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
-            </nav>
-            <div className={styles.contact}>
-              <h2 className={styles.contactTitle}>Get in touch</h2>
-              {email && address && (
-                <a href={email.url} className={styles.email} data-footer-email>
-                  <span className={styles.emailText}>{address}</span>
-                  <Icon name="external" size={24} className={styles.emailIcon} />
-                </a>
-              )}
-              {others.length > 0 && (
-                <ul role="list" className={styles.connect}>
-                  {others.map((link) => {
-                    const external = isExternalUrl(link.url);
-                    return (
-                      <li key={link.slug}>
-                        <a
-                          href={link.url}
-                          className={styles.chip}
-                          data-footer-link={link.slug}
-                          {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                        >
-                          {link.label}
-                          {external && <span className={styles.srOnly}> (opens in a new tab)</span>}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              {!email && others.length === 0 && <p className={styles.empty}>No links yet.</p>}
-            </div>
+            )}
+            {!email && others.length === 0 && <p className={styles.empty}>No links yet.</p>}
           </div>
         </Container>
       </div>

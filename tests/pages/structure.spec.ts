@@ -30,7 +30,7 @@ for (const trackId of TRACK_IDS) {
       await expect(page.getByRole('main')).toHaveCount(1);
       await expect(page.getByRole('contentinfo')).toHaveCount(1);
       await expect(sectionsNav(page)).toHaveCount(1);
-      await expect(page.getByRole('navigation', { name: 'Footer' })).toHaveCount(1);
+      await expect(page.getByRole('navigation', { name: 'Footer' })).toHaveCount(0);
       await expect(tabsNav(page)).toHaveCount(1);
 
       const ids = await page.locator('main > section').evaluateAll((sections) => sections.map((section) => section.id));

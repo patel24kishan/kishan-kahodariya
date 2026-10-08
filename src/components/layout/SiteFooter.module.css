@@ -13,61 +13,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding-block: var(--space-10) var(--space-6);
-}
-
-.columns {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-8);
-}
-
-@media (min-width: 768px) {
-  .columns {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: var(--space-10);
-  }
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.heading {
-  margin: 0;
-  color: var(--color-on-accent);
-  font-size: var(--text-caption-upper);
-  font-weight: 700;
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-upper);
-  text-transform: uppercase;
-}
-
-.navList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.navLink {
-  display: inline-flex;
-  align-items: center;
-  min-width: 44px;
-  min-height: 44px;
-  color: var(--color-on-accent);
-  font-size: var(--text-body);
-  font-weight: 600;
-  text-decoration: none;
-  text-underline-offset: 0.2em;
-}
-
-@media (hover: hover) {
-  .navLink:hover {
-    text-decoration: underline;
-  }
+  padding-block: var(--space-10) var(--space-8);
 }
 
 /* ---- Contact block: big title, the email as one large link, the rest as small buttons ---- */
