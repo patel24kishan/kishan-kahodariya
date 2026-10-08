@@ -27,7 +27,7 @@
     "Photon Engine"
   ],
   "audience": "both",
-  "orderGame": 50,
-  "orderSoftdev": 50,
+  "orderGame": 70,
+  "orderSoftdev": 70,
   "published": true
 }
