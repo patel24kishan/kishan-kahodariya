@@ -1,5 +1,6 @@
 import type { SocialLink } from '@/content';
-import { Container, LinkButton } from '@/components/ui';
+import { Container, Icon } from '@/components/ui';
+import { isExternalUrl } from '@/lib/paths';
 import { PAGE_SECTIONS } from './sections';
 import styles from './SiteFooter.module.css';
 
@@ -12,11 +13,16 @@ export interface SiteFooterProps {
 
 /**
  * SiteFooter — the accent band (data-on-accent: near-black text and focus ring inside) with
- * the Navigate and Connect columns, then the near-black credit strip in accent text. The theme
- * toggle lives in the nav bar only. The strip sits outside the band so its colours are the raw
+ * the Navigate column and the contact block ("Get in touch": the email address as one large
+ * link, the other links as small outlined buttons), then the near-black credit strip in accent
+ * text. The theme toggle lives in the nav bar only. The strip sits outside the band so its colours are the raw
  * accent on near-black in both themes.
  */
 export function SiteFooter({ links, credit }: SiteFooterProps) {
+  // The email link is the headline of the block; every other link is a small button under it.
+  const email = links.find((link) => link.url.trim().toLowerCase().startsWith('mailto:'));
+  const others = links.filter((link) => link !== email);
+  const address = email ? email.url.trim().slice('mailto:'.length).split('?')[0]! : '';
   return (
     <footer className={styles.footer}>
       <div className={styles.band} data-on-accent>
@@ -34,21 +40,35 @@ export function SiteFooter({ links, credit }: SiteFooterProps) {
                 ))}
               </ul>
             </nav>
-            <div className={styles.column}>
-              <h2 className={styles.heading}>Connect</h2>
-              {links.length > 0 ? (
-                <ul role="list" className={styles.connect}>
-                  {links.map((link) => (
-                    <li key={link.slug}>
-                      <LinkButton variant="onAccent" icon={link.icon} href={link.url}>
-                        {link.label}
-                      </LinkButton>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className={styles.empty}>No links yet.</p>
+            <div className={styles.contact}>
+              <h2 className={styles.contactTitle}>Get in touch</h2>
+              {email && address && (
+                <a href={email.url} className={styles.email} data-footer-email>
+                  <span className={styles.emailText}>{address}</span>
+                  <Icon name="external" size={24} className={styles.emailIcon} />
+                </a>
               )}
+              {others.length > 0 && (
+                <ul role="list" className={styles.connect}>
+                  {others.map((link) => {
+                    const external = isExternalUrl(link.url);
+                    return (
+                      <li key={link.slug}>
+                        <a
+                          href={link.url}
+                          className={styles.chip}
+                          data-footer-link={link.slug}
+                          {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                        >
+                          {link.label}
+                          {external && <span className={styles.srOnly}> (opens in a new tab)</span>}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {!email && others.length === 0 && <p className={styles.empty}>No links yet.</p>}
             </div>
           </div>
         </Container>
