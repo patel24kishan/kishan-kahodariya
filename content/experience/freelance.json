@@ -28,7 +28,7 @@
     "Mobile/Console Games"
   ],
   "audience": "both",
-  "orderGame": 10,
-  "orderSoftdev": 10,
+  "orderGame": 60,
+  "orderSoftdev": 60,
   "published": true
 }
