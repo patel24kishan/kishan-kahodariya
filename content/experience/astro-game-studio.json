@@ -29,7 +29,7 @@
     "MongoDB"
   ],
   "audience": "both",
-  "orderGame": 10,
-  "orderSoftdev": 10,
+  "orderGame": 20,
+  "orderSoftdev": 20,
   "published": true
 }
