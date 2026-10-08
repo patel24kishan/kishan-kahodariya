@@ -3,27 +3,27 @@
   "route": "gamedev",
   "label": "Game Dev",
   "headline": "Game Developer",
-  "summary": "As creative developer focused on building engaging gameplay systems and interactive experiences. I’m passionate about creating memorable experiences and exploring new ideas in Gaming as a Services, Cloud Gaming, and AR.",
-  "resumeUrl": "https://drive.google.com/file/d/1S5b_6PfrsLJlioTRo7EZbpLrTOmo26Ma/view?usp=drive_link",
-  "resumeLabel": "Game Dev Resume",
+  "summary": "As creative developer, I build gameplay and multiplayer systems in Unity and C#, with 5+ years shipping titles on mobile and PC. My focus is networked play (Photon Fusion, Netcode) and fast, data-oriented code with DOTS, Jobs and Burst.",
+  "resumeUrl": "https://drive.google.com/file/d/1z_387ScBj88egRoruByswhw9fr0X585i/view?usp=drive_link",
+  "resumeLabel": "Resume",
   "tabResumes": [
     {
       "tab": "unreal",
-      "url": "",
-      "label": "",
+      "url": "https://drive.google.com/file/d/1LcKbO8msm2k2c2tMTpuRI026QxaPRt4q/view?usp=drive_link",
+      "label": "Resume",
       "summary": ""
     },
     {
       "tab": "unity",
-      "url": "",
-      "label": "",
+      "url": "https://drive.google.com/file/d/1z_387ScBj88egRoruByswhw9fr0X585i/view?usp=drive_link",
+      "label": "Resume",
       "summary": ""
     }
   ],
   "defaultTab": "unity",
   "photo": "/images/profile-640.webp",
   "photoAlt": "Kishan Kahodariya",
-  "certificatesFirst": false,
-  "metaTitle": "Kishan Kahodariya — Game Developer",
+  "certificatesFirst": true,
+  "metaTitle": "Kishan Kahodariya",
   "metaDescription": ""
 }
