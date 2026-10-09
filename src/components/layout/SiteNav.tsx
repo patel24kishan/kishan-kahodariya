@@ -116,12 +116,6 @@ export function SiteNav({ monogram, siteName, logo, logoAlt, contactLabel = '', 
               monogram
             )}
           </a>
-          {/* The link beside it already says the name; this is the same name for the eye. */}
-          {siteName.trim() !== '' && (
-            <span className={styles.siteName} aria-hidden="true" data-nav-name>
-              {siteName}
-            </span>
-          )}
         </div>
         <nav aria-label="Sections" className={styles.nav}>
           <ul role="list" className={styles.list}>

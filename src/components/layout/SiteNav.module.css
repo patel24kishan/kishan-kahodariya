@@ -61,7 +61,7 @@
   transition: transform var(--duration-base) var(--ease);
 }
 
-/* ---- Logo and name --------------------------------------------------------------------- */
+/* ---- Logo --------------------------------------------------------------------- */
 
 .brand {
   display: flex;
@@ -119,18 +119,6 @@
   width: 48px;
   height: 48px;
   object-fit: contain;
-}
-
-/* The name beside the logo: only where the bar has room for it. */
-.siteName {
-  display: none;
-  color: var(--color-ink);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 /* ---- Section links (from 768px) -------------------------------------------------------- */
@@ -328,9 +316,5 @@
 @media (min-width: 1280px) {
   .header {
     --nav-link-pad: 18px;
-  }
-
-  .siteName {
-    display: block;
   }
 }

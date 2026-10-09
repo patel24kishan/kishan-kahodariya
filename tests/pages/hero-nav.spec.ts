@@ -186,16 +186,14 @@ test.describe('section in view', () => {
 });
 
 test.describe('header contents', () => {
-  test('desktop: logo and name, the links, then "Get in touch" and the theme toggle at the far right', async ({ page, isMobile }) => {
+  test('desktop: the logo alone (no name beside it), the links, then "Get in touch" and the theme toggle at the far right', async ({ page, isMobile }) => {
     test.skip(isMobile, 'desktop layout');
     await openRoute(page, routeOf(track));
     const bar = header(page);
-    const name = bar.locator('[data-nav-name]');
-    await expect(name).toBeVisible();
-    await expect(name).toHaveText(site.name);
-    await expect(name).toHaveCSS('text-transform', 'uppercase');
-    // The link already carries the name for assistive technology.
-    await expect(name).toHaveAttribute('aria-hidden', 'true');
+    // The logo stands alone: the name is not written beside it. The link still carries the name
+    // for assistive technology.
+    await expect(bar.locator('[data-nav-name]')).toHaveCount(0);
+    await expect(bar.locator('a[data-nav-brand]')).toHaveAttribute('aria-label', `${site.name} — top of page`);
 
     const contact = bar.locator('a[data-nav-contact]');
     await expect(contact).toBeVisible();
@@ -208,11 +206,11 @@ test.describe('header contents', () => {
     await expect(toggle).toBeVisible();
     await expect(bar.locator('[data-menu-button]')).toBeHidden();
 
-    const boxes = await Promise.all([bar.locator('a[data-nav-brand]'), name, bar.locator('nav[aria-label="Sections"]'), contact, toggle].map((part) => part.boundingBox()));
+    const boxes = await Promise.all([bar.locator('a[data-nav-brand]'), bar.locator('nav[aria-label="Sections"]'), contact, toggle].map((part) => part.boundingBox()));
     for (let index = 1; index < boxes.length; index += 1) {
       expect(boxes[index]!.x, `part ${index} starts after part ${index - 1}`).toBeGreaterThanOrEqual(boxes[index - 1]!.x + boxes[index - 1]!.width);
     }
-    expect(boxes[3]!.height).toBeGreaterThanOrEqual(44);
+    expect(boxes[2]!.height).toBeGreaterThanOrEqual(44);
 
     // Tab order is the visual order: the last link, the button, the toggle.
     await bar.getByRole('link', { name: 'Education', exact: true }).focus();
@@ -233,7 +231,7 @@ test.describe('header contents', () => {
     await expect(bar.locator('[data-theme-toggle]')).toBeHidden();
     await expect(bar.locator('nav[aria-label="Sections"]')).toBeHidden();
     await expect(bar.locator('[data-nav-contact]')).toBeHidden();
-    await expect(bar.locator('[data-nav-name]')).toBeHidden();
+    await expect(bar.locator('[data-nav-name]')).toHaveCount(0);
     // Nothing else is drawn in the bar.
     const drawn = await bar.locator('a[href], button').evaluateAll((controls) => controls.filter((control) => control.getClientRects().length > 0).length);
     expect(drawn).toBe(2);
@@ -252,7 +250,7 @@ test.describe('header contents', () => {
       await page.setViewportSize({ width, height: 800 });
       await openRoute(page, routeOf(track));
       const boxes = await header(page)
-        .locator('a[data-nav-brand], [data-nav-name], nav a, a[data-nav-contact], [role="switch"]')
+        .locator('a[data-nav-brand], nav a, a[data-nav-contact], [role="switch"]')
         .evaluateAll((parts) =>
           parts
             .filter((part) => part.getClientRects().length > 0)
@@ -269,8 +267,7 @@ test.describe('header contents', () => {
       expect(boxes[0]!.left).toBeGreaterThanOrEqual(0);
       expect(boxes[boxes.length - 1]!.right).toBeLessThanOrEqual(width);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-      // The name beside the logo is shown where there is room for it.
-      await expect(header(page).locator('[data-nav-name]')).toBeVisible({ visible: width >= 1280 });
+      await expect(header(page).locator('[data-nav-name]')).toHaveCount(0);
     });
   }
 });

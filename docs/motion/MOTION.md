@@ -50,8 +50,8 @@ turn the boards' raw values into tokens or module-level custom properties.
 - Sticky at every width. See-through over the hero; a solid bar (canvas colour, hairline below,
   the shorter padding from the board) once the page has scrolled past the top. Over the hero
   its text is white in both themes; once solid it follows the theme.
-- Left: the logo (48px, as today, monogram fallback kept) and the site name from `site.name`
-  (hidden on phones, as in the board).
+- Left: the logo alone (48px, monogram fallback kept). The owner removed the site name that the
+  boards show beside it (2026-10-09); the logo link keeps the name as its accessible label.
 - Centre, from 768px: the links from `PAGE_SECTIONS`. Once scrolled, the link of the section in
   view is highlighted (`aria-current="true"` on it).
 - Right, from 768px: the "Get in touch" button (`site.contactLabel`, a `mailto:` link to
