@@ -104,6 +104,25 @@ for (const trackId of TRACK_IDS) {
       await expect(cell).toHaveCSS('opacity', '1');
     });
 
+    for (const width of [820, 1024, 1440]) {
+      test(`the tab strip shows its whole box, right border included, with nothing to scroll at ${width}px`, async ({ page, isMobile }) => {
+        test.skip(isMobile, 'desktop widths');
+        await page.setViewportSize({ width, height: 800 });
+        await openRoute(page, routeOf(track, 'all'));
+        const strip = await tabsNav(page).evaluate((nav) => {
+          const scroller = nav.firstElementChild as HTMLElement;
+          const list = nav.querySelector('ul')!;
+          const listBox = list.getBoundingClientRect();
+          const scrollerBox = scroller.getBoundingClientRect();
+          return { scrollable: scroller.scrollWidth > scroller.clientWidth, rightGap: scrollerBox.right - listBox.right, rightBorder: getComputedStyle(list).borderRightWidth };
+        });
+        expect(strip.scrollable, 'the strip fits, so it must not scroll').toBe(false);
+        expect(strip.rightBorder).toBe('1px');
+        // The scroller's own 4px of padding sits outside the box: the border is not under the clip.
+        expect(strip.rightGap).toBeGreaterThanOrEqual(4 - 0.5);
+      });
+    }
+
     test('one small gap between the cards, the same between rows and between columns', async ({ page }) => {
       test.skip(content.getProjects(trackId, 'all').length < 2, 'needs two cards');
       await openRoute(page, routeOf(track, 'all'));

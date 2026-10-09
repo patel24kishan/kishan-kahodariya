@@ -5,10 +5,12 @@
   min-width: 0;
 }
 
-/* The scroller owns overflow; its padding keeps focus rings inside the scrollable area. */
+/* The scroller owns overflow; its padding keeps focus rings inside the scrollable area. The
+   padding and the negative margin are 4px each side, so it may be 8px wider than the nav: capped
+   at the nav's width alone, it was 8px too narrow and cut off the strip's right border. */
 .scroller {
   display: flex;
-  max-width: 100%;
+  max-width: calc(100% + 8px);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   padding: 4px;
