@@ -112,3 +112,55 @@ export const FIXTURE_CONTENT: ContentBundle = {
   education: [],
   certificates: [],
 };
+
+/**
+ * The motion hero and header: what the plain fixture above leaves empty (no video, no badge,
+ * no stats, no "See my work", no "Get in touch"), filled in by a variant chosen with ?hero=.
+ *   full     a video that plays (a 4 KB .webm beside this file), badge, stats, both buttons
+ *   poster   no video, a poster image
+ *   both     the video and a poster
+ *   broken   a video address that cannot be loaded, no poster
+ *   oneline  like full, with only the first badge line
+ */
+export type HeroCase = 'plain' | 'full' | 'poster' | 'both' | 'broken' | 'oneline';
+export const HERO_CASES: readonly HeroCase[] = ['plain', 'full', 'poster', 'both', 'broken', 'oneline'];
+
+/** Site paths, as content stores them (no base path). */
+export const HERO_VIDEO = '/tests/pages/support/hero-fixture-video.webm';
+export const HERO_VIDEO_BROKEN = 'https://video.invalid/hero.mp4';
+export const HERO_POSTER = LOGO_OK;
+export const HERO_EMAIL = 'fixture@example.com';
+export const HERO_WORK_LABEL = 'See fixture work';
+export const HERO_CONTACT_LABEL = 'Write to fixture';
+export const HERO_BADGE = ['Fixture Certified', 'Badge Second Line'] as const;
+/** Typed stats only, so the fixture needs no projects; the blank one must be dropped. */
+export const HERO_STATS = [
+  { value: '12', label: 'Fixture things' },
+  { value: '3+', label: 'Fixture years' },
+] as const;
+
+export function fixtureContent(hero: HeroCase): ContentBundle {
+  if (hero === 'plain') return FIXTURE_CONTENT;
+  const heroVideo = hero === 'poster' ? '' : hero === 'broken' ? HERO_VIDEO_BROKEN : HERO_VIDEO;
+  const heroPoster = hero === 'poster' || hero === 'both' ? HERO_POSTER : '';
+  return {
+    ...FIXTURE_CONTENT,
+    site: {
+      ...FIXTURE_CONTENT.site,
+      email: HERO_EMAIL,
+      workLabel: HERO_WORK_LABEL,
+      contactLabel: HERO_CONTACT_LABEL,
+      stats: [
+        ...HERO_STATS.map((stat) => ({ source: 'custom' as const, ...stat })),
+        { source: 'custom' as const, value: '', label: 'Dropped: no value' },
+      ],
+    },
+    tracks: FIXTURE_CONTENT.tracks.map((profile) => ({
+      ...profile,
+      heroVideo,
+      heroPoster,
+      badgeLine1: HERO_BADGE[0],
+      badgeLine2: hero === 'oneline' ? '' : HERO_BADGE[1],
+    })),
+  };
+}

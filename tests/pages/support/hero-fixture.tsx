@@ -18,9 +18,12 @@ import { Projects } from '@/components/sections/Projects';
 import { createContentApi } from '@/content/selectors';
 import type { TrackId } from '@/content/types';
 import { ThemeProvider } from '@/theme';
-import { FIXTURE_CONTENT, LOGO_SOURCES, type LogoCase } from './hero-fixture.content';
+import { fixtureContent, HERO_CASES, LOGO_SOURCES, type HeroCase, type LogoCase } from './hero-fixture.content';
 
-const api = createContentApi(FIXTURE_CONTENT);
+const params = new URLSearchParams(window.location.search);
+const requestedHero = params.get('hero') as HeroCase | null;
+const hero: HeroCase = requestedHero !== null && HERO_CASES.includes(requestedHero) ? requestedHero : 'plain';
+const api = createContentApi(fixtureContent(hero));
 
 function Page({ trackId, logo }: { trackId: TrackId; logo: LogoCase }) {
   const { tab: tabSegment } = useParams();
@@ -29,19 +32,27 @@ function Page({ trackId, logo }: { trackId: TrackId; logo: LogoCase }) {
   const profile = api.getTrack(trackId);
   return (
     <div id="top" data-testid="hero-fixture" data-track={trackId} data-tab={tab}>
-      <SiteNav monogram={site.monogram} siteName={site.name} logo={LOGO_SOURCES[logo]} logoAlt={site.logoAlt} />
+      <SiteNav monogram={site.monogram} siteName={site.name} logo={LOGO_SOURCES[logo]} logoAlt={site.logoAlt} contactLabel={site.contactLabel} email={site.email} />
       <main>
-        <Hero track={profile} name={site.name} monogram={site.monogram} summary={api.getSummary(trackId, tab)} resume={api.getResume(trackId, tab)} links={api.getLinks(trackId, 'hero')} />
+        <Hero track={profile} name={site.name} summary={api.getSummary(trackId, tab)} resume={api.getResume(trackId, tab)} workLabel={site.workLabel} stats={api.getHeroStats(trackId)} />
         <Projects track={profile} tab={tab} tabs={api.getTabs()} projects={[]} onOpen={() => undefined} />
+        {/* Something tall to scroll over, with the sections the header's links point at. */}
+        {filler && (
+          <>
+            <section id="experience" style={{ minHeight: '120vh' }} />
+            <section id="skills" style={{ minHeight: '120vh' }} />
+            <section id="education" style={{ minHeight: '40vh' }} />
+          </>
+        )}
       </main>
     </div>
   );
 }
 
-const params = new URLSearchParams(window.location.search);
 const trackId: TrackId = params.get('track') === 'softdev' ? 'softdev' : 'game';
 const requestedLogo = params.get('logo');
 const logo: LogoCase = requestedLogo === 'none' || requestedLogo === 'broken' ? requestedLogo : 'ok';
+const filler = params.get('filler') === '1';
 const route = api.getTrack(trackId).route;
 const start = params.get('path') ?? `/${route}`;
 

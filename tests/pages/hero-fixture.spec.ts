@@ -21,6 +21,7 @@ import { blockOtherOrigins, cssVar, hexToRgb, presetTheme, tabsNav, THEMES, type
  * address, a page without a main resume; a summary of its own on a tab (with and without a
  * resume), a page without a main summary; and a nav logo that is missing or does not load.
  * The fixture mounts the real SiteNav, Hero and tab links and is wired like the real page.
+ * (The fixture's video, badge, stats and button variants are in hero-video.spec.ts.)
  */
 const FIXTURE_PATH = 'tests/pages/support/hero-fixture.html';
 const api = createContentApi(FIXTURE_CONTENT);
@@ -60,7 +61,10 @@ async function expectResume(page: Page, expected: { url: string; label: string }
   await expect(button).toHaveText(`${expected.label} (opens in a new tab)`);
   await expect(button).toHaveAttribute('target', '_blank');
   await expect(button).toHaveAttribute('rel', 'noopener noreferrer');
-  await expect(button).toHaveAttribute('data-variant', 'accent');
+  // The outlined, square button of the motion hero.
+  await expect(button).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(button).toHaveCSS('border-top-width', '1px');
+  await expect(button).toHaveCSS('border-radius', '0px');
 }
 
 async function chooseTab(page: Page, root: Locator, tabId: string): Promise<void> {
@@ -114,8 +118,9 @@ test.describe('resume button per project tab', () => {
       await expectResume(page, EXPECTED[tabId]!);
       await expect(resumeButton(page), `after choosing ${tabId}`).toHaveAttribute('data-test-mark', 'same-element');
     }
-    // The other hero buttons are untouched.
-    await expect(page.locator('#about [data-hero-link]')).toHaveCount(api.getLinks('game', 'hero').length);
+    // The hero has no link buttons any more, whatever the content's hero links are.
+    expect(api.getLinks('game', 'hero').length).toBeGreaterThan(0);
+    await expect(page.locator('#about [data-hero-link]')).toHaveCount(0);
   });
 
   test('a page without a main resume shows the button only on the tab that has its own; an empty label reads "Resume"', async ({ page }) => {
@@ -128,8 +133,8 @@ test.describe('resume button per project tab', () => {
     for (const tabId of ['unity', 'all', 'unreal']) {
       await chooseTab(page, root, tabId);
       await expect(resumeButton(page), tabId).toHaveCount(0);
-      // The hero links stay.
-      await expect(page.locator('#about [data-hero-link]')).toHaveCount(api.getLinks('softdev', 'hero').length);
+      // With no resume, no work label and no badge there is no button row at all.
+      await expect(page.locator('#about [data-hero-actions]')).toHaveCount(0);
     }
     await chooseTab(page, root, 'webapps');
     await expectResume(page, { url: 'https://example.com/resume/web.pdf', label: 'Resume' });
@@ -168,13 +173,16 @@ test.describe('summary per project tab', () => {
     // innerText: a <br> reads as a line break (which the comparison treats as one space).
     await expect(block.locator('p')).toHaveText(paragraphs.map((paragraph) => paragraph.replace(/\n/g, ' ')), { useInnerText: true });
     await expect(block.locator('br')).toHaveCount(paragraphs.reduce((count, paragraph) => count + paragraph.split('\n').length - 1, 0));
-    // In its place: after the headline, before the buttons.
+    // In its place: after the name (which follows the tagline), before the buttons when there are any.
     const around = await block.evaluate((element) => ({
-      before: element.previousElementSibling?.textContent ?? '',
-      afterHasButtons: element.nextElementSibling?.querySelector('[data-hero-resume], [data-hero-link]') !== null,
+      before: element.previousElementSibling?.tagName ?? '',
+      beforeText: element.previousElementSibling?.textContent ?? '',
+      first: element.parentElement?.firstElementChild?.textContent ?? '',
+      nextIsButtons: element.nextElementSibling === null ? null : element.nextElementSibling.hasAttribute('data-hero-actions'),
       parentIsHeroText: element.parentElement?.querySelector(':scope > h1') !== null,
     }));
-    expect(around).toEqual({ before: 'Fixture Headline', afterHasButtons: true, parentIsHeroText: true });
+    const hasButtons = (await page.locator('#about [data-hero-resume]').count()) > 0;
+    expect(around).toEqual({ before: 'H1', beforeText: site.name, first: 'Fixture Headline', nextIsButtons: hasButtons ? true : null, parentIsHeroText: true });
   }
 
   test('the hand-made content says what this test assumes', () => {
@@ -213,7 +221,7 @@ test.describe('summary per project tab', () => {
       // The resume follows the same tab, by its own rule.
       await expectResume(page, api.getResume('game', tabId));
     }
-    await expect(page.locator('#about [data-hero-link]')).toHaveCount(api.getLinks('game', 'hero').length);
+    await expect(page.locator('#about [data-hero-link]')).toHaveCount(0);
   });
 
   test('a page without a main summary shows the block only on the tab that has its own', async ({ page }) => {
@@ -228,8 +236,9 @@ test.describe('summary per project tab', () => {
     for (const tabId of ['all', 'unreal', 'webapps']) {
       await chooseTab(page, root, tabId);
       await expectSummary(page, '');
-      // The hero links stay.
-      await expect(page.locator('#about [data-hero-link]')).toHaveCount(api.getLinks('softdev', 'hero').length);
+      // The rest of the hero stays.
+      await expect(page.locator('#about h1')).toHaveText(site.name);
+      await expect(page.locator('#about [data-hero-tagline]')).toHaveText('Fixture Headline');
     }
   });
 
@@ -318,7 +327,9 @@ test.describe('nav logo', () => {
     const box = await link.boundingBox();
     expect(box!.width).toBeGreaterThanOrEqual(44);
     expect(box!.height).toBeGreaterThanOrEqual(44);
+    // Over the hero the bar's text is white (the dark theme's ink), in both themes.
     await expect(link).toHaveCSS('color', hexToRgb(await cssVar(page.locator('html'), '--color-ink')));
+    await expect(link).toHaveCSS('color', 'rgb(255, 255, 255)');
   });
 
   test('a logo that does not load is replaced by the monogram text', async ({ page }) => {
@@ -331,15 +342,16 @@ test.describe('nav logo', () => {
     await expect(link.locator('[data-nav-logo-disc]')).toHaveCount(0);
   });
 
-  test('fits beside the menu button and the theme toggle at 320px', async ({ page }) => {
+  test('fits beside the menu button at 320px, where the bar holds nothing else', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await openFixture(page, { logo: 'ok' });
     const banner = page.getByRole('banner');
-    const [logoBox, menuBox, toggleBox] = await Promise.all([brand(page).boundingBox(), banner.locator('[data-menu-button]').boundingBox(), banner.getByRole('switch').boundingBox()]);
+    const [logoBox, menuBox] = await Promise.all([brand(page).boundingBox(), banner.locator('[data-menu-button]').boundingBox()]);
     expect(logoBox!.x).toBeGreaterThanOrEqual(0);
     expect(logoBox!.x + logoBox!.width).toBeLessThan(menuBox!.x);
-    expect(menuBox!.x + menuBox!.width).toBeLessThanOrEqual(toggleBox!.x);
-    expect(toggleBox!.x + toggleBox!.width).toBeLessThanOrEqual(320);
+    expect(menuBox!.x + menuBox!.width).toBeLessThanOrEqual(320);
+    // The theme toggle is in the menu at this width, not in the bar.
+    await expect(banner.getByRole('switch')).toHaveCount(0);
     const widths = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, body: document.body.scrollWidth }));
     expect(widths.scroll).toBeLessThanOrEqual(320);
     expect(widths.body).toBeLessThanOrEqual(320);

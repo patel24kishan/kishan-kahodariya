@@ -5,7 +5,7 @@ import { cssVar, openRoute, sectionsNav, tabsNav, THEMES, trackPage } from './su
 
 /**
  * The page's skeleton on both pages: landmarks, section order, headings, the nav and its
- * anchors, the skip link, the phone menu, the theme toggle in the bar, image and link hygiene,
+ * anchors, the skip link, the phone menu, the theme toggle (in the bar, or in the menu on phones), image and link hygiene,
  * no overflow at 320px.
  */
 const site = content.getSite();
@@ -119,8 +119,9 @@ for (const trackId of TRACK_IDS) {
 
     test('a section link lands the section just below the sticky nav', async ({ page, isMobile }) => {
       await openRoute(page, routeOf(track));
+      // On phones the links are in the full-screen menu.
       if (isMobile) await page.getByRole('button', { name: 'Open menu' }).click();
-      await sectionsNav(page).getByRole('link', { name: 'Skills' }).click();
+      await (isMobile ? page.getByRole('dialog', { name: 'Menu' }) : sectionsNav(page)).getByRole('link', { name: 'Skills' }).click();
       const navHeight = await page.getByRole('banner').evaluate((element) => element.getBoundingClientRect().height);
       // The scroll is smooth: wait until it has settled just below the nav.
       await expect
@@ -214,38 +215,46 @@ for (const trackId of TRACK_IDS) {
 test.describe('phone menu', () => {
   const track = content.getTrack('game');
 
-  test('is a disclosure: opens, closes on Esc with focus back on the button, closes after a link and on a click outside', async ({ page, isMobile }) => {
+  test('is a modal dialog: opens full screen with the links, closes on Esc with focus back on the button, closes after a link', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'the links are inline above 768px');
     await openRoute(page, routeOf(track));
     const button = page.getByRole('button', { name: 'Open menu' });
     const nav = sectionsNav(page);
+    const dialog = page.getByRole('dialog', { name: 'Menu' });
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute('aria-expanded', 'false');
-    await expect(button).toHaveAttribute('aria-controls', await nav.evaluate((element) => element.id));
+    await expect(button).toHaveAttribute('aria-haspopup', 'dialog');
+    // The inline links are not shown on a phone, and the closed menu is not in the page at all.
     await expect(nav).toBeHidden();
-    // The theme toggle stays in the bar.
-    await expect(page.getByRole('banner').getByRole('switch')).toBeVisible();
+    await expect(dialog).toHaveCount(0);
+    // The theme toggle is not in the phone bar (it is in the menu).
+    await expect(page.getByRole('banner').getByRole('switch')).toHaveCount(0);
 
     await button.click();
-    const closeButton = page.getByRole('button', { name: 'Close menu' });
-    await expect(closeButton).toHaveAttribute('aria-expanded', 'true');
-    await expect(nav).toBeVisible();
-    await expect(nav.getByRole('link')).toHaveCount(SECTION_IDS.length);
+    await expect(dialog).toBeVisible();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    await expect(button).toHaveAttribute('aria-controls', await dialog.evaluate((element) => element.id));
+    await expect(dialog.getByRole('button', { name: 'Close menu' })).toBeFocused();
+    await expect(dialog.getByRole('link')).toHaveCount(SECTION_IDS.length + (site.contactLabel.trim() && site.email.trim() ? 1 : 0));
+    await expect(dialog.getByRole('switch')).toBeVisible();
 
     await page.keyboard.press('Escape');
-    await expect(nav).toBeHidden();
+    await expect(dialog).toHaveCount(0);
     await expect(button).toHaveAttribute('aria-expanded', 'false');
     await expect(button).toBeFocused();
 
     await button.click();
-    await nav.getByRole('link', { name: 'Projects' }).click();
-    await expect(nav).toBeHidden();
+    await dialog.getByRole('link', { name: 'Projects' }).click();
+    await expect(dialog).toHaveCount(0);
     expect(new URL(page.url()).hash).toBe('#projects');
 
+    // A modal has no "outside": a tap on its empty part leaves it open; its close button closes it.
     await button.click();
-    await expect(nav).toBeVisible();
+    await expect(dialog).toBeVisible();
     await page.mouse.click(200, 620);
-    await expect(nav).toBeHidden();
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Close menu' }).click();
+    await expect(dialog).toHaveCount(0);
   });
 
   test('is absent on wider screens, where the links are inline', async ({ page, isMobile }) => {
@@ -256,48 +265,54 @@ test.describe('phone menu', () => {
     await expect(sectionsNav(page).getByRole('link')).toHaveCount(SECTION_IDS.length);
   });
 
-  test('the menu button sits left of the theme toggle, in the DOM and in the tab order too', async ({ page, isMobile }) => {
+  test('the phone bar holds the logo and the menu button only; the theme toggle is the last control of the menu', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'there is no menu button above 768px');
     await openRoute(page, routeOf(track));
     const banner = page.getByRole('banner');
     const button = banner.locator('[data-menu-button]');
-    const toggle = banner.getByRole('switch');
     const monogram = banner.getByRole('link', { name: new RegExp(`${site.name}.*top`) });
     await expect(button).toBeVisible();
-    await expect(toggle).toBeVisible();
+    await expect(banner.getByRole('switch')).toHaveCount(0);
 
-    // On screen: logo … [menu button] [theme toggle], on one line, without overlapping.
-    const [logoBox, buttonBox, toggleBox] = await Promise.all([monogram.boundingBox(), button.boundingBox(), toggle.boundingBox()]);
+    // On screen: logo … [menu button], on one line, without overlapping; the button ends at the gutter.
+    const [logoBox, buttonBox] = await Promise.all([monogram.boundingBox(), button.boundingBox()]);
     expect(logoBox!.x + logoBox!.width).toBeLessThanOrEqual(buttonBox!.x);
-    expect(buttonBox!.x + buttonBox!.width).toBeLessThanOrEqual(toggleBox!.x);
-    expect(toggleBox!.x - (buttonBox!.x + buttonBox!.width), 'gap between the two hit areas').toBeGreaterThanOrEqual(8);
-    expect(buttonBox!.y + buttonBox!.height / 2).toBeCloseTo(toggleBox!.y + toggleBox!.height / 2, 0);
+    expect(buttonBox!.y + buttonBox!.height / 2).toBeCloseTo(logoBox!.y + logoBox!.height / 2, 0);
+    const gutter = parseFloat(await cssVar(page.locator('html'), '--gutter'));
+    expect(buttonBox!.x + buttonBox!.width).toBeCloseTo(page.viewportSize()!.width - gutter, 0);
 
-    // In the DOM: the menu button comes before the toggle.
-    const follows = await button.evaluate((menuButton) => {
-      const themeToggle = menuButton.closest('header')!.querySelector('[role="switch"]')!;
-      return (menuButton.compareDocumentPosition(themeToggle) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-    });
-    expect(follows, 'the theme toggle follows the menu button in the DOM').toBe(true);
-
-    // With the keyboard: Tab goes from the menu button to the toggle, Shift+Tab comes back.
-    await button.focus();
+    // With the keyboard: the logo, then the menu button; nothing else in the bar takes focus.
+    await monogram.focus();
     await page.keyboard.press('Tab');
-    await expect(toggle).toBeFocused();
-    await page.keyboard.press('Shift+Tab');
     await expect(button).toBeFocused();
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => document.activeElement?.closest('header') === null)).toBe(true);
 
-    // Still true while the menu is open (the button becomes "Close menu").
+    // In the menu the toggle comes after the links and the button: last in the DOM and in the tab order.
     await button.click();
-    await expect(button).toHaveAttribute('aria-expanded', 'true');
-    const [openButtonBox, openToggleBox] = await Promise.all([button.boundingBox(), toggle.boundingBox()]);
-    expect(openButtonBox).toEqual(buttonBox);
-    expect(openToggleBox).toEqual(toggleBox);
+    const dialog = page.getByRole('dialog', { name: 'Menu' });
+    const toggle = dialog.getByRole('switch');
+    await expect(toggle).toBeVisible();
+    const last = await dialog.locator('a[href], button').evaluateAll((controls) => controls[controls.length - 1]?.getAttribute('role'));
+    expect(last).toBe('switch');
+    // The menu's close button is drawn exactly where the menu button is.
+    expect(await dialog.getByRole('button', { name: 'Close menu' }).boundingBox()).toEqual(buttonBox);
   });
 });
 
 test.describe('theme toggle in the nav', () => {
   const track = content.getTrack('game');
+
+  /** The theme toggle: in the bar from 768px; on phones in the menu, which this opens. */
+  async function themeToggle(page: Page, isMobile: boolean) {
+    if (!isMobile) return page.getByRole('banner').getByRole('switch');
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Menu' });
+    // Its row slides in: measure when it has arrived.
+    await expect(dialog.locator('[data-menu-theme]')).toHaveCSS('opacity', '1');
+    await page.waitForTimeout(700);
+    return dialog.getByRole('switch');
+  }
 
   /** The right edge of the bar's content box: where the gutter starts. */
   function barContentRight(page: Page): Promise<number> {
@@ -309,27 +324,30 @@ test.describe('theme toggle in the nav', () => {
   }
 
   for (const theme of THEMES) {
-    test(`is a 48 × 22 pill in a 44px hit area, the right-most control, knob inside by night and by day — ${theme}`, async ({ page }) => {
+    test(`is a 48 × 22 pill in a 44px hit area, the right-most control of the bar (in the menu on phones), knob inside by night and by day — ${theme}`, async ({ page, isMobile }) => {
       await openRoute(page, routeOf(track), { theme });
       const banner = page.getByRole('banner');
-      const toggle = banner.getByRole('switch');
+      const toggle = await themeToggle(page, isMobile);
       await expect(toggle).toHaveCount(1);
       const first = theme === 'light' ? 'day' : 'night';
       await expectToggleGeometry(toggle, first, 'nav toggle');
 
-      // Nothing in the bar is further right, and the pill ends flush with the gutter.
-      const { button, pill } = await toggleBoxes(toggle);
-      expect(pill.right).toBeCloseTo(await barContentRight(page), 1);
-      const others = await banner.locator('a[href], button').evaluateAll((controls) =>
-        controls.filter((control) => control.getAttribute('role') !== 'switch' && control.getClientRects().length > 0).map((control) => control.getBoundingClientRect().right),
-      );
-      expect(others.length).toBeGreaterThan(0);
-      for (const right of others) expect(right).toBeLessThanOrEqual(button.left + 0.05);
+      if (!isMobile) {
+        // Nothing in the bar is further right, and the pill ends flush with the gutter.
+        const { button, pill } = await toggleBoxes(toggle);
+        expect(pill.right).toBeCloseTo(await barContentRight(page), 1);
+        const others = await banner.locator('a[href], button').evaluateAll((controls) =>
+          controls.filter((control) => control.getAttribute('role') !== 'switch' && control.getClientRects().length > 0).map((control) => control.getBoundingClientRect().right),
+        );
+        expect(others.length).toBeGreaterThan(0);
+        for (const right of others) expect(right).toBeLessThanOrEqual(button.left + 0.05);
+      }
 
-      // The bar keeps its height: the smaller pill does not pull it in, the hit area does not push it out.
-      const navHeight = await cssVar(page.locator('html'), '--nav-height');
+      // The bar keeps its height (13 + 48 + 13 from 768px, 10 + 48 + 10 on phones): the smaller
+      // pill does not pull it in, the hit area does not push it out.
       const barHeight = await banner.locator('> *').first().evaluate((bar) => bar.getBoundingClientRect().height);
-      expect(barHeight).toBe(parseFloat(navHeight));
+      expect(barHeight).toBe(isMobile ? 68 : 74);
+      expect(await banner.evaluate((bar) => bar.getBoundingClientRect().height)).toBe(barHeight);
 
       // Switched from the keyboard, so no pointer rests on the knob while it is measured.
       await toggle.focus();
@@ -339,10 +357,10 @@ test.describe('theme toggle in the nav', () => {
     });
   }
 
-  test('switches the theme, keeps the choice in localStorage["kk-theme"] and comes back with it after a reload', async ({ page }) => {
+  test('switches the theme, keeps the choice in localStorage["kk-theme"] and comes back with it after a reload', async ({ page, isMobile }) => {
     await openRoute(page, routeOf(track), { theme: 'dark' });
     const html = page.locator('html');
-    const toggle = page.getByRole('banner').getByRole('switch');
+    const toggle = await themeToggle(page, isMobile);
     await expect(html).toHaveAttribute('data-theme', 'dark');
     await expect(toggle).toHaveAccessibleName('Switch to light mode');
 
@@ -354,7 +372,7 @@ test.describe('theme toggle in the nav', () => {
 
     await page.reload();
     await expect(html).toHaveAttribute('data-theme', 'light');
-    const reloaded = page.getByRole('banner').getByRole('switch');
+    const reloaded = await themeToggle(page, isMobile);
     await expect(reloaded).toHaveAttribute('aria-checked', 'true');
     await expectToggleGeometry(reloaded, 'day', 'nav toggle after a reload');
 
@@ -382,7 +400,8 @@ test.describe('theme toggle in the nav', () => {
       }).observe({ type: 'layout-shift', buffered: true });
     });
     await openRoute(page, routeOf(track), { theme: 'light' });
-    await expect(page.getByRole('banner').getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    // A CSS locator: on phones the bar's own toggle is not displayed (it is in the menu).
+    await expect(page.getByRole('banner').locator('[data-theme-toggle]')).toHaveAttribute('aria-checked', 'true');
     await page.waitForTimeout(600);
     expect(await page.evaluate(() => (window as unknown as { __navShifts: string[] }).__navShifts)).toEqual([]);
   });

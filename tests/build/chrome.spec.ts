@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { expectedView, relative, siteMap } from '../infra/support/site-map';
 import { assetHref, content } from '../pages/support/content';
 import { attribute, decodeEntities, rootMarkup, tags } from './support/html';
@@ -6,7 +6,8 @@ import { attribute, decodeEntities, rootMarkup, tags } from './support/html';
 /**
  * Three things every prerendered page must already carry in its HTML, before any script runs:
  * the resume and the summary of the tab that page shows (getResume(track, tab) and
- * getSummary(track, tab)) and the logo in the nav bar.
+ * getSummary(track, tab)) and the logo in the nav bar — and the motion header and hero in their
+ * top-of-page, nothing-started state.
  * Read from the raw response, the way a crawler or a visitor without JavaScript gets it.
  */
 const site = content.getSite();
@@ -20,6 +21,17 @@ function textOf(html: string, openingTag: string, name: string): string {
   return decodeEntities(html.slice(from, end < 0 ? undefined : end).replace(/<[^>]*>/g, ' '))
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * The hero's background video lives on another host. These tests wait for the network to go
+ * quiet and must not depend on that host: its requests are refused.
+ */
+async function blockVideo(page: Page): Promise<void> {
+  await page.route(
+    (url) => /\.(?:mp4|webm|mov|m4v)$/i.test(url.pathname),
+    (route) => route.abort('blockedbyclient'),
+  );
 }
 
 for (const route of siteMap.routes) {
@@ -75,6 +87,54 @@ for (const route of siteMap.routes) {
       expect(logoTags).toHaveLength(0);
       expect(textOf(markup, brandTags[0]!, 'a')).toBe(site.monogram);
     }
+
+    // ---- Header: the top-of-page state (see-through, on dark), no section marked, no menu ----
+    const headerTags = tags(markup, 'header').filter((tag) => attribute(tag, 'data-site-header') !== null);
+    expect(headerTags, 'one header').toHaveLength(1);
+    expect(attribute(headerTags[0]!, 'data-on-dark'), 'the server renders the bar over the hero').not.toBeNull();
+    expect(attribute(headerTags[0]!, 'data-scrolled')).toBeNull();
+    const headerEnd = markup.indexOf('</header>');
+    const headerMarkup = markup.slice(markup.indexOf(headerTags[0]!), headerEnd);
+    expect(headerMarkup).not.toContain('aria-current');
+    expect(tags(markup, 'dialog'), 'the closed phone menu is not in the HTML').toHaveLength(0);
+    const contactTags = tags(headerMarkup, 'a').filter((tag) => attribute(tag, 'data-nav-contact') !== null);
+    if (site.contactLabel.trim() && site.email.trim()) {
+      expect(contactTags).toHaveLength(1);
+      expect(attribute(contactTags[0]!, 'href')).toBe(`mailto:${site.email.trim()}`);
+      expect(textOf(headerMarkup, contactTags[0]!, 'a')).toBe(site.contactLabel.trim());
+    } else {
+      expect(contactTags).toHaveLength(0);
+    }
+
+    // ---- Hero: the name as the h1, the stats, and a video that cannot start by itself --------
+    const track = content.getTrack(view.track.id);
+    const h1 = tags(markup, 'h1');
+    expect(h1).toHaveLength(1);
+    expect(textOf(markup, h1[0]!, 'h1')).toBe(site.name);
+    const videoTags = tags(markup, 'video');
+    if (track.heroVideo) {
+      expect(videoTags, 'one background video').toHaveLength(1);
+      expect(attribute(videoTags[0]!, 'src')).toBe(assetHref(track.heroVideo));
+      // No autoplay attribute: the page decides after checking reduced motion and data saving,
+      // and nothing is fetched before that.
+      expect(/\sautoplay\b/i.test(videoTags[0]!), 'no autoplay attribute in the HTML').toBe(false);
+      expect(attribute(videoTags[0]!, 'preload')).toBe('none');
+      expect(/\smuted\b/i.test(videoTags[0]!)).toBe(true);
+      expect(/\sloop\b/i.test(videoTags[0]!)).toBe(true);
+      expect(/\splaysinline\b/i.test(videoTags[0]!)).toBe(true);
+      expect(/\scontrols\b/i.test(videoTags[0]!)).toBe(false);
+      expect(attribute(videoTags[0]!, 'tabindex')).toBe('-1');
+    } else {
+      expect(videoTags).toHaveLength(0);
+    }
+    // Gone from the hero: the photo and the hero link buttons.
+    expect(markup).not.toContain('data-hero-photo');
+    expect(markup).not.toContain('data-hero-link');
+    // Nothing in the HTML is hidden waiting for a script: no inline opacity or visibility.
+    const about = markup.slice(markup.indexOf('id="about"'), markup.indexOf('id="projects"'));
+    expect(about).not.toMatch(/style="[^"]*(?:opacity|visibility)/i);
+    const badge = [track.badgeLine1.trim(), track.badgeLine2.trim()].filter(Boolean);
+    for (const line of badge) expect(decodeEntities(about)).toContain(line);
   });
 }
 
@@ -103,6 +163,7 @@ test('the logo is on screen after hydration, with no background behind it, and n
       }
     }).observe({ type: 'layout-shift', buffered: true });
   });
+  await blockVideo(page);
   await page.goto('./');
   const brand = page.getByRole('banner').locator('a[data-nav-brand]');
   const logo = brand.locator('img[data-nav-logo]');
@@ -148,6 +209,7 @@ test('the hero summary is in place from the first paint: opened straight on a ta
     });
     watcher.observe(document, { childList: true, subtree: true });
   });
+  await blockVideo(page);
   await page.goto(relative(`/${game.route}/${tab.id}`));
   const block = page.locator('#about [data-hero-summary]');
   await expect(block).toHaveCount(1);

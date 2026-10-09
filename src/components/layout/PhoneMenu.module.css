@@ -1,0 +1,190 @@
+/*
+ * The phone menu (MotionMobile): a full-screen modal <dialog>, black at 96% in both themes
+ * (a data-on-dark region). Its top row repeats the header's row (--bar-height and --bar-shift
+ * are inherited from the header), so the close button is exactly where the menu button was.
+ * Only opacity and transform animate; nothing does under prefers-reduced-motion.
+ */
+
+.menu {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.96);
+  color: var(--color-ink);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: fade var(--duration-base) var(--ease) both;
+}
+
+.menu::backdrop {
+  background: transparent;
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding-block-end: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  height: var(--bar-height, 68px);
+  padding-inline: var(--gutter);
+  transform: translateY(var(--bar-shift, 0px));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 48px;
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+}
+
+.logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(32px, 9.7vh, 82px) var(--gutter) 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 100%;
+}
+
+.row {
+  max-width: 100%;
+  animation: rise 480ms var(--ease) both;
+  animation-delay: calc(var(--menu-step, 0) * 60ms + 80ms);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--color-ink);
+  font-size: clamp(2rem, 10.5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.contact {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-block-start: var(--space-6);
+  padding: 14px var(--space-6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-ink);
+  font-size: var(--text-caption-upper);
+  line-height: 1.2;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.contact svg {
+  flex: none;
+}
+
+.contact::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: var(--button-tint);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.contact:active::before {
+  opacity: 1;
+}
+
+.theme {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  margin-block-start: 28px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--text-caption-upper);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu,
+  .row {
+    animation: none;
+  }
+}

@@ -4,6 +4,7 @@ import {
   getCertificates,
   getEducation,
   getExperience,
+  getHeroStats,
   getLinks,
   getProjects,
   getResume,
@@ -51,7 +52,7 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
   const profile = getTrack(track);
   const tabs = getTabs();
   const projects = getProjects(track, tab);
-  const heroLinks = getLinks(track, 'hero');
+  const heroStats = getHeroStats(track);
   // The resume follows the open project tab: a tab can have its own, the others use the page's.
   const resume = getResume(track, tab);
   // So does the summary: a tab's own text when it has one, otherwise the page's.
@@ -106,15 +107,15 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
   return (
     <div id={PAGE_TOP_ID} className={styles.page} data-testid="track-page" data-track={track} data-tab={tab}>
       <SkipLink href={`#${MAIN_ID}`} />
-      <SiteNav monogram={site.monogram} siteName={site.name} logo={site.logo} logoAlt={site.logoAlt} />
+      <SiteNav monogram={site.monogram} siteName={site.name} logo={site.logo} logoAlt={site.logoAlt} contactLabel={site.contactLabel} email={site.email} />
       <main id={MAIN_ID} tabIndex={-1} className={styles.main}>
-        <Hero track={profile} name={site.name} monogram={site.monogram} summary={summary} resume={resume} links={heroLinks} />
+        <Hero track={profile} name={site.name} summary={summary} resume={resume} workLabel={site.workLabel} stats={heroStats} />
         <Projects track={profile} tab={tab} tabs={tabs} projects={projects} onOpen={openViewer} />
         <Experience entries={experience} />
         <Skills track={track} groups={skillGroups} />
         <Education education={education} certificates={certificates} certificatesFirst={profile.certificatesFirst} />
       </main>
-      <SiteFooter links={footerLinks} credit={site.credit} />
+      <SiteFooter links={footerLinks} credit={site.credit} contactLabel={site.contactLabel} />
       {viewed && request && <MediaViewer project={viewed} item={request.item} opener={openerRef.current} onItemChange={moveViewer} onClose={closeViewer} />}
     </div>
   );

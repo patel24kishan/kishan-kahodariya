@@ -92,8 +92,10 @@ for (const trackId of TRACK_IDS) {
     expect(failures, failures.join('\n')).toEqual([]);
   });
 
-  test(`${track.route}: the theme toggle draws its focus ring around the pill`, async ({ page }) => {
+  test(`${track.route}: the theme toggle draws its focus ring around the pill`, async ({ page, isMobile }) => {
     await openRoute(page, routeOf(track, 'all'));
+    // On phones the one toggle is in the menu.
+    if (isMobile) await page.getByRole('button', { name: 'Open menu' }).click();
     const toggles = await page.getByRole('switch').all();
     expect(toggles).toHaveLength(1);
     for (const toggle of toggles) {
