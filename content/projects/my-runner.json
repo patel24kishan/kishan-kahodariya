@@ -3,7 +3,7 @@
   "title": "My Runner",
   "shortDescription": "Created horizontal endless runner Game for PC, similar to Chrome's Dino jumping game but in 3D.",
   "longDescription": "",
-  "dateDisplay": "July 2023 - July 2023",
+  "dateDisplay": "July 2023",
   "tags": [
     "Unity",
     "C#",
