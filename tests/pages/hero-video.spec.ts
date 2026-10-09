@@ -9,7 +9,7 @@ import {
   HERO_WORK_LABEL,
   type HeroCase,
 } from './support/hero-fixture.content';
-import { blockOtherOrigins, presetTheme, scrollTo, THEMES, type Theme } from './support/page';
+import { blockOtherOrigins, cssVar, hexToRgb, presetTheme, scrollTo, THEMES, type Theme } from './support/page';
 
 /**
  * The motion hero on tests/pages/support/hero-fixture.html (the real SiteNav and Hero over
@@ -401,7 +401,7 @@ test.describe('text over the video', () => {
           const rect = range.getBoundingClientRect();
           // Not drawn (the other badge), or screen-reader-only text.
           if (rect.width < 2 || rect.height < 2 || element.getClientRects().length === 0) continue;
-          // Text on its own solid fill (the black button) does not depend on the video.
+          // Text on its own solid fill (the accent button) does not depend on the video.
           let filled = false;
           for (let up: HTMLElement | null = element; up && up !== hero; up = up.parentElement) {
             const fill = getComputedStyle(up).backgroundColor.match(/[\d.]+/g)?.map(Number) ?? [];
@@ -425,8 +425,11 @@ test.describe('text over the video', () => {
       expect(report.length).toBeGreaterThanOrEqual(8);
       const failing = report.filter((entry) => entry.ratio < entry.needed);
       expect(failing, JSON.stringify(failing, null, 2)).toEqual([]);
-      // Always dark: the text is white (or a see-through white) whatever the theme.
-      for (const entry of report) expect(entry.colour, entry.text).toMatch(/^rgba?\(255, 255, 255/);
+      // Always dark: the text is white (or a see-through white) whatever the theme, except the
+      // "See my work" label, which is the page's accent (the outlined button).
+      const accent = hexToRgb(await cssVar(page.locator('[data-testid="hero-fixture"]'), '--color-accent'));
+      expect(report.filter((entry) => entry.colour === accent).length, 'only the outlined button label is accent-coloured').toBeLessThanOrEqual(1);
+      for (const entry of report.filter((entry) => entry.colour !== accent)) expect(entry.colour, entry.text).toMatch(/^rgba?\(255, 255, 255/);
     });
 
     test(`the hero with the video playing has no axe violations — ${theme}`, async ({ page }) => {

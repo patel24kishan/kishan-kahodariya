@@ -17,7 +17,6 @@
   --hero-soft: rgba(255, 255, 255, 0.76);   /* tagline, summary */
   --hero-quiet: rgba(255, 255, 255, 0.68);  /* stat labels, badge */
   --hero-outline: rgba(255, 255, 255, 0.3);
-  --hero-solid: #000000;
   --hero-scrim-near: rgba(0, 0, 0, 0.82);
   --hero-scrim-text: rgba(0, 0, 0, 0.72);
   --hero-scrim-far: rgba(0, 0, 0, 0.12);
@@ -210,10 +209,6 @@
 }
 
 @media (hover: hover) {
-  .button:hover {
-    color: var(--hero-ink);
-  }
-
   .button:hover::before {
     opacity: 1;
   }
@@ -223,14 +218,29 @@
   opacity: 1;
 }
 
-.solid {
+/* The page's accent: the hero is dark in both themes, so the raw accent colour is the one to use. */
+
+/* The button with an icon is a little wider. */
+.withIcon {
   padding-inline: var(--space-5);
-  background: var(--hero-solid);
-  border-color: var(--hero-solid);
 }
 
+/* Outline: just the accent line and accent text. */
 .outline {
-  border-color: var(--hero-outline);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Filled: the accent, with the near-black text made for it. */
+.filled {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* The hover wash is white on the dark hero; on the accent fill it would look washed out. */
+.filled::before {
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .badge {
@@ -351,7 +361,7 @@
     height: 16px;
   }
 
-  .solid {
+  .withIcon {
     padding-inline: 28px;
   }
 

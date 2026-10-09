@@ -5,7 +5,7 @@ import { loadContent, publishedOnly } from '../../scripts/lib/load-content';
 import { createContentApi } from '../../src/content/selectors';
 import { content, isExternal, normaliseSpace, paragraphsOf, routeOf, TRACK_IDS, withBase } from './support/content';
 import { overrideContent } from './support/content-override';
-import { openRoute, pathnameOf, scrollY, tabsNav, THEMES, trackPage } from './support/page';
+import { cssVar, hexToRgb, openRoute, pathnameOf, scrollY, tabsNav, THEMES, trackPage } from './support/page';
 
 /**
  * The hero (#about) on both pages, against the track profile, the summary and the resume of the
@@ -134,17 +134,27 @@ for (const trackId of TRACK_IDS) {
       // "See my work" first, then the resume.
       const order = await page.locator('#about [data-hero-work], #about [data-hero-resume]').evaluateAll((buttons) => buttons.map((button) => (button.hasAttribute('data-hero-resume') ? 'resume' : 'work')));
       expect(order).toEqual([...(site.workLabel.trim() ? ['work'] : []), ...(resume.url.trim() ? ['resume'] : [])]);
-      // Square buttons, each a 44px target; the resume is the outlined one.
+      // Square buttons, each a 44px target; "See my work" is the accent outline, the resume the accent fill.
       for (const button of await page.locator('#about [data-hero-work], #about [data-hero-resume]').all()) {
         await expect(button).toHaveCSS('border-radius', '0px');
         await expect(button).toHaveCSS('text-transform', 'uppercase');
         expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
       }
-      if (resume.url.trim()) {
-        const outlined = page.locator('#about [data-hero-resume]');
+      const accent = hexToRgb(await cssVar(trackPage(page), '--color-accent'));
+      const onAccent = hexToRgb(await cssVar(trackPage(page), '--color-on-accent'));
+      if (site.workLabel.trim()) {
+        const outlined = page.locator('#about [data-hero-work]');
         await expect(outlined).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
         await expect(outlined).toHaveCSS('border-top-width', '1px');
         await expect(outlined).toHaveCSS('border-top-style', 'solid');
+        await expect(outlined).toHaveCSS('border-top-color', accent);
+        await expect(outlined).toHaveCSS('color', accent);
+      }
+      if (resume.url.trim()) {
+        const filled = page.locator('#about [data-hero-resume]');
+        await expect(filled).toHaveCSS('background-color', accent);
+        await expect(filled).toHaveCSS('border-top-color', accent);
+        await expect(filled).toHaveCSS('color', onAccent);
       }
 
       // Gone from the hero (the fields stay in the content): the photo and the link buttons.

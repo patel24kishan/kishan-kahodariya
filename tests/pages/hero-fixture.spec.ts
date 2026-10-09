@@ -61,8 +61,9 @@ async function expectResume(page: Page, expected: { url: string; label: string }
   await expect(button).toHaveText(`${expected.label} (opens in a new tab)`);
   await expect(button).toHaveAttribute('target', '_blank');
   await expect(button).toHaveAttribute('rel', 'noopener noreferrer');
-  // The outlined, square button of the motion hero.
-  await expect(button).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  // The square button of the motion hero, filled with the page's accent and near-black text.
+  await expect(button).toHaveCSS('background-color', hexToRgb(await cssVar(page.locator('[data-testid="hero-fixture"]'), '--color-accent')));
+  await expect(button).toHaveCSS('color', hexToRgb(await cssVar(page.locator('[data-testid="hero-fixture"]'), '--color-on-accent')));
   await expect(button).toHaveCSS('border-top-width', '1px');
   await expect(button).toHaveCSS('border-radius', '0px');
 }

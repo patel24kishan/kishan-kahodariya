@@ -86,7 +86,7 @@ export function Hero({ track, name, summary, resume, workLabel = '', stats = [] 
           {hasActions && (
             <div className={styles.actions} style={reveal(3)} data-hero-actions>
               {work !== '' && (
-                <a href={WORK_TARGET} className={`${styles.button} ${styles.solid}`} data-hero-work>
+                <a href={WORK_TARGET} className={`${styles.button} ${styles.outline} ${styles.withIcon}`} data-hero-work>
                   <span>{work}</span>
                   <Icon name="external" size={16} />
                 </a>
@@ -94,7 +94,7 @@ export function Hero({ track, name, summary, resume, workLabel = '', stats = [] 
               {resumeUrl !== '' && (
                 <a
                   href={resumeUrl}
-                  className={`${styles.button} ${styles.outline}`}
+                  className={`${styles.button} ${styles.filled}`}
                   {...(resumeOpensNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   data-hero-resume
                 >

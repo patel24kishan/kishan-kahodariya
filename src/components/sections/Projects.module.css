@@ -9,6 +9,7 @@
   overflow-anchor: none;
 }
 
+/* One gap, the same between rows and between columns. */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -18,7 +19,6 @@
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-6);
   }
 }
 
@@ -28,9 +28,11 @@
   }
 }
 
+/* The cell is the size container the card's radius and padding are measured in (cqw). */
 .cell {
   display: flex;
   min-width: 0;
+  container-type: inline-size;
 }
 
 .cell > * {

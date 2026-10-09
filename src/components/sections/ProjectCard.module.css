@@ -1,4 +1,5 @@
-/* Project card (Motion board): square, card fill, hairline. Featured: accent border. */
+/* Project card: card fill, hairline, rounded corners (a circle 5% of the card's width, measured in
+   the container the grid cell makes). Featured: accent border. */
 
 .card {
   display: flex;
@@ -8,7 +9,8 @@
   min-width: 0;
   padding: var(--space-4);
   border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-square);
+  border-radius: var(--radius-md);
+  border-radius: 5cqw;
   background: var(--color-card);
 }
 

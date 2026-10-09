@@ -78,10 +78,15 @@ for (const trackId of TRACK_IDS) {
       for (const link of await nav.getByRole('link').all()) await expect(link).toHaveJSProperty('tagName', 'A');
     });
 
-    test('the cards are square and rise in once as they come into view', async ({ page }) => {
+    test('the cards have rounded corners (5% of their width) and rise in once as they come into view', async ({ page }) => {
       await openRoute(page, routeOf(track, 'all'));
       const last = cards(page).last();
-      await expect(last).toHaveCSS('border-top-left-radius', '0px');
+      // A circle 5% of the card's width, the same on all four corners.
+      const shape = await last.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { width: element.getBoundingClientRect().width, corners: [style.borderTopLeftRadius, style.borderTopRightRadius, style.borderBottomRightRadius, style.borderBottomLeftRadius].map(parseFloat) };
+      });
+      for (const corner of shape.corners) expect(Math.abs(corner - shape.width * 0.05), 'corner radius').toBeLessThanOrEqual(1);
       // The last card is far below the fold: hidden by script until it is reached, then shown, then left alone.
       const cell = page.locator('[data-testid="project-grid"] > li').last();
       await expect(cell).toHaveAttribute('data-reveal-state', 'hidden');
@@ -97,6 +102,21 @@ for (const trackId of TRACK_IDS) {
       await page.waitForTimeout(150);
       await expect(cell).not.toHaveAttribute('data-reveal', /./);
       await expect(cell).toHaveCSS('opacity', '1');
+    });
+
+    test('one small gap between the cards, the same between rows and between columns', async ({ page }) => {
+      test.skip(content.getProjects(trackId, 'all').length < 2, 'needs two cards');
+      await openRoute(page, routeOf(track, 'all'));
+      const gap = await page.getByTestId('project-grid').evaluate((grid) => {
+        const style = getComputedStyle(grid);
+        return { row: style.rowGap, column: style.columnGap };
+      });
+      expect(gap).toEqual({ row: '16px', column: '16px' });
+      // And as drawn: the first two cards in a row sit 16px apart.
+      const [first, second] = await Promise.all([cards(page).nth(0).boundingBox(), cards(page).nth(1).boundingBox()]);
+      const sideBySide = Math.abs(first!.y - second!.y) < 1;
+      if (sideBySide) expect(Math.round(second!.x - (first!.x + first!.width))).toBe(16);
+      else expect(Math.round(second!.y - (first!.y + first!.height))).toBe(16);
     });
 
     for (const tab of tabs) {
