@@ -49,6 +49,29 @@ export interface SiteSettings {
   /** Label of the "All" tab. */
   allTabLabel: string;
   categories: Category[];
+  /** Text of the hero's first button, which scrolls to the projects: "See my work". "" hides it. */
+  workLabel: string;
+  /** Text of the contact button in the header and of the footer's title: "Get in touch". */
+  contactLabel: string;
+  /** The numbers shown in the hero, in this order; read them through getHeroStats(). */
+  stats: HeroStat[];
+}
+
+/** Where a hero number comes from: counted from the content, or typed by the owner. */
+export type HeroStatSource = 'projects' | 'companies' | 'years' | 'certificates' | 'custom';
+
+export interface HeroStat {
+  source: HeroStatSource;
+  /** Only used when source is "custom"; "" otherwise. */
+  value: string;
+  /** The words under the number: "Projects built". */
+  label: string;
+}
+
+/** A hero number resolved for one page. */
+export interface ResolvedHeroStat {
+  value: string;
+  label: string;
 }
 
 /**
@@ -88,6 +111,13 @@ export interface TrackProfile {
   /** Profile photo path. */
   photo: string;
   photoAlt: string;
+  /** Looping background video of the hero: URL or site path. "" means no video. */
+  heroVideo: string;
+  /** Image shown before the video plays and when it does not. "" means none. */
+  heroPoster: string;
+  /** The two lines of the hero badge: "AWS Certified" / "Solution Architect". Both "" hides it. */
+  badgeLine1: string;
+  badgeLine2: string;
   /** true: Certificates section is rendered before Education on this page. */
   certificatesFirst: boolean;
   /** <title> and meta description for this page. */

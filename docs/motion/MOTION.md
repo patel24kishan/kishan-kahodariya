@@ -1,108 +1,122 @@
-# Motion redesign — design spec, DRAFT (branch `redesign/motion-v1`)
+# Motion redesign — build spec (branch `redesign/motion-v1`)
 
-> **Status: design only.** The owner stopped the build on 2026-10-08 before any code was written, to keep working on the design. Nothing in this file is built. `lucide-react` is not installed. Do not build from this file until the owner approves a design and says to go ahead.
+> **Status: approved for build.** The owner locked the designs on 2026-10-09 and said go ahead.
+> Owned by the architect. Builder agents read this file and never edit it.
 
-Owned by the architect. The owner supplied a prompt for an agency hero page ("VANGUARD") and
-asked for the site to be re-imagined from it **using his own content**. He approved three
-mockups, saved in `docs/sketches/motion/` (`MotionHero`, `MotionMobile`, `MotionSections`,
-plain HTML with inline styles: read them for exact sizes, spacing and copy placement).
+The five locked boards are in `docs/sketches/motion/` (plain HTML with inline styles):
 
-`ARCHITECTURE.md` still holds for routes, content model, base path, prerender, accessibility
-and engineering rules. Where this file and `DESIGN.md` disagree on looks, this file wins.
+| Board | Shows |
+|---|---|
+| `MotionHero.dc.html` | hero and header on desktop (1440 × 900) |
+| `MotionMobile.dc.html` | hero on a phone, and the full-screen menu |
+| `MotionNav.dc.html` | header states: over the video, scrolled, light theme, phone |
+| `MotionSections.dc.html` | Projects, Experience, Skills, Education / Certificates, footer on desktop |
+| `MotionSectionsMobile.dc.html` | every section on a phone |
+
+**The boards win on looks**: sizes, spacing, weights, order, what is and is not there. Read the
+ones for your area before writing code. This file says what the boards cannot: behaviour,
+content sources, the contract and who owns which file. The text in the boards is sample text;
+the page shows what is in `/content`.
+
+`ARCHITECTURE.md` still holds for routes, content model, base path, prerender, accessibility,
+engineering rules, logs and reports. Where it or `DESIGN.md` disagrees with this file on looks,
+this file wins. Colours, type and spacing still go through tokens (`src/styles/tokens.css`);
+turn the boards' raw values into tokens or module-level custom properties.
 
 ## Non-negotiables
 
-- **Content is the owner's.** Every word on the page comes from `/content` through `@/content`.
-  Nothing from the prompt's agency copy ships ("Design. Disrupt. Conquer.", "250+ Brands", …).
-  Never edit his wording, typos included. Never invent numbers.
-- **Stack stays.** React, CSS Modules and design tokens. No Tailwind. Translate the prompt's
-  utility classes into CSS. `lucide-react` is installed and is the icon source for the new
-  glyphs (`ArrowUpRight`, `Award`, `Crown`, `X`, `Pause`, `Play`); the existing `Icon` set stays
-  for link and brand icons.
-- **Font is Inter** (self-hosted, already in the project) for everything, weight 800 uppercase
-  for display type. The prompt's "PODIUM" demo font is not used (licence unconfirmed).
-- **Themes.** Light and dark stay, with the toggle in the nav. The hero is always dark because it
-  sits on a video: mark it as an on-dark region. The sections below follow the theme tokens.
-  One accent per page as today (`#faff69` game, `#7cb2ff` software).
-- **Motion rules.** Animate `transform` and `opacity` only. Everything is off under
-  `prefers-reduced-motion: reduce` (content fully visible, nothing hidden). Reveal-on-scroll
-  must not hide content from no-JS visitors, crawlers or the prerendered HTML: the hidden
-  starting state may only be applied once JavaScript has run. No layout shift. No hydration
-  mismatch. Anything that moves by itself for more than 5 seconds has a visible pause control
-  (WCAG 2.2.2) and pauses when off screen or when the tab is hidden.
-- Everything keeps working at 320px wide with no sideways scroll; touch targets ≥ 44px;
-  visible focus rings; WCAG AA contrast, including text over the video (use a scrim).
+- **Content is the owner's.** Every word comes from `/content` through `@/content`. Never edit
+  his wording, typos included. Never invent a number. Nothing from the agency prompt ships.
+- **Stack stays.** React, CSS Modules, tokens. No Tailwind. **No new dependencies** (no
+  `lucide-react`: new glyphs are added to the existing `Icon` component as inline SVG).
+- **Font is Inter** for everything; display type is weight 800, uppercase.
+- **Themes.** Light and dark both work. The hero is always dark because it sits on a video:
+  it is an on-dark region in both themes (white text, its own local colours). The sections
+  below follow the theme tokens. One accent per page as today.
+- **Motion.** Animate `transform` and `opacity` only (a test enforces it). Under
+  `prefers-reduced-motion: reduce` nothing moves and everything is visible. Reveal-on-scroll
+  must not hide content in the prerendered HTML, for visitors without JavaScript or for
+  crawlers: the hidden starting state may only be applied once JavaScript has run, and never to
+  something already in view in a way that flashes. Each thing animates in **once**. No layout
+  shift. No hydration mismatch (the dev hydration test renders every route in both themes).
+- Anything that moves by itself for more than 5 seconds has a visible pause control
+  (WCAG 2.2.2) and stops when off screen or when the tab is hidden.
+- Works at 320px wide with no sideways scroll; touch targets ≥ 44px; visible focus rings;
+  WCAG AA contrast, including text over the video (keep the scrim).
 
-## The page, top to bottom
+## Behaviour by area
 
-### Nav (transparent over the hero, solid canvas once scrolled past it)
-- Padding: 20px 24px phone, 20px 40px from 640px, 28px 64px from 1024px.
-- Left: the logo (48px, as today) and, from 640px, the site name in 700 uppercase,
-  letter-spacing 0.1em, 20px (24px phone / 30px in the prompt was for its display font; use 20px).
-- Centre, from 768px: the section links from `PAGE_SECTIONS`, 13–14px, uppercase,
-  letter-spacing 0.2em, 80% opacity, full opacity on hover.
-- Right, from 768px: theme toggle, then "Get in touch" (`site.contactLabel`) with an
-  `ArrowUpRight`, bordered (1px, 30% white → 60% on hover), padding 12px 24px, 12px uppercase,
-  letter-spacing 0.2em, square corners. It links to `mailto:` + `site.email`.
-- Below 768px: menu button (three bars 24/24/16px wide, 2px tall, 6px apart, in a 44px target),
-  then the theme toggle.
+### Header (`MotionNav`, `MotionHero`)
+- Sticky at every width. See-through over the hero; a solid bar (canvas colour, hairline below,
+  the shorter padding from the board) once the page has scrolled past the top. Over the hero
+  its text is white in both themes; once solid it follows the theme.
+- Left: the logo (48px, as today, monogram fallback kept) and the site name from `site.name`
+  (hidden on phones, as in the board).
+- Centre, from 768px: the links from `PAGE_SECTIONS`. Once scrolled, the link of the section in
+  view is highlighted (`aria-current="true"` on it).
+- Right, from 768px: the "Get in touch" button (`site.contactLabel`, a `mailto:` link to
+  `site.email`; not rendered when either is empty), then the theme toggle at the far right.
+- Below 768px: logo and menu button only. **No theme toggle in the phone bar.**
+- The scrolled state is set from JavaScript after mount (the server renders the top-of-page
+  state). It must not cause a layout shift: the bar is out of the flow over the hero.
 
-### Phone menu (below 768px)
-- Fixed, full screen, above everything, canvas at 95–96% black with a slight backdrop blur.
-  Fades in over 500ms; closed it is not focusable and not announced.
-- Header row like the nav: logo left, `X` right.
-- Links stacked, 800 uppercase, 36px (40px from 640px); each fades and rises 20px into place
-  with a delay of `index × 80ms + 100ms`. "Get in touch" bordered button below, same stagger.
-- A real modal: focus moves in and is trapped, Escape closes and returns focus to the menu
-  button, a link closes it, the page behind does not scroll.
+### Phone menu (`MotionMobile`)
+- Full screen, above everything. Links large, 800, uppercase, each sliding up in turn; then the
+  "Get in touch" button; then a "Theme" label with the theme toggle.
+- A real modal dialog: focus moves in and is trapped, Escape closes and returns focus to the
+  menu button, choosing a link closes it, the page behind does not scroll
+  (`overscroll-behavior: contain`). Closed, it is not focusable and not announced.
 
-### Hero (`#about`, exactly one viewport tall, min 560px, content left, vertically centred)
-- Background: `<video autoplay muted loop playsinline>` covering the section
-  (`object-fit: cover`), from `track.heroVideo`, with `track.heroPoster` as poster. Decorative
-  (`aria-hidden`, not focusable). A scrim over it (about 78% black at the left fading to 10% at
-  the right; an even ~58% on phones). No video element at all when `heroVideo` is empty.
-  It does not autoplay under reduced motion or `navigator.connection.saveData`; the poster shows.
-- Pause / play button, 44px, bottom right of the hero, always visible, `aria-pressed`.
-- Content, each block fading up 30px over 0.8s ease-out, 0.2s apart:
-  1. Tagline: `Crown` 16px + `track.headline`, 12–14px uppercase, letter-spacing 0.3em, 70% white.
-  2. The h1: `site.name`, one word per line, 800 uppercase, line-height 0.92,
-     letter-spacing -0.03em, `clamp(2.8rem, 8vw, 7.4rem)`.
-  3. `track.summary`, 14–16px, 72% white, max-width 520px.
-  4. Buttons: black "See my work" (`site.workLabel`) + `ArrowUpRight` (scrolls to `#projects`;
-     the arrow nudges up-right on hover); bordered resume button (`getResume(track, tab)`, as
-     today); the hero links from `getLinks(track, 'hero')` may follow as bordered icon buttons.
-     From 640px: `Award` 32px + `track.badgeLine1` / `track.badgeLine2` (hidden when both empty).
-  5. Stats: `getHeroStats(track)`, value 28px phone / 36px / 48px in 700, label 9–12px uppercase
-     letter-spacing 0.18em 55% white. Wraps.
-- The profile photo is no longer in the hero (the owner approved the mockup without it). The
-  `photo` field stays in the content model and the dashboard, unused for now.
+### Hero (`#about`; `MotionHero`, `MotionMobile`)
+- One viewport tall (min 560px), content on the left.
+- Background: `<video autoplay muted loop playsinline>` covering the section, from
+  `track.heroVideo`, poster `track.heroPoster`; decorative (`aria-hidden`, not focusable).
+  Behind it a dark gradient like the board's placeholder, which is what shows when there is no
+  video, no poster, or the video fails. A scrim over it as in the boards.
+  No `<video>` element at all when `heroVideo` is empty. It does not autoplay under reduced
+  motion or `navigator.connection.saveData`; it pauses when the hero is off screen or the tab
+  is hidden.
+- Pause / play button, 44px, bottom right of the hero, always visible when there is a video,
+  `aria-pressed`, with an accessible name.
+- Content, top to bottom, each block fading up in turn (CSS only, so it also runs without
+  JavaScript):
+  1. Tagline: crown icon + `track.headline`.
+  2. The `h1`: `site.name`, one word per line.
+  3. `getSummary(track, tab)` (keep `data-hero-summary`).
+  4. Buttons: "See my work" (`site.workLabel`, scrolls to `#projects`; hidden when the label is
+     empty); the resume button from `getResume(track, tab)` (keep `data-hero-resume`; hidden
+     when the url is empty); from 640px the badge: award icon + `track.badgeLine1` /
+     `track.badgeLine2` (hidden when both are empty).
+  5. Stats from `getHeroStats(track)` (the row is not rendered when the list is empty).
+- Not in the hero any more, as the locked boards show: the profile photo and the hero link
+  buttons. The `photo` and `showInHero` fields stay in the content model and the dashboard.
 
-### Sections (see `MotionSections` mockup)
-- Section titles: 800 uppercase, letter-spacing -0.03em, line-height 0.95,
-  `clamp(2.5rem, 6vw, 5.5rem)`; 96–120px between sections on desktop.
-- **Projects:** title left, tabs right (square, the open tab filled with the accent). Cards:
-  square corners, `#141414`-like raised surface with a hairline border, rise in on scroll with a
-  small stagger. Screenshot slider, hover overlay, viewer, buttons: behaviour unchanged.
-- **Experience:** title in the left column; right, a timeline: a 2px accent line that draws
-  itself downward, a dot per job (accent for a current job), date in a narrow column, company
-  26px/700, role, bullets, tag chips. All bullets stay visible.
-- **Skills:** each group is one row that drifts sideways (marquee), alternate rows in opposite
-  directions, the emphasised groups in the accent. Hover or focus within pauses; a visible
-  pause control for the section; under reduced motion and without JavaScript the rows are an
-  ordinary wrapping list. The group title must remain readable and every skill must be
-  reachable by assistive technology exactly once (duplicate marquee copies are `aria-hidden`).
-- **Education / Certificates:** two columns, cards rise in. Order still follows
+### Sections (`MotionSections`, `MotionSectionsMobile`)
+- Section titles are large, 800, uppercase, with the spacing in the boards (already reduced
+  20%). They stay `h2`, labelled as today (`<id>-title`).
+- **Projects:** title left, tabs right (square; the open tab filled with the accent). Cards
+  rise in on scroll with a small stagger. Slider, hover overlay, viewer, buttons, featured
+  border, empty state: behaviour unchanged. Tabs stay real links.
+- **Experience:** title in the left column; on the right a timeline: an accent line that draws
+  itself downward (a `transform: scaleY` on a pseudo-element or a child, never `height`), a dot
+  per job (accent for a current job: `present`), the date, company, role, all bullets, tag chips.
+- **Skills:** categorised numbered rows (01, 02, …): number, group name, square chips. A line
+  draws across the row and the chips arrive once; hover / focus highlights the row. Emphasised
+  groups still use the accent. No continuous scrolling, no marquee, no group / skill counter
+  line. Every skill appears exactly once in the DOM.
+- **Education / Certificates:** two columns on desktop, cards rise in. Order still follows
   `certificatesFirst`.
-- **Get in touch** (`#contact`, new, after Education): title `site.contactLabel`, then
-  `site.email` as a large accent `mailto:` link with `ArrowUpRight`, then the footer links
-  (`getLinks(track, 'footer')` without the email one) as bordered buttons.
-- **Footer:** unchanged.
+- **Footer:** only the "Get in touch" band on the accent, left-aligned, and the credit strip, as
+  on the live site, with the spacing in the boards. The title text comes from
+  `site.contactLabel` (falls back to "Get in touch" when empty).
+- **Reveal-on-scroll** is one shared piece (`src/components/motion/`), built on
+  `IntersectionObserver`, used by every section.
 
-## Contract additions (content agent implements; UI agents consume exactly these)
+## Contract additions
 
 ```ts
 // SiteSettings
-workLabel: string;      // "See my work"
+workLabel: string;      // "See my work"; "" hides the button
 contactLabel: string;   // "Get in touch"
 stats: HeroStat[];      // shown in the hero, in this order
 
@@ -116,27 +130,55 @@ export interface HeroStat {
 
 // TrackProfile
 heroVideo: string;   // URL or site path; "" = no video
-heroPoster: string;  // image shown before the video plays and when it does not
+heroPoster: string;  // image shown before the video plays and when it does not; "" = none
 badgeLine1: string;  // "" on both lines hides the badge
 badgeLine2: string;
 
 // @/content
-export function getHeroStats(track: TrackId): { value: string; label: string }[];
+export interface ResolvedHeroStat { value: string; label: string }
+export function getHeroStats(track: TrackId): ResolvedHeroStat[];
 ```
 
 `getHeroStats` resolves each stat for one page: `projects` = number of published projects on
-that page's All tab; `companies` = number of experience entries on that page; `years` = whole
-years from the earliest `startDate` among them to the build date, written "7+";
-`certificates` = number of certificates; `custom` = the stored value. A stat that resolves to
-0 or "" is dropped. The values are computed at build time (in the content plugin), never in
-the browser, so the prerendered HTML and hydration agree.
+that page's All tab; `companies` = number of published experience entries on that page;
+`years` = whole years from the earliest non-empty `startDate` among them to the build date,
+written like "7+"; `certificates` = number of published certificates on that page; `custom` =
+the stored value, trimmed. A stat that resolves to `0`, `"0+"` or `""`, or whose label is
+blank, is dropped. The build date is fixed **at build time** (the content plugin puts it in the
+virtual module), never read in the browser, so the prerendered HTML and hydration agree.
 
 Initial content: `workLabel` "See my work"; `contactLabel` "Get in touch"; `stats`
-projects / "Projects built", companies / "Companies", years / "Years building"; both tracks:
-`heroVideo` the prompt's video URL (below), `heroPoster` "/images/hero-poster.webp" (a still
-taken from that video), `badgeLine1` "AWS Certified", `badgeLine2` "Solution Architect".
+projects / "Projects built", companies / "Companies", years / "Years building". Both tracks:
+`heroVideo` the address below, `heroPoster` "", `badgeLine1` "AWS Certified", `badgeLine2`
+"Solution Architect".
 
 Video: `https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260606_154941_df1a96e1-a06f-450c-bd02-d863414cc1a0.mp4`
-(13 MB, hosted by a third party; the owner can replace it in the dashboard).
+(13 MB, hosted by a third party; the owner can replace it in the dashboard). Tests must never
+depend on this address loading: block or stub it.
 
-Any hand-built `SiteSettings` or `TrackProfile` in a test fixture needs these fields.
+Any hand-built `SiteSettings` or `TrackProfile` in a test fixture needs the new fields.
+
+## Ownership for this build
+
+Phase 1, alone: **content**. Phase 2, in parallel, each in its own worktree: **hero-nav**,
+**sections**, **admin**. The architect merges, resolves conflicts and runs the full regression.
+
+| Agent | Port (dev / build) | Files |
+|---|---|---|
+| `content` | 5181 / — | `content/**`, `src/content/**` except `types.ts`, `scripts/lib/**`, `scripts/validate-content.ts`, `tests/content/**`; and only to add the new fields to hand-built fixtures: `tests/pages/support/**` |
+| `hero-nav` | 5186 / 4186 | `src/components/layout/SiteNav.*`, new files in `src/components/layout/` for the phone menu, `src/components/layout/sections.ts`, `src/components/sections/Hero.*` and new hero files beside it, `src/components/ui/Icon.tsx`, `src/pages/**`, `src/theme/**`, `src/lib/scroll.ts`, `tests/pages/hero*.spec.ts`, `tests/pages/support/hero-fixture*`, `tests/infra/**`, `tests/design/theme.spec.ts` |
+| `sections` | 5187 / 4187 | `src/components/motion/**` (new), `src/components/ui/**` except `Icon.tsx`, `src/components/sections/**` except `Hero.*`, `src/components/layout/SiteFooter.*`, `src/styles/**`, `src/dev/**`, `tests/pages/{sections,projects,card-fixture}.spec.ts`, `tests/design/**` except `theme.spec.ts` |
+| `admin` | 5188 / 4188 | `public/admin/**`, `scripts/validate-cms-config.ts`, `docs/admin-guide.md`, `tests/admin/**` |
+
+Shared test files (`tests/pages/structure.spec.ts`, `tests/pages/a11y.spec.ts`,
+`tests/build/**`): `hero-nav` and `sections` may each change **only the tests about their own
+components**, with the smallest edit that works; the architect merges both.
+
+One hand-over between the two UI agents: `SiteFooter` takes a new optional prop
+`contactLabel?: string` (`sections` adds it), and `TrackPage` passes `site.contactLabel`
+(`hero-nav` adds that line).
+
+Each agent commits its own work on its worktree branch (no push), runs `npx tsc --noEmit` and
+the **whole** dev suite on its own port before reporting, and lists failures that belong to
+another agent's area instead of fixing them. Never weaken or delete a test to make it pass;
+a test that asserts the old design is rewritten to assert the new one.
