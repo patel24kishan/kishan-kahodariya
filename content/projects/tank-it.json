@@ -1,7 +1,7 @@
 {
   "slug": "tank-it",
   "title": "Tank it",
-  "shortDescription": "Shooting tank attack proximity tracking turrets with cool smoke animations. ",
+  "shortDescription": "A tank combat game in Unreal Engine 5 where turrets detect the player in range and fire back. I wrote the tank, turret tracking, projectiles and health/damage in C++, with Niagara hit and smoke effects.",
   "longDescription": "",
   "dateDisplay": "2025",
   "tags": [
@@ -21,6 +21,14 @@
     {
       "src": "https://gamesbeat.com/wp-content/uploads/2025/05/world-of-tanks-20.jpg",
       "alt": "Tank it cover image"
+    },
+    {
+      "src": "/uploads/tt-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/tt-2.webp",
+      "alt": ""
     }
   ],
   "videoUrl": "https://youtu.be/uojSqNUPAJc",
