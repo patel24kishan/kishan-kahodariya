@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { expectToggleGeometry } from '../design/helpers';
 import { content, routeOf, SECTION_IDS, SECTION_LABELS } from './support/content';
-import { cssVar, hexToRgb, openRoute, scrollTo, scrollY, THEMES, waitForScrollToSettle } from './support/page';
+import { cssVar, hexToRgb, openRoute, scrollTo, scrollY, THEMES, waitForBoxToSettle, waitForScrollToSettle } from './support/page';
 
 /**
  * The motion header and the phone menu, on the real page: see-through over the hero and solid
@@ -30,6 +30,9 @@ async function landOn(page: Page, id: string): Promise<void> {
 }
 
 async function openMenu(page: Page): Promise<Locator> {
+  // The bar slides a few px when the page leaves the top. Press the button once it is at rest:
+  // while it moves, Playwright scrolls it "into view", which for a sticky bar means the page top.
+  await waitForBoxToSettle(page.locator('[data-menu-button]'));
   await page.locator('[data-menu-button]').click();
   const dialog = menu(page);
   await expect(dialog).toBeVisible();

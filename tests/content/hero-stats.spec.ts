@@ -2,6 +2,8 @@
  * The hero numbers and labels: the new site / track fields in the schema, getHeroStats(), the
  * build month the content plugin embeds, and the real content's values.
  */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { contentPlugin, monthOf } from '../../scripts/lib/content-plugin';
 import { loadContent, publishedOnly } from '../../scripts/lib/load-content';
@@ -430,7 +432,9 @@ test.describe('the real content', () => {
     if (!loaded.ok) return;
     expect(loaded.content.tracks.map((track) => track.id)).toEqual(['game', 'softdev']);
     for (const track of loaded.content.tracks) {
-      expect(track.heroVideo).toMatch(/^https:\/\/d8j0ntlcm91z4\.cloudfront\.net\/.+\.mp4$/);
+      // A video file kept in the repo (public/…), so the hero does not depend on another site.
+      expect(track.heroVideo).toMatch(/^\/.+\.(mp4|webm)$/);
+      expect(existsSync(join(process.cwd(), 'public', track.heroVideo)), `${track.heroVideo} exists under public/`).toBe(true);
       expect(track.heroPoster).toBe('');
       expect(track.badgeLine1).toBe('AWS Certified');
       expect(track.badgeLine2).toBe('Solution Architect');
