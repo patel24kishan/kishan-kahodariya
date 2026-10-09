@@ -1,0 +1,49 @@
+{
+  "slug": "rts",
+  "title": "RTS Game",
+  "shortDescription": "Minecraft-inspired RTS game built on DOTS and the Entity Component System, designed to support upto 1000 units moving and fighting at once. I wrote unit movement and combat as Burst-compiled Jobs, then used the Unity Profiler to find bottlenecks.",
+  "longDescription": "",
+  "dateDisplay": "Dec 2025",
+  "tags": [
+    "Unity 6",
+    "DOTS",
+    "ECS",
+    "C#",
+    "Claude/Gemini",
+    "Unity Profiler"
+  ],
+  "category": "unity",
+  "audience": "both",
+  "featured": true,
+  "published": true,
+  "orderGame": 0,
+  "orderSoftdev": 0,
+  "hoverText": "View Gameplay & Screenshots",
+  "screenshots": [
+    {
+      "src": "/uploads/1786997608074.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/rts-4.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/rts-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/rts-3.webp",
+      "alt": ""
+    }
+  ],
+  "videoUrl": "https://www.youtube.com/watch?v=g0vQp7inoIY",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/kishan-gamedev/DOTS_DEMO",
+      "kind": "other"
+    }
+  ],
+  "legacyId": null
+}
