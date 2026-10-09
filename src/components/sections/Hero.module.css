@@ -1,111 +1,373 @@
-/* Hero: text column + photo. Phone: photo on top. Reveal: opacity/transform only. */
+/*
+ * Hero (MotionHero, MotionMobile): one viewport tall, text on the left over a looping video.
+ * Always dark, in both themes: the section is a data-on-dark region and its colours are the
+ * module values below (the boards' raw values), not the theme's.
+ *
+ * The text must stay readable (WCAG AA) whatever the video shows, so the scrim never drops
+ * under 72% black behind the text column and the soft text colours are a little brighter than
+ * in the boards; tests/pages/hero.spec.ts measures it against a white picture.
+ */
 
 .hero {
-  padding-block-start: var(--space-10);
+  --hero-base: #05070b;
+  --hero-glow-teal: #1d4f57;
+  --hero-glow-violet: #3a2c63;
+  --hero-glow-deep: #12303a;
+  --hero-ink: #ffffff;
+  --hero-soft: rgba(255, 255, 255, 0.76);   /* tagline, summary */
+  --hero-quiet: rgba(255, 255, 255, 0.68);  /* stat labels, badge */
+  --hero-outline: rgba(255, 255, 255, 0.3);
+  --hero-solid: #000000;
+  --hero-scrim-near: rgba(0, 0, 0, 0.82);
+  --hero-scrim-text: rgba(0, 0, 0, 0.72);
+  --hero-scrim-far: rgba(0, 0, 0, 0.12);
+  /* Where the text column starts (the Container's left edge) and how wide it can get. */
+  --hero-left: max(var(--gutter), calc((100vw - var(--container-max)) / 2));
+  --hero-column: 700px;
+  /* The header lies over the top of the hero. */
+  --hero-pad-top: clamp(104px, 14.2vh, 120px);
+  --hero-pad-bottom: 84px;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: max(560px, 100vh);
+  min-height: max(560px, 100svh);
+  overflow: hidden;
+  scroll-margin-top: 0;
+  color: var(--hero-ink);
+  /* What shows when there is no video and no poster, or neither loads. */
+  background:
+    radial-gradient(70% 50% at 80% 30%, var(--hero-glow-teal) 0%, transparent 70%),
+    radial-gradient(60% 40% at 90% 90%, var(--hero-glow-violet) 0%, transparent 70%),
+    var(--hero-base);
 }
 
-@media (min-width: 1024px) {
-  .hero {
-    padding-block-start: var(--space-16);
-  }
+/* ---- Behind the text ------------------------------------------------------------------- */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
 }
+
+.media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mediaFill {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--hero-scrim-near) 0, var(--hero-scrim-text) calc(var(--hero-left) + var(--hero-column) + 40px), var(--hero-scrim-far) 100%);
+}
+
+.pause {
+  position: absolute;
+  right: var(--gutter);
+  bottom: var(--space-4);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--hero-ink);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.pause:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+/* ---- The text column ------------------------------------------------------------------- */
 
 .inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  flex: 1 0 auto;
+  padding-block: var(--hero-pad-top) var(--hero-pad-bottom);
 }
 
-@media (min-width: 768px) {
-  .inner {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-12);
-  }
-}
-
-.text {
+.content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  align-items: flex-start;
+  width: 100%;
+  max-width: var(--hero-column);
   min-width: 0;
-  flex: 1 1 auto;
 }
 
-/* The name wraps at the text column's width (balanced); no ch cap, which put a 17-character
-   name exactly on the wrap boundary and let font-metric rounding decide the line count. */
+.tagline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--hero-soft);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.tagline svg {
+  flex: none;
+}
+
 .name {
+  margin-block-start: var(--space-5);
+  /* A long word may run past the text column (as in the board), never past the page. */
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--hero-left));
+  color: var(--hero-ink);
+  /* 36px at 320px, the board's 45px from 390px. */
+  font-size: clamp(2.25rem, 11.5vw, 2.8125rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-wrap: wrap;
   overflow-wrap: anywhere;
 }
 
-.headline {
-  color: var(--color-accent-ink);
-  font-size: var(--text-title-lg);
-  font-weight: 600;
-  line-height: var(--leading-title);
-  letter-spacing: var(--tracking-title);
+.word {
+  display: block;
 }
 
 .summary {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-width: 60ch;
-  color: var(--color-body);
-  font-size: var(--text-body-lg);
-  line-height: var(--leading-body);
+  margin-block-start: var(--space-5);
+  max-width: 520px;
+  color: var(--hero-soft);
+  font-size: var(--text-body-sm);
+  line-height: 1.6;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
-  margin-block-start: var(--space-2);
+  margin-block-start: var(--space-6);
+  max-width: 100%;
 }
 
-/* ---- Photo ----------------------------------------------------------------------------- */
-
-.photoRing {
-  flex: 0 0 auto;
-  width: 120px;
-  aspect-ratio: 1;
-  padding: 5px;
-  border: 2px solid var(--color-accent-border);
-  border-radius: 50%;
-  order: -1;
+/* Square buttons. Hover and press are an opacity-only tint layer; nothing else transitions. */
+.button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  max-width: 100%;
+  padding: 13px 18px;
+  border: 1px solid transparent;
+  color: var(--hero-ink);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
-@media (min-width: 768px) {
-  .photoRing {
-    order: 0;
-    width: clamp(180px, 22vw, 280px);
-    padding: 7px;
+.button svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.14);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .button:hover {
+    color: var(--hero-ink);
+  }
+
+  .button:hover::before {
+    opacity: 1;
   }
 }
 
-.photoRing picture {
-  width: 100%;
-  height: 100%;
+.button:active::before {
+  opacity: 1;
 }
 
-.photo,
-.photoFallback {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--color-surface-raised);
+.solid {
+  padding-inline: var(--space-5);
+  background: var(--hero-solid);
+  border-color: var(--hero-solid);
 }
 
-.photoFallback {
-  display: flex;
+.outline {
+  border-color: var(--hero-outline);
+}
+
+.badge {
   align-items: center;
-  justify-content: center;
-  color: var(--color-ink);
-  font-size: clamp(2rem, 6vw, 4rem);
+  color: var(--hero-quiet);
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.badgeIcon {
+  flex: none;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.badgeInRow {
+  display: none;
+  gap: var(--space-3);
+  font-size: var(--text-caption-upper);
+}
+
+.badgeBelow {
+  display: flex;
+  gap: 10px;
+  margin-block-start: var(--space-5);
+  font-size: 0.625rem;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) 28px;
+  margin-block-start: var(--space-8);
+  max-width: 100%;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.statValue {
+  color: var(--hero-ink);
+  font-size: 1.75rem;
   font-weight: 700;
-  letter-spacing: var(--tracking-heading);
+  line-height: 1.1;
+}
+
+.statLabel {
+  margin-block-start: var(--space-1);
+  color: var(--hero-quiet);
+  font-size: 0.5625rem;
+  line-height: 1.5;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ---- From 640px: the badge moves into the button row ----------------------------------- */
+
+@media (min-width: 640px) {
+  .badgeInRow {
+    display: flex;
+  }
+
+  .badgeBelow {
+    display: none;
+  }
+}
+
+/* ---- Tablet and up: the desktop board's sizes ------------------------------------------ */
+
+@media (min-width: 768px) {
+  .hero {
+    --hero-pad-top: clamp(116px, 16.6vh, 150px);
+    /* What shows when there is no video (the desktop board's placeholder). */
+    background:
+      radial-gradient(60% 70% at 78% 40%, var(--hero-glow-teal) 0%, transparent 70%),
+      radial-gradient(45% 55% at 90% 85%, var(--hero-glow-violet) 0%, transparent 70%),
+      radial-gradient(40% 50% at 55% 10%, var(--hero-glow-deep) 0%, transparent 70%),
+      var(--hero-base);
+  }
+
+  .pause {
+    bottom: var(--space-5);
+  }
+
+  .tagline {
+    gap: 10px;
+    font-size: var(--text-caption);
+  }
+
+  .name {
+    margin-block-start: 28px;
+    /* 71px at 768px, the board's 118px at 1440px. */
+    font-size: clamp(2.8125rem, 1.12rem + 6.95vw, 7.375rem);
+    line-height: 0.92;
+  }
+
+  .summary {
+    margin-block-start: 30px;
+    font-size: var(--text-body);
+  }
+
+  .actions {
+    gap: var(--space-6);
+    margin-block-start: 34px;
+  }
+
+  .button {
+    gap: 10px;
+    padding: 15px var(--space-6);
+    font-size: var(--text-caption-upper);
+  }
+
+  .button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .solid {
+    padding-inline: 28px;
+  }
+
+  .stats {
+    gap: var(--space-6) var(--space-16);
+    margin-block-start: 56px;
+  }
+
+  .statValue {
+    font-size: 3rem;
+    letter-spacing: -0.02em;
+  }
+
+  .statLabel {
+    font-size: var(--text-caption-upper);
+  }
 }
 
 /* ---- Reveal (CSS only; never hides content without JS; off under reduced motion) ------- */
@@ -113,7 +375,7 @@
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(30px);
   }
 
   to {
@@ -122,21 +384,23 @@
   }
 }
 
+.tagline,
 .name,
-.headline,
 .summary,
 .actions,
-.photoRing {
-  animation: rise 480ms var(--ease) both;
-  animation-delay: calc(var(--reveal-step, 0) * 90ms + 40ms);
+.stats,
+.badgeBelow {
+  animation: rise 800ms ease-out both;
+  animation-delay: calc(var(--reveal-step, 0) * 200ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tagline,
   .name,
-  .headline,
   .summary,
   .actions,
-  .photoRing {
+  .stats,
+  .badgeBelow {
     animation: none;
   }
 }

@@ -1,11 +1,27 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { assetHref, content, isExternal, normaliseSpace, paragraphsOf, routeOf, TRACK_IDS, withBase } from './support/content';
+import { loadContent, publishedOnly } from '../../scripts/lib/load-content';
+import { createContentApi } from '../../src/content/selectors';
+import { content, isExternal, normaliseSpace, paragraphsOf, routeOf, TRACK_IDS, withBase } from './support/content';
 import { overrideContent } from './support/content-override';
-import { cssVar, hexToRgb, openRoute, pathnameOf, scrollY, tabsNav, trackPage } from './support/page';
+import { openRoute, pathnameOf, scrollY, tabsNav, THEMES, trackPage } from './support/page';
 
-/** The hero (#about) on both pages, against the track profile, the summary and the resume of the open tab and the hero links. */
+/**
+ * The hero (#about) on both pages, against the track profile, the summary and the resume of the
+ * open tab, the badge and the stats. Other origins are blocked (openRoute), so the background
+ * video never loads here: what these tests see is the gradient fallback. The video itself, the
+ * pause button and the cases the real content cannot produce are in hero-video.spec.ts and
+ * hero-fixture.spec.ts.
+ */
 const site = content.getSite();
 const tabs = content.getTabs();
+
+/** The same published content with "now" fixed, for the stats (see the stats test). */
+const BUILD_MONTH = '2026-10';
+const loaded = loadContent(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../content'));
+if (!loaded.ok) throw new Error('The content under /content is not valid.');
+const statsApi = createContentApi(publishedOnly(loaded.content), { buildMonth: BUILD_MONTH });
 
 /**
  * The hero's resume button is exactly this resume (getResume(track, tab)): the address, the
@@ -38,7 +54,7 @@ function summaryBlock(page: Page): Locator {
 
 /**
  * The hero's summary is exactly this text (getSummary(track, tab)): one <p> per paragraph, in
- * one block between the headline and the buttons — or no block at all when the text is blank.
+ * one block between the name and the buttons — or no block at all when the text is blank.
  */
 async function expectSummary(page: Page, text: string): Promise<void> {
   const block = summaryBlock(page);
@@ -63,85 +79,191 @@ for (const trackId of TRACK_IDS) {
   const heroLinks = content.getLinks(trackId, 'hero');
 
   test.describe(`${track.route} hero`, () => {
-    test('shows the name, the headline in the accent and the summary verbatim', async ({ page }) => {
+    test('shows the tagline with the crown, the name one word per line and the summary verbatim', async ({ page }) => {
       await openRoute(page, routeOf(track));
       const hero = page.locator('#about');
-      await expect(hero.getByRole('heading', { level: 1 })).toHaveText(site.name);
+      const heading = hero.getByRole('heading', { level: 1 });
+      // The text is the name as written; each word is drawn on a line of its own, in capitals.
+      await expect(heading).toHaveText(site.name);
+      const words = site.name.split(/\s+/).filter(Boolean);
+      const lines = await heading.locator('span').evaluateAll((spans) => spans.map((span) => ({ text: span.textContent, top: Math.round(span.getBoundingClientRect().top) })));
+      expect(lines.map((line) => line.text)).toEqual(words);
+      for (let index = 1; index < lines.length; index += 1) expect(lines[index]!.top, `"${lines[index]!.text}" is under "${lines[index - 1]!.text}"`).toBeGreaterThan(lines[index - 1]!.top);
+      await expect(heading).toHaveCSS('text-transform', 'uppercase');
+      await expect(heading).toHaveCSS('font-weight', '800');
+      await expect(heading).toHaveCSS('color', 'rgb(255, 255, 255)');
+      // The name is not cut or spilled: it ends inside the page.
+      const [headingBox, viewport] = [await heading.boundingBox(), page.viewportSize()!];
+      expect(headingBox!.x + headingBox!.width).toBeLessThanOrEqual(viewport.width);
 
       if (track.headline) {
-        const headline = hero.getByText(track.headline, { exact: true });
-        await expect(headline).toBeVisible();
-        const accentInk = await cssVar(trackPage(page), '--color-accent-ink');
-        await expect(headline).toHaveCSS('color', hexToRgb(accentInk));
+        const tagline = hero.locator('[data-hero-tagline]');
+        await expect(tagline).toHaveText(track.headline);
+        await expect(tagline.locator('svg[data-icon="crown"]')).toHaveCount(1);
+        await expect(tagline.locator('svg')).toHaveAttribute('aria-hidden', 'true');
+        // Above the name.
+        expect((await tagline.boundingBox())!.y).toBeLessThan(headingBox!.y);
+      } else {
+        await expect(hero.locator('[data-hero-tagline]')).toHaveCount(0);
       }
 
       // No tab in the address: the summary is the one of the page's first tab.
       const summary = content.getSummary(trackId, track.defaultTab);
-      const text = normaliseSpace(await hero.innerText());
+      const text = normaliseSpace(await hero.evaluate((section) => section.textContent ?? ''));
       for (const paragraph of paragraphsOf(summary)) {
         expect(text).toContain(normaliseSpace(paragraph));
       }
       await expectSummary(page, summary);
     });
 
-    test('has the resume button and the hero links, in order, as new-tab links', async ({ page }) => {
+    test('has "See my work" and the resume button; the photo and the hero link buttons are not rendered any more', async ({ page }) => {
       await openRoute(page, routeOf(track));
       // No tab in the address: the page's first tab is open, and the resume is that tab's.
       await expect(trackPage(page)).toHaveAttribute('data-tab', track.defaultTab);
-      await expectResume(page, content.getResume(trackId, track.defaultTab));
-      // The resume comes first, before the hero links.
-      const order = await page.locator('#about [data-hero-resume], #about [data-hero-link]').evaluateAll((buttons) => buttons.map((button) => (button.hasAttribute('data-hero-resume') ? 'resume' : (button.getAttribute('data-hero-link') ?? ''))));
-      const expectedOrder = [...(content.getResume(trackId, track.defaultTab).url.trim() ? ['resume'] : []), ...heroLinks.map((link) => link.slug)];
-      expect(order).toEqual(expectedOrder);
+      const resume = content.getResume(trackId, track.defaultTab);
+      await expectResume(page, resume);
 
-      const links = page.locator('[data-hero-link]');
-      await expect(links).toHaveCount(heroLinks.length);
-      for (const [index, link] of heroLinks.entries()) {
-        await expect(links.nth(index)).toHaveAttribute('data-hero-link', link.slug);
-        await expect(links.nth(index)).toHaveAttribute('href', link.url);
-        await expect(links.nth(index)).toHaveText(new RegExp(`^${link.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
-        await expect(links.nth(index).locator(`svg[data-icon="${link.icon}"]`)).toHaveCount(1);
-        if (isExternal(link.url)) await expect(links.nth(index)).toHaveAttribute('target', '_blank');
-        else await expect(links.nth(index)).not.toHaveAttribute('target', '_blank');
+      const work = page.locator('#about [data-hero-work]');
+      if (site.workLabel.trim()) {
+        await expect(work).toHaveText(site.workLabel.trim());
+        await expect(work).toHaveAttribute('href', '#projects');
+        await expect(work).not.toHaveAttribute('target', /.*/);
+      } else {
+        await expect(work).toHaveCount(0);
+      }
+      // "See my work" first, then the resume.
+      const order = await page.locator('#about [data-hero-work], #about [data-hero-resume]').evaluateAll((buttons) => buttons.map((button) => (button.hasAttribute('data-hero-resume') ? 'resume' : 'work')));
+      expect(order).toEqual([...(site.workLabel.trim() ? ['work'] : []), ...(resume.url.trim() ? ['resume'] : [])]);
+      // Square buttons, each a 44px target; the resume is the outlined one.
+      for (const button of await page.locator('#about [data-hero-work], #about [data-hero-resume]').all()) {
+        await expect(button).toHaveCSS('border-radius', '0px');
+        await expect(button).toHaveCSS('text-transform', 'uppercase');
+        expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      }
+      if (resume.url.trim()) {
+        const outlined = page.locator('#about [data-hero-resume]');
+        await expect(outlined).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await expect(outlined).toHaveCSS('border-top-width', '1px');
+        await expect(outlined).toHaveCSS('border-top-style', 'solid');
+      }
+
+      // Gone from the hero (the fields stay in the content): the photo and the link buttons.
+      await expect(page.locator('[data-hero-link]')).toHaveCount(0);
+      await expect(page.locator('[data-hero-photo]')).toHaveCount(0);
+      await expect(page.locator('#about img')).toHaveCount(track.heroPoster ? 1 : 0);
+      for (const link of heroLinks) await expect(page.locator(`#about a[href="${link.url}"]`)).toHaveCount(0);
+    });
+
+    test('shows the badge and the stats of this page (getHeroStats), or neither when there is none', async ({ page, isMobile }) => {
+      // The "years" stat counts up to the month of the build: give the page a fixed one, and
+      // work out what to expect with the same.
+      await overrideContent(page, (bundle) => {
+        bundle.buildMonth = BUILD_MONTH;
+      });
+      await openRoute(page, routeOf(track));
+      const stats = statsApi.getHeroStats(trackId);
+      expect(stats.length, 'the content has hero stats to show').toBeGreaterThan(0);
+      const items = page.locator('#about [data-hero-stats] > li');
+      if (stats.length === 0) {
+        await expect(page.locator('#about [data-hero-stats]')).toHaveCount(0);
+      } else {
+        await expect(items).toHaveCount(stats.length);
+        for (const [index, stat] of stats.entries()) await expect(items.nth(index)).toHaveText(`${stat.value} ${stat.label}`);
+        // Side by side on a desktop screen.
+        if (!isMobile && stats.length > 1) {
+          const [first, second] = await Promise.all([items.nth(0).boundingBox(), items.nth(1).boundingBox()]);
+          expect(second!.x).toBeGreaterThan(first!.x + first!.width);
+          expect(second!.y).toBeCloseTo(first!.y, 0);
+        }
+      }
+
+      const lines = [track.badgeLine1.trim(), track.badgeLine2.trim()].filter(Boolean);
+      const badges = page.locator('#about [data-hero-badge]');
+      if (lines.length === 0) {
+        await expect(badges).toHaveCount(0);
+      } else {
+        // In the button row from 640px, under the stats below that; one of the two is displayed.
+        const shown = page.locator(`#about [data-hero-badge="${isMobile ? 'below' : 'row'}"]`);
+        await expect(shown).toBeVisible();
+        await expect(page.locator(`#about [data-hero-badge="${isMobile ? 'row' : 'below'}"]`)).toBeHidden();
+        for (const line of lines) await expect(shown).toContainText(line);
+        await expect(shown.locator('svg[data-icon="award"]')).toHaveCount(1);
       }
     });
 
-    test('the photo is sized, eager and high priority, and it loads', async ({ page }) => {
-      test.skip(!track.photo, 'this track has no photo');
+    for (const theme of THEMES) {
+      test(`is one viewport tall, starts at the top of the page and is dark — ${theme}`, async ({ page }) => {
+        await openRoute(page, routeOf(track), { theme });
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        const hero = page.locator('#about');
+        await expect(hero).toHaveAttribute('data-on-dark', /.*/);
+        const box = await hero.evaluate((section) => {
+          const rect = section.getBoundingClientRect();
+          return { top: Math.round(rect.top + window.scrollY), left: rect.left, width: rect.width, height: rect.height, client: document.documentElement.clientWidth, viewport: window.innerHeight };
+        });
+        expect(box.top).toBe(0);
+        expect(box.left).toBe(0);
+        expect(box.width).toBe(box.client);
+        expect(box.height).toBeGreaterThanOrEqual(Math.max(560, box.viewport) - 1);
+        // Its own dark fill and white text, whatever the theme.
+        await expect(hero).toHaveCSS('background-color', 'rgb(5, 7, 11)');
+        await expect(hero).toHaveCSS('color', 'rgb(255, 255, 255)');
+        await expect(hero.getByRole('heading', { level: 1 })).toHaveCSS('color', 'rgb(255, 255, 255)');
+      });
+    }
+
+    test('never needs the video address: with it unreachable the gradient shows, with no video element and no pause button left', async ({ page }) => {
+      const requested: string[] = [];
+      page.on('request', (request) => {
+        if (request.resourceType() === 'media') requested.push(request.url());
+      });
+      // openRoute() blocks every other origin, the video's among them.
       await openRoute(page, routeOf(track));
-      const photo = page.locator('img[data-hero-photo]');
-      await expect(photo).toHaveCount(1);
-      await expect(photo).toHaveAttribute('src', assetHref(track.photo));
-      await expect(photo).toHaveAttribute('alt', track.photoAlt);
-      await expect(photo).toHaveAttribute('width', /\d+/);
-      await expect(photo).toHaveAttribute('height', /\d+/);
-      await expect(photo).toHaveAttribute('fetchpriority', 'high');
-      await expect(photo).toHaveAttribute('loading', 'eager');
-      await expect.poll(() => photo.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-      // Drawn as a circle.
-      await expect(photo).toHaveCSS('border-radius', '50%');
+      const hero = page.locator('#about');
+      if (isExternal(track.heroVideo)) {
+        await expect(hero.locator('video')).toHaveCount(0);
+        await expect(hero.locator('[data-hero-pause]')).toHaveCount(0);
+        // It did try the address from the content, and nothing else.
+        expect([...new Set(requested)]).toEqual([track.heroVideo]);
+      } else if (!track.heroVideo) {
+        await expect(hero.locator('video')).toHaveCount(0);
+        expect(requested).toEqual([]);
+      }
+      expect(await hero.evaluate((section) => getComputedStyle(section).backgroundImage)).toContain('radial-gradient');
+      await expect(hero.getByRole('heading', { level: 1 })).toBeVisible();
+      await expect(hero.locator('[data-hero-scrim]')).toHaveCount(1);
     });
 
-    test('the photo sits on the right on desktop and on top on phones', async ({ page, isMobile }) => {
-      test.skip(!track.photo, 'this track has no photo');
+    test('the reveal runs as a CSS animation, block after block, and leaves everything visible', async ({ page }) => {
       await openRoute(page, routeOf(track));
-      const [photo, name] = await Promise.all([
-        page.locator('img[data-hero-photo]').boundingBox(),
-        page.locator('#about').getByRole('heading', { level: 1 }).boundingBox(),
-      ]);
-      expect(photo).not.toBeNull();
-      expect(name).not.toBeNull();
-      if (isMobile) expect(photo!.y + photo!.height).toBeLessThanOrEqual(name!.y + 1);
-      else expect(photo!.x).toBeGreaterThan(name!.x + name!.width - 1);
+      const blocks = page.locator('#about [data-hero-tagline], #about h1, #about [data-hero-summary], #about [data-hero-actions], #about [data-hero-stats]');
+      const animations = await blocks.evaluateAll((list) => list.map((block) => ({ name: getComputedStyle(block).animationName, delay: parseFloat(getComputedStyle(block).animationDelay) })));
+      expect(animations.length).toBeGreaterThanOrEqual(3);
+      for (const animation of animations) expect(animation.name).not.toBe('none');
+      for (let index = 1; index < animations.length; index += 1) expect(animations[index]!.delay).toBeGreaterThan(animations[index - 1]!.delay);
+      for (const block of await blocks.all()) {
+        await expect(block).toHaveCSS('opacity', '1');
+        await expect(block).toHaveCSS('transform', /none|matrix\(1, 0, 0, 1, 0, 0\)/);
+      }
+      await expect(page.locator('#about [data-hero-resume], #about [data-hero-work]').first()).toBeVisible();
     });
 
-    test('the reveal runs as a CSS animation (and leaves everything visible)', async ({ page }) => {
+    test('fits at 320px: nothing in the hero or the header pokes out sideways', async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
       await openRoute(page, routeOf(track));
-      const name = page.locator('#about').getByRole('heading', { level: 1 });
-      expect(await name.evaluate((element) => getComputedStyle(element).animationName)).not.toBe('none');
-      await page.waitForTimeout(900);
-      await expect(name).toHaveCSS('opacity', '1');
-      await expect(page.locator('[data-hero-resume], [data-hero-link]').first()).toHaveCSS('opacity', '1');
+      await expect(page.locator('#about h1')).toHaveCSS('opacity', '1');
+      await page.waitForTimeout(1200);
+      const poking = await page.locator('header *, #about *').evaluateAll((all) =>
+        all
+          .filter((element) => {
+            const rect = element.getBoundingClientRect();
+            return rect.width > 0 && (rect.right > 320.5 || rect.left < -0.5);
+          })
+          .slice(0, 8)
+          .map((element) => `${element.tagName.toLowerCase()}.${String(element.getAttribute('class'))}`),
+      );
+      expect(poking, poking.join('\n')).toEqual([]);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
     });
 
     // The resume and the summary follow the open project tab: on every address of the page
@@ -279,12 +401,13 @@ test.describe('a tab with its own summary, on the real page', () => {
     await expectSummary(page, OWN_SUMMARY);
     // The row has no resume link: the button is still the page's main resume.
     await expectResume(page, mainResume);
-    // Between the headline and the buttons, like the main summary.
+    // Between the name and the buttons, like the main summary.
     const around = await summaryBlock(page).evaluate((block) => ({
-      before: block.previousElementSibling?.textContent ?? '',
-      afterHasButtons: block.nextElementSibling?.querySelector('[data-hero-resume], [data-hero-link]') !== null,
+      before: block.previousElementSibling?.tagName ?? '',
+      beforeText: block.previousElementSibling?.textContent ?? '',
+      afterHasButtons: block.nextElementSibling?.querySelector('[data-hero-resume]') !== null,
     }));
-    expect(around).toEqual({ before: game.headline, afterHasButtons: true });
+    expect(around).toEqual({ before: 'H1', beforeText: site.name, afterHasButtons: true });
 
     for (const address of ['/', routeOf(game), ...otherTabs.map((tabId) => routeOf(game, tabId))]) {
       await page.goto(`.${address === '/' ? '/' : address}`);

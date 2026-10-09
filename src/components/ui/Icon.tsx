@@ -12,7 +12,9 @@ export type UiIconName =
   | 'sun'
   | 'moon'
   | 'image'
-  | 'award';
+  | 'award'
+  | 'crown'
+  | 'pause';
 
 export type IconName = LinkIcon | UiIconName;
 
@@ -101,6 +103,12 @@ const GLYPHS: Record<IconName, Glyph> = {
   },
   award: {
     stroke: ['M12 15a6 6 0 1 0 0-12a6 6 0 0 0 0 12Z', 'M8.6 13.6 7 21l5-2.6 5 2.6-1.6-7.4'],
+  },
+  crown: {
+    stroke: ['M3 18 2 7l5 4 5-7 5 7 5-4-1 11Z', 'M3 21h18'],
+  },
+  pause: {
+    fill: ['M7 5h3v14H7z', 'M14 5h3v14h-3z'],
   },
 };
 

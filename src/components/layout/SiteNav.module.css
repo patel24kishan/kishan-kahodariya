@@ -1,18 +1,74 @@
-/* Sticky top bar. Canvas background, hairline below; the phone menu hangs under it. */
+/*
+ * The header. It sticks to the top of the viewport and takes no room in the page: its height
+ * is given back as a negative margin, so the hero starts under it.
+ *
+ * Two states, switched by [data-scrolled] (set from JavaScript after mount):
+ *   top of the page   no background; the row sits a few px lower (the board's taller padding)
+ *   scrolled          the solid layer (::before: canvas + hairline) is faded in and the row
+ *                     moves up to the middle of the bar
+ * Only opacity and transform change between them; every box keeps its size, so nothing shifts.
+ *
+ * Module values from the boards (MotionNav): the solid bar is 10 + 48 + 10 on phones and
+ * 13 + 48 + 13 from 768px; at the top the padding reads 16px and 22px.
+ */
 
 .header {
+  --bar-height: 68px;
+  --bar-shift: 6px;
+  --nav-outline: rgba(255, 255, 255, 0.3);
+  --nav-link-pad: 8px;
+  --nav-tracking: 0.12em;
+
   position: sticky;
   top: 0;
   z-index: var(--z-nav);
+  height: var(--bar-height);
+  margin-block-end: calc(-1 * var(--bar-height));
+  color: var(--color-ink);
+}
+
+.header[data-scrolled] {
+  --bar-shift: 0px;
+}
+
+:global([data-theme='light']) .header[data-scrolled] {
+  --nav-outline: rgba(10, 10, 10, 0.35);
+}
+
+/* The solid bar. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: var(--color-canvas);
   border-bottom: 1px solid var(--color-hairline);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease);
+  pointer-events: none;
+}
+
+.header[data-scrolled]::before {
+  opacity: 1;
 }
 
 .bar {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: var(--nav-height);
+  height: 100%;
+  transform: translateY(var(--bar-shift));
+  transition: transform var(--duration-base) var(--ease);
+}
+
+/* ---- Logo and name --------------------------------------------------------------------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: none;
+  min-width: 0;
 }
 
 .monogram {
@@ -57,7 +113,7 @@
   height: 48px;
 }
 
-/* 40px × 1.2: the artwork is transparent, so it is drawn as it is, whole. */
+/* The artwork is transparent, so it is drawn as it is, whole. */
 .logo {
   display: block;
   width: 48px;
@@ -65,39 +121,27 @@
   object-fit: contain;
 }
 
-/* Menu button (phones only), then the theme toggle, whose pill ends flush with the gutter. */
-.controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-inline-start: auto;
+/* The name beside the logo: only where the bar has room for it. */
+.siteName {
+  display: none;
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.menuSlot {
-  display: flex;
-}
-
-/* ---- Phone: the links live in a panel under the bar, shown only while open ------------- */
+/* ---- Section links (from 768px) -------------------------------------------------------- */
 
 .nav {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  padding: var(--space-2) var(--gutter) var(--space-4);
-  background: var(--color-canvas);
-  border-bottom: 1px solid var(--color-hairline);
-}
-
-.navOpen {
-  display: block;
 }
 
 .list {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  align-items: center;
 }
 
 .item {
@@ -106,74 +150,187 @@
 }
 
 .link {
-  position: relative;
-  isolation: isolate;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-width: 44px;
   min-height: 44px;
-  width: 100%;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
+  padding-inline: var(--nav-link-pad);
   color: var(--color-body);
-  font-size: var(--text-body);
-  font-weight: 500;
+  font-size: var(--text-caption-upper);
+  line-height: 1.2;
+  letter-spacing: var(--nav-tracking);
+  text-transform: uppercase;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.link::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: var(--button-tint);
-  opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease);
+/* The section in view. */
+.link[aria-current='true'] {
+  color: var(--color-ink);
 }
 
 @media (hover: hover) {
   .link:hover {
     color: var(--color-ink);
   }
+}
 
-  .link:hover::before {
+/* ---- Right end: contact button, menu button, theme toggle ------------------------------ */
+
+.contact {
+  position: relative;
+  isolation: isolate;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  gap: 10px;
+  min-height: 44px;
+  padding: var(--space-3) 14px;
+  border: 1px solid var(--nav-outline);
+  color: var(--color-ink);
+  font-size: var(--text-caption-upper);
+  line-height: 1.2;
+  letter-spacing: var(--nav-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.contact svg {
+  display: none;
+  flex: none;
+}
+
+/* Hover and press: an opacity-only tint, like the buttons. */
+.contact::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: var(--button-tint);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .contact:hover {
+    color: var(--color-ink);
+  }
+
+  .contact:hover::before {
     opacity: 1;
   }
 }
 
-.link:active::before {
+.contact:active::before {
   opacity: 1;
 }
 
-.link:focus-visible {
+/* Phones: three bars, the last one shorter, ending 10px inside the 44px button. */
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-inline-start: auto;
+  padding-inline-end: 10px;
   border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-/* ---- Tablet and up: inline links, no menu button --------------------------------------- */
+.bars {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.bars span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: currentColor;
+}
+
+.bars span:last-child {
+  width: 16px;
+}
+
+/* While the menu is open its close button is drawn in this very place. */
+.menuButton[aria-expanded='true'] .bars {
+  opacity: 0;
+}
+
+/* On phones the theme toggle is in the menu, not in the bar. */
+.toggleSlot {
+  display: none;
+}
+
+/* ---- Tablet and up: inline links, the button and the toggle; no menu button ------------- */
 
 @media (min-width: 768px) {
-  .nav {
-    display: flex;
-    position: static;
-    flex: 1 1 auto;
-    justify-content: center;
-    padding: 0;
-    border-bottom: 0;
-    background: transparent;
+  .header {
+    --bar-height: 74px;
+    --bar-shift: 9px;
   }
 
-  .list {
-    flex-direction: row;
-    gap: var(--space-1);
+  .nav {
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .contact {
+    display: inline-flex;
+  }
+
+  .menuButton {
+    display: none;
+  }
+
+  .toggleSlot {
+    display: flex;
+    flex: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header {
+    --nav-link-pad: 14px;
+    --nav-tracking: 0.2em;
   }
 
   .link {
-    width: auto;
-    font-size: var(--text-nav);
+    font-size: var(--text-caption);
   }
 
-  .menuSlot {
-    display: none;
+  .contact {
+    padding-inline: var(--space-6);
+  }
+
+  .contact svg {
+    display: block;
+  }
+
+  /* 20px between the button and the toggle (the bar's own gap is 12px). */
+  .toggleSlot {
+    margin-inline-start: var(--space-2);
+  }
+}
+
+@media (min-width: 1280px) {
+  .header {
+    --nav-link-pad: 18px;
+  }
+
+  .siteName {
+    display: block;
   }
 }
