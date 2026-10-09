@@ -97,7 +97,7 @@ turn the boards' raw values into tokens or module-level custom properties.
 - **Projects:** title left, tabs right (square; the open tab filled with the accent). Cards
   rise in on scroll with a small stagger. Slider, hover overlay, viewer, buttons, featured
   border, empty state: behaviour unchanged. Tabs stay real links.
-- **Experience:** title in the left column; on the right a timeline: an accent line that draws
+- **Experience:** the heading reads "Work History" (owner, 2026-10-09; the nav link keeps "Experience", the anchor stays `#experience`); title in the left column; on the right a timeline: an accent line that draws
   itself downward (a `transform: scaleY` on a pseudo-element or a child, never `height`), a dot
   per job (accent for a current job: `present`), the date, company, role, all bullets, tag chips.
 - **Skills:** categorised numbered rows (01, 02, …): number, group name, square chips. A line

@@ -60,7 +60,8 @@ for (const trackId of TRACK_IDS) {
       for (let index = 1; index < levels.length; index += 1) {
         expect(levels[index]!, `heading ${index} jumps from h${levels[index - 1]} to h${levels[index]}`).toBeLessThanOrEqual(levels[index - 1]! + 1);
       }
-      for (const label of ['Projects', 'Experience', 'Skills']) {
+      // The Experience section's heading reads "Work History"; its nav link keeps "Experience".
+      for (const label of ['Projects', 'Work History', 'Skills']) {
         await expect(page.locator('main').getByRole('heading', { level: 2, name: label, exact: true })).toHaveCount(1);
       }
       await expect(page.locator('#education').getByRole('heading', { level: 2 })).toHaveText(/Education/);

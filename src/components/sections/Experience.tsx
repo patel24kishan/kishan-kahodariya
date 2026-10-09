@@ -9,7 +9,7 @@ export interface ExperienceProps {
 }
 
 /**
- * Experience (#experience) — the title stands in the left column and a timeline runs down the
+ * Experience (#experience; its heading reads "Work History", while the nav link keeps "Experience") — the title stands in the left column and a timeline runs down the
  * right: an accent line that draws itself downward (scaleY), and one block per job with a dot
  * (accent for the current job), the date, company, role, every bullet verbatim and the tag
  * chips. Where the job was done (and a "Remote" marker) stays under the date. Each job rises
@@ -17,7 +17,7 @@ export interface ExperienceProps {
  */
 export function Experience({ entries }: ExperienceProps) {
   return (
-    <Section id="experience" title={'Experi­ence'} layout="split">
+    <Section id="experience" title="Work History" layout="split">
       {entries.length > 0 ? (
         <div className={styles.timeline}>
           <Reveal as="span" variant="draw-y" className={styles.line} aria-hidden="true" data-timeline-line />

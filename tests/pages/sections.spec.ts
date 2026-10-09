@@ -52,7 +52,7 @@ for (const trackId of TRACK_IDS) {
       await openRoute(page, routeOf(track));
       await revealAll(page); // positions are compared at rest, not mid-entrance
       const title = page.locator('#experience').getByRole('heading', { level: 2 });
-      await expect(title).toHaveAccessibleName('Experience');
+      await expect(title).toHaveAccessibleName('Work History'); // the nav link still says Experience
       await expect(title).toHaveAttribute('id', 'experience-title');
       await expect(title).toHaveCSS('font-weight', '800');
       await expect(title).toHaveCSS('text-transform', 'uppercase');
