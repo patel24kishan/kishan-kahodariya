@@ -13,12 +13,13 @@ export interface ProjectCardProps {
 
 /**
  * Icon for a project link. Every "View Code" link (kind `code`) shows the one code icon and
- * every "Play" link (kind `play`) the one play icon, whatever the host; the other kinds go by
+ * every "Play" link (kind `play`) the one game-controller icon, whatever the host; the other kinds go by
  * host when it is a known site, else show the external-link icon.
  */
 export function linkIcon(link: ProjectLink): IconName {
   if (link.kind === 'code') return 'gitlab';
-  if (link.kind === 'play') return 'play';
+  // The game controller (the glyph also used for itch.io).
+  if (link.kind === 'play') return 'itchio';
   let host = '';
   try {
     host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');

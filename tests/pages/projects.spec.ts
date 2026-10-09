@@ -12,10 +12,10 @@ async function cardSlugs(page: Parameters<typeof cards>[0]): Promise<string[]> {
   return cards(page).evaluateAll((list) => list.map((element) => element.getAttribute('data-project') ?? ''));
 }
 
-/** The rule in ProjectCard.linkIcon(): "View Code" always the one code icon, "Play" always the one play icon, the rest by host. */
+/** The rule in ProjectCard.linkIcon(): "View Code" always the one code icon, "Play" always the game controller, the rest by host. */
 function expectedLinkIcon(link: ProjectLink): string {
   if (link.kind === 'code') return 'gitlab';
-  if (link.kind === 'play') return 'play';
+  if (link.kind === 'play') return 'itchio';
   let host = '';
   try {
     host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');

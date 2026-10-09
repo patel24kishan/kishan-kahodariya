@@ -71,11 +71,11 @@ test.describe('link buttons', () => {
     await expect(page.locator('[data-project-link="code"] svg[data-icon="github"]')).toHaveCount(0);
   });
 
-  test('every Play link has the one play icon whatever the host; the other kinds keep their host-based icons', async ({ page }) => {
+  test('every Play link has the game-controller icon whatever the host; the other kinds keep their host-based icons', async ({ page }) => {
     await openFixture(page);
-    await expect(card(page, 'slider').locator('[data-project-link="play"] svg[data-icon="play"]')).toHaveCount(1);
+    await expect(card(page, 'slider').locator('[data-project-link="play"] svg[data-icon="itchio"]')).toHaveCount(1);
     const single = card(page, 'single');
-    await expect(single.locator('[data-project-link="play"] svg[data-icon="play"]')).toHaveCount(1);
+    await expect(single.locator('[data-project-link="play"] svg[data-icon="itchio"]')).toHaveCount(1);
     await expect(single.locator('[data-project-link="demo"] svg[data-icon="external"]')).toHaveCount(1);
     await expect(single.locator('[data-project-link="video"] svg[data-icon="youtube"]')).toHaveCount(1);
     await expect(single.locator('[data-project-link="store"] svg[data-icon="external"]')).toHaveCount(1);
