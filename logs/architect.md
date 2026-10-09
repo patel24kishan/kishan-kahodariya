@@ -135,3 +135,10 @@ Three builders, each in its own git worktree from the start:
 - Designs locked as the five boards in `docs/sketches/motion/`. Spec rewritten from them: `docs/motion/MOTION.md` (commit `2ad824f`), contract types added to `src/content/types.ts`.
 - Plan: phase 1 `content` alone (Sonnet); phase 2 in parallel, one worktree each: `hero-nav` (Opus), `sections` (Sonnet), `admin` (Sonnet). Architect merges and runs the full regression. Nothing is pushed.
 - Decisions taken by the architect, to confirm with the owner: hero poster starts empty (a dark gradient shows behind the video); the video is hotlinked from the address in the owner's prompt; the hero no longer shows the photo or the hero link buttons (as the locked boards); the "Companies" stat counts every experience entry, which today includes "Career Break" and "Contract Work".
+
+## 2026-10-09 — Motion build merged on `redesign/motion-v1` (local, not pushed)
+- Merged: `content` (Sonnet), `admin` (Sonnet), `sections` (Sonnet), `hero-nav` (Opus). Applied `logs/issues/hero-nav-01-sections-tests.patch` after review (section tests that still assumed the old hero / header).
+- `tests/infra/navigation.spec.ts`: the hash-link helper now waits for the smooth scroll to rest; before that, "a router navigation to a #hash" failed about 1 run in 5 (jump to the top landed at 4px). After: 200 of 200 over ten repeats.
+- Architect's runs on the merged tree: `tsc` clean; build suite 254 passed; dev suite 1608 passed, 87 skipped, 1 failed (the navigation test above, since fixed and re-run on its own). The whole dev suite was not re-run after that one-file test change.
+- Seen in the browser: the real hero video plays; desktop dark theme top to bottom; phone hero and menu.
+- Open for the owner: the video is third-party footage with commercial game characters; no poster; "Companies" shows 8; dashboard hints still say photo and links show "next to your name"; departures from the boards listed in the agents' reports (`logs/progress/motion-*.md`).

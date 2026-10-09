@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import type { ProjectLink } from '../../src/content/types';
 import { assetHref, content, isExternal, routeOf, TRACK_IDS, withBase } from './support/content';
-import { card, cards, cssVar, hexToRgb, mediaButton, openRoute, scrollY, tabsNav, THEMES, trackPage } from './support/page';
+import { card, cards, cssVar, hexToRgb, mediaButton, openRoute, scrollY, tabsNav, THEMES, trackPage, waitForBoxToSettle, waitForScrollToSettle } from './support/page';
+import { revealAll } from './support/reveal';
 
 /** The Projects section: the tab control, the grid and the cards, against getProjects(). */
 const tabs = content.getTabs();
@@ -54,6 +55,8 @@ for (const trackId of TRACK_IDS) {
 
     test('the title is on the left and the square tabs on the right (desktop); the open tab is filled with the accent', async ({ page, isMobile }) => {
       await openRoute(page, routeOf(track));
+      // Under the one-viewport hero the section is below the fold: let its entrance finish first.
+      await revealAll(page);
       const title = page.locator('#projects').getByRole('heading', { level: 2 });
       await expect(title).toHaveCSS('font-weight', '800');
       await expect(title).toHaveCSS('text-transform', 'uppercase');
@@ -115,7 +118,8 @@ for (const trackId of TRACK_IDS) {
     test('changing the tab changes the address and the cards, keeps the scroll position, and Back returns', async ({ page }) => {
       test.skip(!otherTab, 'only one tab exists');
       await openRoute(page, routeOf(track));
-      await page.locator('#projects').scrollIntoViewIfNeeded();
+      // The tabs themselves in view: the click that follows must not have to scroll to reach them.
+      await tabsNav(page).scrollIntoViewIfNeeded();
       await page.waitForTimeout(400);
       const before = await scrollY(page);
       expect(before).toBeGreaterThan(0);
@@ -250,6 +254,10 @@ test.describe('card media states', () => {
     const button = mediaButton(card(page, withShot!.slug));
     const label = button.locator('[data-media-label]');
     await button.scrollIntoViewIfNeeded();
+    // Below the one-viewport hero the card arrives with a (smooth) scroll and its entrance:
+    // hover it once it has come to rest, or it moves away from under the pointer.
+    await waitForScrollToSettle(page);
+    await waitForBoxToSettle(button);
     await expect(label).toHaveText(content.getHoverText(withShot!));
 
     await expect(label).toHaveCSS('opacity', '0');

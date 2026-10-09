@@ -249,7 +249,7 @@ for (const trackId of TRACK_IDS) {
   test.describe(`${track.route} footer`, () => {
     const links = content.getLinks(trackId, 'footer');
 
-    test('has the contact block and the credit lines, and no section links', async ({ page }) => {
+    test('has the contact block and the credit lines, and no section links', async ({ page, isMobile }) => {
       await openRoute(page, routeOf(track));
       const footer = page.getByRole('contentinfo');
       // No section links in the footer: the nav bar stays docked at the top of every page.
@@ -295,7 +295,8 @@ for (const trackId of TRACK_IDS) {
       await expect(band).toHaveCount(1);
       await expect(band).toHaveCSS('background-color', hexToRgb(await cssVar(trackPage(page), '--color-accent')));
       await expect(band.getByRole('switch')).toHaveCount(0);
-      await expect(page.getByRole('switch')).toHaveCount(1);
+      // The one switch is in the bar; on phones it is in the menu instead (none on show until it opens).
+      await expect(page.getByRole('switch')).toHaveCount(isMobile ? 0 : 1);
 
       // The credit strip: one line each, accent on near-black.
       const credit = footer.locator('p').filter({ hasText: site.credit[0] ?? '' }).first();
@@ -308,13 +309,14 @@ for (const trackId of TRACK_IDS) {
       }
     });
 
-    test('the footer has no theme toggle; the one in the nav switches the theme', async ({ page }) => {
+    test('the footer has no theme toggle; the one in the nav switches the theme', async ({ page, isMobile }) => {
       await openRoute(page, routeOf(track), { theme: 'dark' });
       const html = page.locator('html');
       await expect(html).toHaveAttribute('data-theme', 'dark');
       await expect(page.getByRole('contentinfo').getByRole('switch')).toHaveCount(0);
       await expect(page.getByRole('contentinfo').locator('[data-theme-toggle]')).toHaveCount(0);
-      // The nav bar holds the only switch on the page.
+      // The header holds the only switch on the page: in the bar, or in its menu on phones.
+      if (isMobile) await page.getByRole('button', { name: 'Open menu' }).click();
       await expect(page.getByRole('switch')).toHaveCount(1);
       await page.getByRole('banner').getByRole('switch').click();
       await expect(html).toHaveAttribute('data-theme', 'light');
@@ -322,23 +324,13 @@ for (const trackId of TRACK_IDS) {
       await expect(html).toHaveAttribute('data-theme', 'dark');
     });
 
-    test('the footer links follow the footer order and the hero buttons the hero order, each from the content API', async ({ page }) => {
+    test('the footer links follow the footer order from the content API; the hero has no link buttons any more', async ({ page }) => {
       await openRoute(page, routeOf(track));
-      const hero = content.getLinks(trackId, 'hero');
       // The footer buttons carry no short name: they are told apart by their address.
       const footerOnPage = await page.getByRole('contentinfo').locator('a[data-footer-email], a[data-footer-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('href')));
       expect(footerOnPage).toEqual(links.map((link) => link.url));
-      const heroOnPage = await page.locator('#about [data-hero-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('data-hero-link')));
-      expect(heroOnPage).toEqual(hero.map((link) => link.slug));
-
-      // The two places are ordered on their own: a link that is in both keeps its hero position
-      // in the hero and its footer position in the footer, even where the two orders disagree.
-      const heroUrls = await page.locator('#about [data-hero-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('href')));
-      const shared = (list: readonly string[], other: readonly string[]) => list.filter((url) => other.includes(url));
-      const apiHero = hero.map((link) => link.url);
-      const apiFooter = links.map((link) => link.url);
-      expect(shared(heroUrls as string[], footerOnPage as string[])).toEqual(shared(apiHero, apiFooter));
-      expect(shared(footerOnPage as string[], heroUrls as string[])).toEqual(shared(apiFooter, apiHero));
+      // The motion hero shows no link buttons (the showInHero field stays in the content).
+      await expect(page.locator('#about [data-hero-link]')).toHaveCount(0);
     });
   });
   test.describe(`${track.route} education layout`, () => {

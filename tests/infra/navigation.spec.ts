@@ -69,6 +69,15 @@ async function expectProbeInView(page: Page): Promise<void> {
   await expect.poll(() => probeTop(page), { message: 'hash target should scroll to the top of the viewport' }).toBeLessThan(200);
   expect(await probeTop(page)).toBeGreaterThanOrEqual(0);
   expect(await scrollY(page)).toBeGreaterThan(2000);
+  // The jump is a smooth scroll: let it come to rest, or its last frames land on top of
+  // whatever the test scrolls to next.
+  await expect
+    .poll(async () => {
+      const before = await scrollY(page);
+      await page.waitForTimeout(150);
+      return (await scrollY(page)) === before;
+    })
+    .toBe(true);
 }
 
 test.describe('scroll position', () => {
