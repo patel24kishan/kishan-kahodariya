@@ -130,3 +130,8 @@ Three builders, each in its own git worktree from the start:
 - The owner stopped the build minutes after it started and asked to go back to designing. All three builder agents were stopped. None had written or committed anything; no servers were running. Their worktrees and branches were removed.
 - `lucide-react` was uninstalled again. `redesign/motion-v1` now differs from `master` only by documents: `docs/motion/MOTION.md` (marked DRAFT, design only), the three mockups in `docs/sketches/motion/`, and this log.
 - No site code changed. The live site is untouched. Nothing is built until the owner approves a design and says to go ahead.
+
+## 2026-10-09 — Motion build started (owner: "go ahead and build the motion redesign using multiple agents")
+- Designs locked as the five boards in `docs/sketches/motion/`. Spec rewritten from them: `docs/motion/MOTION.md` (commit `2ad824f`), contract types added to `src/content/types.ts`.
+- Plan: phase 1 `content` alone (Sonnet); phase 2 in parallel, one worktree each: `hero-nav` (Opus), `sections` (Sonnet), `admin` (Sonnet). Architect merges and runs the full regression. Nothing is pushed.
+- Decisions taken by the architect, to confirm with the owner: hero poster starts empty (a dark gradient shows behind the video); the video is hotlinked from the address in the owner's prompt; the hero no longer shows the photo or the hero link buttons (as the locked boards); the "Companies" stat counts every experience entry, which today includes "Career Break" and "Contract Work".
