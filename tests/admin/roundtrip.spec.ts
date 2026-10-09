@@ -26,7 +26,7 @@ import {
   writeEntry,
   type Dict,
 } from './support/cms-model';
-import { contentDir, contentTree, makeTempDir, removeTempDirs, validateContent, writeTree } from './support/env';
+import { contentDir, contentTree, expectNoNewNotes, makeTempDir, removeTempDirs, validateContent, writeTree } from './support/env';
 
 test.afterAll(removeTempDirs);
 
@@ -97,7 +97,7 @@ test.describe('saving an existing file through the dashboard', () => {
     writeTree(dir, rewritten);
     const result = validateContent(dir);
     expect(result.status, result.output).toBe(0);
-    expect(result.stdout, 'nothing had to be tidied by the reader').not.toContain('NOTE');
+    expectNoNewNotes(result.stdout, 'nothing had to be tidied by the reader');
     const before = loadContent(contentDir);
     const after = loadContent(dir);
     expect(before.ok && after.ok).toBe(true);
@@ -155,7 +155,7 @@ test.describe('the logo, the footer order and the resume per tab through a save'
     expect(Object.keys(written)).toEqual(Object.keys(parsed(repoPath)));
     const result = check('tab-resume-row', repoPath, written);
     expect(result.status, result.output).toBe(0);
-    expect(result.stdout).not.toContain('NOTE');
+    expectNoNewNotes(result.stdout);
 
     // The same with a summary: only the spaces around it go, the paragraphs inside stay.
     const withSummary = { ...parsed(repoPath), tabResumes: [{ summary: '  First paragraph.\n\nSecond paragraph.  ', tab: firstTab }] };
@@ -163,7 +163,7 @@ test.describe('the logo, the footer order and the resume per tab through a save'
     expect(writtenSummary.tabResumes).toEqual([{ tab: firstTab, url: '', label: '', summary: 'First paragraph.\n\nSecond paragraph.' }]);
     const summaryResult = check('tab-summary-row', repoPath, writtenSummary);
     expect(summaryResult.status, summaryResult.output).toBe(0);
-    expect(summaryResult.stdout).not.toContain('NOTE');
+    expectNoNewNotes(summaryResult.stdout);
   });
 
   test('a row saved before the summary existed is read with "" for it, and a save writes the key last', () => {
@@ -180,7 +180,7 @@ test.describe('the logo, the footer order and the resume per tab through a save'
     expect(Object.keys((saved.tabResumes as Dict[])[0] ?? {})).toEqual(['tab', 'url', 'label', 'summary']);
     const after = check('old-tab-row-saved', repoPath, saved);
     expect(after.status, after.output).toBe(0);
-    expect(after.stdout).not.toContain('NOTE');
+    expectNoNewNotes(after.stdout);
   });
 
   test('a file from before these fields existed is read with defaults, and a save writes the keys in place', () => {
@@ -277,7 +277,7 @@ test.describe('a brand-new item with only the required fields filled', () => {
     writeTree(dir, files);
     const result = validateContent(dir);
     expect(result.status, result.output).toBe(0);
-    expect(result.stdout).not.toContain('NOTE');
+    expectNoNewNotes(result.stdout);
   });
 
   test('without a required field the content check would refuse the file (so "required" matters)', () => {

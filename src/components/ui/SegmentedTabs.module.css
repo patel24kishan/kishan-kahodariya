@@ -27,7 +27,7 @@
   padding: 0;
   list-style: none;
   border: 1px solid var(--color-hairline-strong);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-square);
 }
 
 .item {
@@ -43,10 +43,12 @@
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
-  padding: var(--space-2) var(--space-5);
+  padding: var(--space-2) 22px;
   color: var(--color-body);
-  font-size: var(--text-nav);
+  font-size: var(--text-caption-upper);
   font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   line-height: 1.25;
   text-decoration: none;
   white-space: nowrap;
@@ -75,21 +77,10 @@
   }
 }
 
-/* Round the outer corners of the first and last link so the fill matches the frame. */
-.item:first-child .link {
-  border-start-start-radius: 7px;
-  border-end-start-radius: 7px;
-}
-
-.item:last-child .link {
-  border-start-end-radius: 7px;
-  border-end-end-radius: 7px;
-}
-
 .link[aria-current='page'] {
   background: var(--color-accent);
   color: var(--color-on-accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 @media (hover: hover) {
@@ -99,7 +90,7 @@
 }
 
 .link:focus-visible {
-  border-radius: 6px;
+  border-radius: 0;
   outline-offset: -3px;
   z-index: 1;
 }
@@ -110,6 +101,11 @@
 
 /* Phones: fill the row; overflow still scrolls. */
 @media (max-width: 767px) {
+  .nav,
+  .scroller {
+    width: 100%;
+  }
+
   .list {
     min-width: 100%;
   }
@@ -120,6 +116,8 @@
 
   .link {
     width: 100%;
-    padding-inline: var(--space-3);
+    padding-inline: var(--space-1);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
   }
 }

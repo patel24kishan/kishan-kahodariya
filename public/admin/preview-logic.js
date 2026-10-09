@@ -213,6 +213,53 @@ export function resumeForTab(track, tabId) {
   return { url: own.url, label: own.label.trim() !== '' ? own.label : main.label, from: 'tab' };
 }
 
+/**
+ * The numbers of the top section (getHeroStats in selectors.ts): counted from the published
+ * items, or typed by the owner. A number that comes out as 0 / "0+" / "", or has no words
+ * under it, is left out. `now` is a Date (the site uses the month of the build instead).
+ */
+export function heroStats(site, items, now = new Date()) {
+  const published = (list) => (Array.isArray(list) ? list.filter((item) => item?.published === true) : []);
+  const projects = published(items?.projects);
+  const experience = published(items?.experience);
+  const certificates = published(items?.certificates);
+  const rows = Array.isArray(site?.stats) ? site.stats : [];
+  const result = [];
+  for (const stat of rows) {
+    const label = text(stat?.label).trim();
+    let value = '';
+    switch (stat?.source) {
+      case 'projects':
+        value = String(projects.length);
+        break;
+      case 'companies':
+        value = String(experience.length);
+        break;
+      case 'certificates':
+        value = String(certificates.length);
+        break;
+      case 'years': {
+        const starts = experience
+          .map((job) => text(job.startDate))
+          .filter((date) => /^\d{4}-(0[1-9]|1[0-2])$/.test(date))
+          .sort();
+        if (starts.length > 0) {
+          const [year, month] = starts[0].split('-').map(Number);
+          const months = now.getFullYear() * 12 + now.getMonth() + 1 - (year * 12 + month);
+          const years = Math.floor(months / 12);
+          value = years > 0 ? `${years}+` : '';
+        }
+        break;
+      }
+      default:
+        value = text(stat?.value).trim();
+    }
+    if (label === '' || value === '' || value === '0' || value === '0+') continue;
+    result.push({ value, label });
+  }
+  return result;
+}
+
 /** true when a skill group is drawn in the accent colour on `page`. */
 export function isEmphasised(group, page) {
   return group?.emphasis === 'both' || group?.emphasis === page;

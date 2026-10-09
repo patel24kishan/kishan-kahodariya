@@ -7,7 +7,7 @@
   padding: 0;
   overflow: hidden;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-square);
   background: var(--color-surface-raised);
   cursor: pointer;
   touch-action: manipulation;
@@ -17,7 +17,7 @@
 }
 
 .media:focus-visible {
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-square);
 }
 
 .image {
@@ -154,7 +154,7 @@
     bottom: var(--space-2);
     max-width: calc(100% - 2 * var(--space-2));
     padding: 6px 10px;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-square);
     background: var(--color-scrim);
     color: var(--color-on-scrim);
     font-size: var(--text-caption);

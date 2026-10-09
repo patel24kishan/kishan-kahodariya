@@ -31,8 +31,8 @@ import {
   hoverText,
   isEmphasised,
   linkOnPage,
+  heroStats,
   linkPosition,
-  linksInPlace,
   positionOn,
   projectButtons,
   resolvedBullets,
@@ -439,8 +439,12 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
   const makePagePreview = (page) => ({ entry, getAsset, getCollection }) => {
     const data = dataOf(entry);
     const site = useSite(getCollection);
-    const links = useEntries(getCollection, 'links');
-    const heroLinks = linksInPlace(links ?? [], page.id, 'hero');
+    const projects = useEntries(getCollection, 'projects');
+    const experience = useEntries(getCollection, 'experience');
+    const certificates = useEntries(getCollection, 'certificates');
+    const stats = site ? heroStats(site, { projects, experience, certificates }) : [];
+    const badge = [str(data.badgeLine1).trim(), str(data.badgeLine2).trim()].filter((line) => line !== '');
+    const workLabel = site ? str(site.workLabel).trim() : '';
     const firstTab = site ? tabLabel(site, data.defaultTab) : '';
     const tabResumeRows = cleanTabResumes(data.tabResumes);
 
@@ -448,23 +452,36 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
       <${Panel} page=${page} title=${`${page.label} — top of the page`}>
         <div class="kk-hero">
           <div class="kk-hero__text">
-            <p class="kk-hero__name">${site ? str(site.name) : ''}</p>
             ${str(data.headline) !== ''
               ? html`<p class="kk-hero__headline kk-accent" data-key-path="headline">${data.headline}</p>`
               : null}
+            <p class="kk-hero__name">${site ? str(site.name) : ''}</p>
             ${str(data.summary) !== '' ? html`<p class="kk-card__text" data-key-path="summary">${data.summary}</p>` : null}
             <div class="kk-buttons">
+              ${workLabel !== '' ? html`<span class="kk-button kk-button--filled kk-hero__work">${workLabel}</span>` : null}
               ${str(data.resumeUrl) !== ''
-                ? html`<span class="kk-button kk-button--filled" data-key-path="resumeLabel">
-                    ${str(data.resumeLabel) || 'Resume'}
-                  </span>`
+                ? html`<span class="kk-button" data-key-path="resumeLabel">${str(data.resumeLabel) || 'Resume'}</span>`
                 : null}
-              ${heroLinks.map((link, index) => html`<span key=${index} class="kk-button">${str(link.label)}</span>`)}
+              ${badge.length > 0
+                ? html`<span class="kk-hero__badge" data-key-path="badgeLine1">${badge.map((line, index) => html`<span key=${index}>${line}</span>`)}</span>`
+                : null}
             </div>
+            ${stats.length > 0
+              ? html`<ul class="kk-hero__stats">
+                  ${stats.map((stat, index) => html`<li key=${index}><strong>${stat.value}</strong> ${stat.label}</li>`)}
+                </ul>`
+              : null}
           </div>
-          <${Picture} src=${imageUrl(getAsset, data.photo)} alt=${str(data.photoAlt)} className="kk-hero__photo" keyPath="photo" />
         </div>
         <dl class="kk-facts">
+          <${Fact} label="Background video">
+            ${str(data.heroVideo).trim() !== ''
+              ? `Plays silently in a loop: ${str(data.heroVideo).trim()}`
+              : 'None — the dark gradient is shown.'}
+          <//>
+          <${Fact} label="Picture before the video">
+            ${str(data.heroPoster).trim() !== '' ? str(data.heroPoster).trim() : 'None.'}
+          <//>
           <${Fact} label="Resume button">
             ${str(data.resumeUrl) !== '' ? `Opens ${data.resumeUrl}` : 'Hidden — there is no resume link.'}
           <//>
@@ -523,6 +540,8 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
     />`;
   };
 
+  const cleanStats = (value) => (Array.isArray(value) ? value.filter((row) => row && typeof row === 'object') : []);
+
   const SitePreview = ({ entry, getAsset }) => {
     const data = dataOf(entry);
     const list = tabs(data);
@@ -545,6 +564,17 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
                   str(data.logoAlt).trim() !== '' ? `, described as “${str(data.logoAlt).trim()}”` : ', with no description'
                 }.`
               : `No logo image — the letters “${str(data.monogram)}” are shown.`}
+          <//>
+          <${Fact} label="Buttons">
+            ${str(data.workLabel).trim() !== '' ? `“${str(data.workLabel).trim()}” in the top section` : 'The projects button is hidden (no text).'};
+            the contact button and the bottom band say “${str(data.contactLabel).trim() || 'Get in touch'}”.
+          <//>
+          <${Fact} label="Numbers in the top section">
+            ${cleanStats(data.stats).length === 0
+              ? 'None — the row is hidden.'
+              : cleanStats(data.stats)
+                  .map((stat) => `${stat.source === 'custom' ? str(stat.value).trim() || '(no number)' : `counted ${stat.source}`}: ${str(stat.label).trim() || '(no words)'}`)
+                  .join(' · ')}
           <//>
           ${list
             .filter((tab) => tab.id !== ALL_TAB_ID)

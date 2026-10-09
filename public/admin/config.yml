@@ -179,6 +179,65 @@ singletons:
         required: true
         default: All
         hint: The last project tab, which shows every project.
+      - name: workLabel
+        label: Text of the "See my work" button
+        widget: string
+        required: false
+        default: See my work
+        hint: >-
+          The first button in the top section of both pages; it scrolls down to the
+          projects. Leave empty to hide the button.
+      - name: contactLabel
+        label: Text of the contact button
+        widget: string
+        required: false
+        default: Get in touch
+        hint: >-
+          The contact button at the top of every page, and the big title of the coloured
+          band at the very bottom. If you leave it empty the site shows "Get in touch".
+      - name: stats
+        label: Numbers in the top section
+        label_singular: Number
+        widget: list
+        required: false
+        default: []
+        summary: '{{label}} — {{source}}'
+        collapsed: auto
+        hint: >-
+          The row of numbers under the buttons, shown on both pages in this order. Drag to
+          reorder. Leave the list empty to hide the whole row. A counted number (projects,
+          companies, years, certificates) updates by itself whenever you add or remove
+          items, so you never have to retype it. A number that comes out as 0, or has no
+          words under it, is simply not shown.
+        fields:
+          - name: source
+            label: Where the number comes from
+            widget: select
+            required: true
+            default: projects
+            hint: >-
+              Pick a counted number to let the site work it out for each page, or "A number I
+              type myself" to write your own below.
+            options:
+              - { label: Number of projects (counted), value: projects }
+              - { label: Number of companies you worked at (counted), value: companies }
+              - { label: Years of experience (counted from your earliest job), value: years }
+              - { label: Number of certificates (counted), value: certificates }
+              - { label: A number I type myself, value: custom }
+          - name: value
+            label: Your number
+            widget: string
+            required: false
+            default: ''
+            hint: >-
+              Only used when the choice above is "A number I type myself", for example 12+.
+              Ignored for counted numbers. If it stays empty, that number is not shown.
+          - name: label
+            label: Words under the number
+            widget: string
+            required: false
+            default: ''
+            hint: For example Projects built. If this is empty, the number is not shown.
       - name: categories
         label: Project tabs
         label_singular: Project tab
@@ -355,6 +414,41 @@ collections:
             required: false
             default: ''
             hint: One short sentence for people who cannot see the photo, for example your name.
+          - name: heroVideo
+            label: Background video of the top section
+            widget: string
+            required: false
+            default: ''
+            hint: >-
+              A video that plays silently in a loop behind your name. Paste the address of a
+              video file (starting with https://, usually ending in .mp4). Small files load
+              fastest. Leave empty for no video: the dark background shows instead.
+            pattern:
+              - '^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?|/(?!/)\S*)$'
+              - 'Write a full address starting with https://, without spaces — or leave it empty.'
+          - name: heroPoster
+            label: Picture shown before the video
+            widget: image
+            required: false
+            default: ''
+            hint: >-
+              Shown while the video loads, and for visitors whose device does not play it.
+              Leave empty to show the dark background instead.
+            pattern:
+              - *image_pattern
+              - *image_message
+          - name: badgeLine1
+            label: Badge, first line
+            widget: string
+            required: false
+            default: ''
+            hint: For example AWS Certified. Leave both badge lines empty to hide the badge.
+          - name: badgeLine2
+            label: Badge, second line
+            widget: string
+            required: false
+            default: ''
+            hint: For example Solution Architect. Leave both badge lines empty to hide the badge.
           - name: certificatesFirst
             label: Show certificates before education
             widget: boolean
@@ -478,6 +572,41 @@ collections:
             required: false
             default: ''
             hint: One short sentence for people who cannot see the photo, for example your name.
+          - name: heroVideo
+            label: Background video of the top section
+            widget: string
+            required: false
+            default: ''
+            hint: >-
+              A video that plays silently in a loop behind your name. Paste the address of a
+              video file (starting with https://, usually ending in .mp4). Small files load
+              fastest. Leave empty for no video: the dark background shows instead.
+            pattern:
+              - '^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?|/(?!/)\S*)$'
+              - 'Write a full address starting with https://, without spaces — or leave it empty.'
+          - name: heroPoster
+            label: Picture shown before the video
+            widget: image
+            required: false
+            default: ''
+            hint: >-
+              Shown while the video loads, and for visitors whose device does not play it.
+              Leave empty to show the dark background instead.
+            pattern:
+              - *image_pattern
+              - *image_message
+          - name: badgeLine1
+            label: Badge, first line
+            widget: string
+            required: false
+            default: ''
+            hint: For example AWS Certified. Leave both badge lines empty to hide the badge.
+          - name: badgeLine2
+            label: Badge, second line
+            widget: string
+            required: false
+            default: ''
+            hint: For example Solution Architect. Leave both badge lines empty to hide the badge.
           - name: certificatesFirst
             label: Show certificates before education
             widget: boolean
