@@ -63,13 +63,13 @@ test('several screenshots: counting, wrap-around, Home and End', async ({ page }
   await page.keyboard.press('ArrowRight');
   await expect(position).toHaveText('Screenshot 3 of 3');
   await page.keyboard.press('ArrowRight');
-  await expect(position).toHaveText('Gameplay Video');
+  await expect(position).toHaveText('Demo Video');
   await expect(dialog.locator('iframe')).toHaveCount(1);
   await page.keyboard.press('ArrowLeft');
   await expect(position).toHaveText('Screenshot 3 of 3');
   await expect(dialog.locator('iframe')).toHaveCount(0);
   await page.keyboard.press('Home');
-  await expect(position).toHaveText('Gameplay Video');
+  await expect(position).toHaveText('Demo Video');
   await page.keyboard.press('End');
   await expect(position).toHaveText('Screenshot 3 of 3');
   await expect(dialog.locator('[data-thumb][aria-current="true"]')).toHaveAttribute('data-thumb', '3');

@@ -71,7 +71,7 @@ test.describe('opening', () => {
     }
   });
 
-  test('from the Gameplay button: the video, embedded through youtube-nocookie', async ({ page }) => {
+  test('from the Demo button: the video, embedded through youtube-nocookie', async ({ page }) => {
     test.skip(!withVideo, 'no project with a YouTube video');
     await openRoute(page, route);
     const button = card(page, withVideo!.slug).locator('[data-project-gameplay]');
@@ -80,7 +80,7 @@ test.describe('opening', () => {
     const dialog = viewer(page);
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute('data-viewer-item', 'video');
-    await expect(dialog.locator('[data-viewer-position]')).toHaveText('Gameplay Video');
+    await expect(dialog.locator('[data-viewer-position]')).toHaveText('Demo Video');
     const frame = dialog.locator('iframe[data-viewer-video]');
     await expect(frame).toHaveCount(1);
     await expect(frame).toHaveAttribute('src', new RegExp(`^https://www\\.youtube-nocookie\\.com/embed/${youtubeVideoId(withVideo!.videoUrl)}\\b`));
@@ -148,7 +148,7 @@ test.describe('moving between items', () => {
 
     await dialog.locator('[data-thumb="video"]').click();
     await expect(dialog).toHaveAttribute('data-viewer-item', 'video');
-    await expect(dialog.locator('[data-viewer-position]')).toHaveText('Gameplay Video');
+    await expect(dialog.locator('[data-viewer-position]')).toHaveText('Demo Video');
     await expect(dialog.locator('iframe[data-viewer-video]')).toHaveCount(1);
     await expect(dialog.locator('[data-thumb][aria-current="true"]')).toHaveAttribute('data-thumb', 'video');
     expect(searchOf(page)).toBe(`?view=${withBoth!.slug}&item=video`);
@@ -183,7 +183,7 @@ test.describe('closing', () => {
     await expect(mediaButton(card(page, withShot!.slug))).toBeFocused();
   });
 
-  test('the close button returns focus to the Gameplay button that opened it', async ({ page }) => {
+  test('the close button returns focus to the Demo button that opened it', async ({ page }) => {
     test.skip(!withVideo, 'no project with a YouTube video');
     await openRoute(page, route);
     const opener = card(page, withVideo!.slug).locator('[data-project-gameplay]');

@@ -107,7 +107,7 @@ export function hoverText(project, site) {
 
 /**
  * The buttons under a project card: links with an address are shown, links without one are
- * hidden, and a "Gameplay" button is added when the project has a video.
+ * hidden, and a "Demo" button is added when the project has a video.
  */
 export function projectButtons(project) {
   const links = cleanProjectLinks(project?.links);

@@ -31,7 +31,7 @@ function focusable(root: HTMLElement): HTMLElement[] {
 
 function positionLabel(current: ViewerItem | undefined, screenshotCount: number): string {
   if (!current) return 'No media yet';
-  if (current.kind === 'video') return 'Gameplay Video';
+  if (current.kind === 'video') return 'Demo Video';
   return `Screenshot ${current.index + 1} of ${screenshotCount}`;
 }
 
@@ -253,14 +253,14 @@ export function MediaViewer({ project, item, opener, onItemChange, onClose }: Me
                     type="button"
                     className={cx(styles.thumb, isCurrent && styles.thumbCurrent)}
                     aria-current={isCurrent ? 'true' : undefined}
-                    aria-label={candidate.kind === 'video' ? 'Gameplay video' : `Screenshot ${candidate.index + 1}`}
+                    aria-label={candidate.kind === 'video' ? 'Demo video' : `Screenshot ${candidate.index + 1}`}
                     onClick={() => onItemChange(itemRefOf(candidate))}
                     data-thumb={candidate.kind === 'video' ? 'video' : String(candidate.index + 1)}
                   >
                     {candidate.kind === 'video' ? (
                       <span className={styles.thumbVideo}>
                         <Icon name="play" size={16} />
-                        <span>Gameplay</span>
+                        <span>Demo</span>
                       </span>
                     ) : (
                       <ContentImage
