@@ -12,9 +12,10 @@ async function cardSlugs(page: Parameters<typeof cards>[0]): Promise<string[]> {
   return cards(page).evaluateAll((list) => list.map((element) => element.getAttribute('data-project') ?? ''));
 }
 
-/** The rule in ProjectCard.linkIcon(): "View Code" always the one code icon, the rest by host, else by kind. */
+/** The rule in ProjectCard.linkIcon(): "View Code" always the one code icon, "Play" always the one play icon, the rest by host. */
 function expectedLinkIcon(link: ProjectLink): string {
   if (link.kind === 'code') return 'gitlab';
+  if (link.kind === 'play') return 'play';
   let host = '';
   try {
     host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');
@@ -26,7 +27,7 @@ function expectedLinkIcon(link: ProjectLink): string {
   if (host === 'itch.io' || host.endsWith('.itch.io')) return 'itchio';
   if (host === 'youtu.be' || host === 'youtube.com' || host.endsWith('.youtube.com')) return 'youtube';
   if (host.endsWith('steampowered.com') || host.endsWith('steamcommunity.com')) return 'steam';
-  return link.kind === 'play' ? 'play' : 'external';
+  return 'external';
 }
 
 /** Play links are accent buttons (like Gameplay); everything else is outline. */

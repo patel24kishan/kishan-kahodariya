@@ -12,11 +12,13 @@ export interface ProjectCardProps {
 }
 
 /**
- * Icon for a project link. Every "View Code" link (kind `code`) shows the one code icon
- * whatever the host; the other kinds go by host when it is a known site, else by kind.
+ * Icon for a project link. Every "View Code" link (kind `code`) shows the one code icon and
+ * every "Play" link (kind `play`) the one play icon, whatever the host; the other kinds go by
+ * host when it is a known site, else show the external-link icon.
  */
 export function linkIcon(link: ProjectLink): IconName {
   if (link.kind === 'code') return 'gitlab';
+  if (link.kind === 'play') return 'play';
   let host = '';
   try {
     host = new URL(link.url).hostname.toLowerCase().replace(/^www\./, '');
@@ -28,13 +30,8 @@ export function linkIcon(link: ProjectLink): IconName {
   if (host === 'itch.io' || host.endsWith('.itch.io')) return 'itchio';
   if (host === 'youtu.be' || host === 'youtube.com' || host.endsWith('.youtube.com')) return 'youtube';
   if (host.endsWith('steampowered.com') || host.endsWith('steamcommunity.com')) return 'steam';
-  switch (link.kind) {
-    case 'play':
-      return 'play';
-    default:
-      // "video" on a host that is not YouTube is just an address somewhere else.
-      return 'external';
-  }
+  // "video" on a host that is not YouTube is just an address somewhere else.
+  return 'external';
 }
 
 /** The project's links that have somewhere to go. Links with an empty url are not rendered. */
