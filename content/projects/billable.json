@@ -1,0 +1,42 @@
+{
+  "slug": "billable",
+  "title": "Billable App",
+  "shortDescription": "A time-tracking app that logs workable hours and turns them into monthly invoices automatically. I built it on my first day at Volta to replacing manual trackking.",
+  "longDescription": "",
+  "dateDisplay": "Sept 2026",
+  "tags": [
+    "Claude",
+    "NodeJS",
+    "Android/iOS"
+  ],
+  "category": "webapps",
+  "audience": "both",
+  "featured": false,
+  "published": true,
+  "orderGame": 0,
+  "orderSoftdev": 0,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "/uploads/bill-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/bill-3.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/billable.webp",
+      "alt": ""
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/billable-app",
+      "kind": "other"
+    }
+  ],
+  "legacyId": null
+}
