@@ -373,7 +373,9 @@ test.describe('phone menu', () => {
     await openRoute(page, routeOf(track));
     await scrollTo(page, 300);
     const dialog = await openMenu(page);
-    // Read after opening: Playwright's own tap may nudge the page while it aims at the button.
+    // Read after opening, and at rest: Playwright's own tap may nudge the page (smoothly) while
+    // it aims at the button.
+    await waitForScrollToSettle(page);
     const position = await scrollY(page);
     expect(Math.abs(position - 300)).toBeLessThanOrEqual(16);
     await expect(dialog).toHaveCSS('overscroll-behavior-y', 'contain');

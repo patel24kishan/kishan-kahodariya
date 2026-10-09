@@ -115,7 +115,7 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
         <Skills track={track} groups={skillGroups} />
         <Education education={education} certificates={certificates} certificatesFirst={profile.certificatesFirst} />
       </main>
-      <SiteFooter links={footerLinks} credit={site.credit} />
+      <SiteFooter links={footerLinks} credit={site.credit} contactLabel={site.contactLabel} />
       {viewed && request && <MediaViewer project={viewed} item={request.item} opener={openerRef.current} onItemChange={moveViewer} onClose={closeViewer} />}
     </div>
   );

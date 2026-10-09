@@ -19,3 +19,18 @@
 .main:focus {
   outline: none;
 }
+
+/*
+ * A section link lands its section right under the solid header (10 + 48 + 10 on phones,
+ * 13 + 48 + 13 from 768px; see SiteNav.module.css), so no strip of the section before it shows
+ * between the two. The sections bring their own space above their titles.
+ */
+.main > section {
+  scroll-margin-top: 68px;
+}
+
+@media (min-width: 768px) {
+  .main > section {
+    scroll-margin-top: 74px;
+  }
+}
