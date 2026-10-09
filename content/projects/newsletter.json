@@ -1,0 +1,51 @@
+{
+  "slug": "newsletter",
+  "title": "Newsletter Automation",
+  "shortDescription": "Plugin for Claude and Slack that turns a manual monthly email into a guided loop: collect sources, pick stories, draft, approve and send it via MailChimp.",
+  "longDescription": "",
+  "dateDisplay": "Sept 2026",
+  "tags": [
+    "MCP",
+    "NodeJ",
+    "Claude",
+    "Python",
+    "MailChimp",
+    "REST API"
+  ],
+  "category": "webapps",
+  "audience": "both",
+  "featured": true,
+  "published": false,
+  "orderGame": 0,
+  "orderSoftdev": 0,
+  "hoverText": "",
+  "screenshots": [
+    {
+      "src": "/uploads/archtecture.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/claude-soltuion.webp",
+      "alt": ""
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "View Code",
+      "url": "https://github.com/patel24kishan/volta-newsletter-automation",
+      "kind": "code"
+    },
+    {
+      "label": "Slack Demo",
+      "url": "https://youtu.be/atKycAUS1dA",
+      "kind": "video"
+    },
+    {
+      "label": "Claude Demo",
+      "url": "https://youtu.be/1Aj9avQwpeU",
+      "kind": "video"
+    }
+  ],
+  "legacyId": null
+}
