@@ -86,7 +86,7 @@ Good to know:
    for people who cannot see the picture). The first screenshot is the card image; drag to
    reorder.
 10. **Gameplay / demo video (YouTube):** paste the YouTube address. The card then gets a
-    Gameplay button and the video plays inside the site.
+    Demo button and the video plays inside the site.
 11. **Buttons:** click **Add Button** for each link under the card (View Code, Play, Live
     Demo…): the button text, the address, the kind of link. A button with an empty address is
     not shown.

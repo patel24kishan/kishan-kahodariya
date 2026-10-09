@@ -14,7 +14,8 @@ export type UiIconName =
   | 'image'
   | 'award'
   | 'crown'
-  | 'pause';
+  | 'pause'
+  | 'video';
 
 export type IconName = LinkIcon | UiIconName;
 
@@ -109,6 +110,9 @@ const GLYPHS: Record<IconName, Glyph> = {
   },
   pause: {
     fill: ['M7 5h3v14H7z', 'M14 5h3v14h-3z'],
+  },
+  video: {
+    stroke: ['M4.5 6.5h9a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z', 'M15.5 10.5 21.5 7v10l-6-3.5'],
   },
 };
 

@@ -788,7 +788,7 @@ collections:
         widget: string
         required: false
         default: ''
-        hint: Paste the YouTube address. The card then gets a Gameplay button and the video plays inside the site. Leave empty for none.
+        hint: Paste the YouTube address. The card then gets a Demo button and the video plays inside the site. Leave empty for none.
         pattern:
           - *web_pattern
           - *web_message

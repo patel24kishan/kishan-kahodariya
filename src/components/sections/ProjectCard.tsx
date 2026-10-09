@@ -42,7 +42,7 @@ export function renderableLinks(project: Project): ProjectLink[] {
   return project.links.filter((link) => link.url.trim() !== '');
 }
 
-/** "Play" links are primary actions (accent fill, like Gameplay); every other kind is outline. */
+/** "Play" links are primary actions (accent fill, like Demo); every other kind is outline. */
 export function linkVariant(link: ProjectLink): ButtonVariant {
   return link.kind === 'play' ? 'accent' : 'outline';
 }
@@ -51,7 +51,7 @@ export function linkVariant(link: ProjectLink): ButtonVariant {
  * ProjectCard — media button (the screenshots as a slideshow when there are several, the
  * first one when there is one, or a designed placeholder), tag chips, title, date, the
  * owner's short description verbatim, then the link buttons (Play filled with the accent,
- * the rest outline) and a filled "Gameplay" button when there is a video. A featured project
+ * the rest outline) and a filled "Demo" button when there is a video. A featured project
  * gets the accent border.
  */
 export function ProjectCard({ project, onOpen }: ProjectCardProps) {
@@ -106,8 +106,8 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps) {
             </LinkButton>
           ))}
           {hasVideo && (
-            <Button variant="accent" icon="play" onClick={openVideo} data-project-gameplay>
-              Gameplay
+            <Button variant="accent" icon="video" onClick={openVideo} data-project-gameplay>
+              Demo
             </Button>
           )}
         </div>

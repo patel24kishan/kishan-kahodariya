@@ -225,7 +225,7 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
                 ? html`<div class="kk-buttons" data-key-path="links">
                     ${buttons.shown.map((link, index) => html`<span key=${index} class="kk-button">${link.label || 'Link'}</span>`)}
                     ${buttons.gameplay
-                      ? html`<span class="kk-button kk-button--filled" data-key-path="videoUrl">Gameplay</span>`
+                      ? html`<span class="kk-button kk-button--filled" data-key-path="videoUrl">Demo</span>`
                       : null}
                   </div>`
                 : null}

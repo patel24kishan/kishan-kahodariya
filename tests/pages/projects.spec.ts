@@ -175,6 +175,11 @@ for (const trackId of TRACK_IDS) {
         }
 
         await expect(article.locator('[data-project-gameplay]'), `${project.slug} gameplay`).toHaveCount(project.videoUrl.trim() ? 1 : 0);
+        if (project.videoUrl.trim()) {
+          // The video button reads "Demo" and carries the video-camera glyph.
+          await expect(article.locator('[data-project-gameplay]'), `${project.slug} demo label`).toHaveText('Demo');
+          await expect(article.locator('[data-project-gameplay] svg[data-icon="video"]'), `${project.slug} demo icon`).toHaveCount(1);
+        }
         if (project.featured) await expect(article).toHaveAttribute('data-featured', 'true');
         else await expect(article).not.toHaveAttribute('data-featured', /./);
 
