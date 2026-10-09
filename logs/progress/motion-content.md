@@ -1,0 +1,3 @@
+- 2026-10-09 content: schema (site workLabel/contactLabel/stats, track heroVideo/heroPoster/badgeLine1/2), getHeroStats in selectors and @/content, build month YYYY-MM (UTC) embedded by the content plugin as ContentBundle.buildMonth; createContentApi(content, { buildMonth }) lets tests fix now; no build month means the years stat is dropped, the clock is never read.
+- 2026-10-09 content: content/site.json and both tracks given the new fields (nothing else in content changed); fixtures updated; new tests/content/hero-stats.spec.ts.
+- 2026-10-09 content: tsc clean except scripts/validate-cms-config.ts (admin-owned). Full dev suite: 1382 passed, 57 skipped, 39 failed (admin: expected; 4 content/validator tidied-notes and 2 projects.spec: pre-existing).

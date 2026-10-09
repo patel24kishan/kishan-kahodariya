@@ -14,6 +14,25 @@
     "Freelancer"
   ],
   "allTabLabel": "All",
+  "workLabel": "See my work",
+  "contactLabel": "Get in touch",
+  "stats": [
+    {
+      "source": "projects",
+      "value": "",
+      "label": "Projects built"
+    },
+    {
+      "source": "companies",
+      "value": "",
+      "label": "Companies"
+    },
+    {
+      "source": "years",
+      "value": "",
+      "label": "Years building"
+    }
+  ],
   "categories": [
     {
       "id": "unreal",

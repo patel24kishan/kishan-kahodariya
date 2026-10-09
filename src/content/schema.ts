@@ -157,7 +157,18 @@ const ROW_IS_BLANK: Record<string, (row: unknown) => boolean> = {
   screenshots: isBlankScreenshotRow,
   links: isBlankLinkRow,
   tabResumes: isBlankTabResumeRow,
+  stats: isBlankStatRow,
 };
+
+/** A hero number with no source, no value and no label: an abandoned row, dropped. */
+function isBlankStatRow(row: unknown): boolean {
+  const source = valueAt(row, ['source']);
+  return (
+    (source === undefined || source === null || isBlank(source)) &&
+    isBlank(valueAt(row, ['value'])) &&
+    isBlank(valueAt(row, ['label']))
+  );
+}
 
 /** A "resume and summary for one tab" row that names no tab: it can never apply, dropped. */
 function isBlankTabResumeRow(row: unknown): boolean {
@@ -274,6 +285,13 @@ export const categorySchema = z.strictObject({
   hoverWithoutVideo: hoverWords,
 });
 
+export const heroStatSchema = z.strictObject({
+  // A missing source is read as "custom": with no value either, the number is simply not shown.
+  source: orDefault(z.enum(['projects', 'companies', 'years', 'certificates', 'custom']), () => 'custom' as const),
+  value: text,
+  label: text,
+});
+
 export const siteSchema = z
   .strictObject({
     name: requiredText,
@@ -289,6 +307,9 @@ export const siteSchema = z
     credit: textList,
     roles: textList,
     allTabLabel: requiredText,
+    workLabel: text,
+    contactLabel: text,
+    stats: listOf(heroStatSchema, isBlankStatRow),
     categories: orDefault(z.array(categorySchema), () => []),
   })
   .superRefine((site, ctx) => {
@@ -335,6 +356,10 @@ export const trackSchema = z
     defaultTab: requiredText,
     photo: assetPath,
     photoAlt: text,
+    heroVideo: assetPath,
+    heroPoster: assetPath,
+    badgeLine1: text,
+    badgeLine2: text,
     certificatesFirst: flag,
     metaTitle: text,
     metaDescription: text,

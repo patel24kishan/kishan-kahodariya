@@ -12,6 +12,13 @@ export interface ContentPluginOptions {
    * Default: "content". Only the tests point this somewhere else.
    */
   contentDir?: string;
+  /** Build month "YYYY-MM" to embed. Default: the current month (UTC). Only tests set it. */
+  buildMonth?: string;
+}
+
+/** "YYYY-MM" of a date, in UTC so every machine and the prerender agree. */
+export function monthOf(date: Date): string {
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
 /**
@@ -79,9 +86,10 @@ export function contentPlugin(options: ContentPluginOptions = {}): Plugin {
       } catch (error) {
         return this.error(error instanceof Error ? error.message : String(error));
       }
+      const buildMonth = options.buildMonth ?? monthOf(new Date());
       // Lets `vite build --watch` rebuild when a content file changes.
       for (const file of result.absolutePaths) this.addWatchFile(file);
-      return `export default ${JSON.stringify(publishedOnly(result.content))};\n`;
+      return `export default ${JSON.stringify({ ...publishedOnly(result.content), buildMonth })};\n`;
     },
 
     configureServer(server) {

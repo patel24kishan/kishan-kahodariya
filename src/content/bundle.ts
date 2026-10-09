@@ -14,6 +14,12 @@ import type {
 } from './types';
 
 export interface ContentBundle {
+  /**
+   * The month the content was built, "YYYY-MM". Added by the content plugin at build time
+   * (never read from the clock in the browser) so the prerendered HTML and hydration agree.
+   * Absent in hand-built bundles: the "years" hero number is then left out.
+   */
+  buildMonth?: string;
   /** content/site.json */
   site: SiteSettings;
   /** content/tracks/*.json, game first. */

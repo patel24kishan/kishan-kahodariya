@@ -25,6 +25,7 @@ import type {
   Education,
   Project,
   ResolvedExperience,
+  ResolvedHeroStat,
   SiteSettings,
   SkillGroup,
   SocialLink,
@@ -35,7 +36,7 @@ import type {
 
 export type * from './types';
 
-const api = createContentApi(content);
+const api = createContentApi(content, { buildMonth: content.buildMonth });
 
 // ---------------------------------------------------------------------------------------
 // API
@@ -136,4 +137,15 @@ export function getCertificates(track: TrackId): Certificate[] {
  */
 export function getAllRoutes(): string[] {
   return api.getAllRoutes();
+}
+
+/**
+ * The numbers shown in the hero of one page, in the order set in site.json. Counts are of
+ * published items on that page: projects (All tab), experience entries (companies),
+ * certificates; "years" is whole years from the earliest experience start date to the build
+ * month, written like "7+"; "custom" is the typed text. A number that resolves to 0, "0+" or
+ * "", or whose label is blank, is left out. The build month is fixed at build time.
+ */
+export function getHeroStats(track: TrackId): ResolvedHeroStat[] {
+  return api.getHeroStats(track);
 }

@@ -15,6 +15,7 @@ import type {
   Education,
   Project,
   ResolvedExperience,
+  ResolvedHeroStat,
   SiteSettings,
   SkillGroup,
   SocialLink,
@@ -50,6 +51,7 @@ export interface ContentApi {
   getSummary(track: TrackId, tabId: string): string;
   getEducation(): Education[];
   getCertificates(track: TrackId): Certificate[];
+  getHeroStats(track: TrackId): ResolvedHeroStat[];
   getAllRoutes(): string[];
 }
 
@@ -82,7 +84,23 @@ function belongsTo(audience: Audience, track: TrackId): boolean {
   return audience === 'both' || audience === track;
 }
 
-export function createContentApi(content: ContentBundle): ContentApi {
+export interface ContentApiOptions {
+  /** Overrides content.buildMonth ("YYYY-MM"). Lets tests fix "now". */
+  buildMonth?: string;
+}
+
+/** Whole months from "YYYY-MM" `from` to `to`, or undefined when either is malformed. */
+function monthsBetween(from: string, to: string): number | undefined {
+  const pattern = /^(\d{4})-(0[1-9]|1[0-2])$/;
+  const a = pattern.exec(from);
+  const b = pattern.exec(to);
+  if (!a || !b) return undefined;
+  return Number(b[1]) * 12 + Number(b[2]) - (Number(a[1]) * 12 + Number(a[2]));
+}
+
+export function createContentApi(content: ContentBundle, options: ContentApiOptions = {}): ContentApi {
+  const buildMonth = options.buildMonth ?? content.buildMonth ?? '';
+
   function getSite(): SiteSettings {
     return content.site;
   }
@@ -203,6 +221,40 @@ export function createContentApi(content: ContentBundle): ContentApi {
     );
   }
 
+  function getHeroStats(track: TrackId): ResolvedHeroStat[] {
+    const resolve = (stat: SiteSettings['stats'][number]): string => {
+      switch (stat.source) {
+        case 'projects':
+          return String(getProjects(track, ALL_TAB_ID).length);
+        case 'companies':
+          return String(getExperience(track).length);
+        case 'certificates':
+          return String(getCertificates(track).length);
+        case 'custom':
+          return stat.value.trim();
+        case 'years': {
+          const starts = getExperience(track)
+            .map((entry) => entry.startDate)
+            .filter((date) => date.trim() !== '')
+            .sort();
+          if (starts.length === 0) return '';
+          const months = monthsBetween(starts[0], buildMonth);
+          if (months === undefined) return '';
+          const years = Math.floor(months / 12);
+          return years > 0 ? `${years}+` : '';
+        }
+      }
+    };
+    const result: ResolvedHeroStat[] = [];
+    for (const stat of content.site.stats ?? []) {
+      const label = stat.label.trim();
+      const value = resolve(stat);
+      if (label === '' || value === '' || value === '0' || value === '0+') continue;
+      result.push({ value, label });
+    }
+    return result;
+  }
+
   function getAllRoutes(): string[] {
     const routes = ['/'];
     const tabs = getTabs();
@@ -229,6 +281,7 @@ export function createContentApi(content: ContentBundle): ContentApi {
     getSummary,
     getEducation,
     getCertificates,
+    getHeroStats,
     getAllRoutes,
   };
 }

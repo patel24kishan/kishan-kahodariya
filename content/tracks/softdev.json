@@ -10,6 +10,10 @@
   "defaultTab": "webapps",
   "photo": "/images/profile-640.webp",
   "photoAlt": "Kishan Kahodariya",
+  "heroVideo": "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260606_154941_df1a96e1-a06f-450c-bd02-d863414cc1a0.mp4",
+  "heroPoster": "",
+  "badgeLine1": "AWS Certified",
+  "badgeLine2": "Solution Architect",
   "certificatesFirst": true,
   "metaTitle": "Kishan Kahodariya",
   "metaDescription": "I build APIs and full-stack web apps with C#, .NET and React, with 5+ years of backend and API design behind me. I’ve run SaaS transactional apps on multi-region cloud backends across Azure, AWS and GCP, and I turn business requirements into code teams can maintain."
