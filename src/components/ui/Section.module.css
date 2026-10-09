@@ -1,13 +1,31 @@
 .section {
-  padding-block: calc(var(--section-gap) / 2);
+  padding-block: var(--section-pad);
   scroll-margin-top: calc(var(--nav-height) + var(--space-4));
 }
+
+/* ---- Header: title (and the tabs opposite it) ------------------------------------------ */
 
 .header {
   display: flex;
   flex-direction: column;
+  gap: var(--space-4);
+  margin-block-end: var(--space-4);
+}
+
+.headerPlain {
   gap: var(--space-3);
   margin-block-end: var(--space-8);
+}
+
+.headerHidden {
+  margin: 0;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
 }
 
 .centered {
@@ -19,8 +37,64 @@
   margin: 0;
 }
 
+/* Large, 800, uppercase (the Motion boards). */
+.display {
+  color: var(--color-ink);
+  font-size: var(--text-section);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-section);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+.plain {
+  text-wrap: balance;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .intro {
   max-width: 60ch;
   color: var(--color-body);
   font-size: var(--text-body-lg);
+}
+
+@media (min-width: 768px) {
+  .headerDisplay {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-block-end: var(--space-8);
+  }
+}
+
+/* ---- Split: the title on the left, the content on the right ------------------------------ */
+
+.split {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.splitTitle,
+.splitBody {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .split {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: var(--space-16);
+    align-items: start;
+  }
 }

@@ -1,28 +1,48 @@
 .columns {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-10);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8);
 }
 
 @media (min-width: 1024px) {
   .columns {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-10);
+    gap: var(--space-16);
   }
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .column {
+    gap: var(--space-4);
+  }
 }
 
 .columnTitle {
   color: var(--color-ink);
-  font-size: var(--text-title-lg);
-  font-weight: 700;
-  letter-spacing: var(--tracking-title);
+  font-size: var(--text-section-sm);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-section);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+/* Phones: the second title sits a little further from the cards above it. */
+.column + .column {
+  margin-block-start: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .column + .column {
+    margin-block-start: 0;
+  }
 }
 
 .list {
@@ -31,13 +51,25 @@
   gap: var(--space-3);
 }
 
+@media (min-width: 768px) {
+  .list {
+    gap: var(--space-4);
+  }
+}
+
 .card {
   display: flex;
-  padding: var(--space-5);
+  padding: var(--space-4);
   border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  border-radius: var(--radius-square);
+  background: var(--color-card);
   min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 22px;
+  }
 }
 
 .educationCard {
@@ -46,13 +78,20 @@
 }
 
 .certificateCard {
-  gap: var(--space-4);
+  gap: 14px;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .certificateCard {
+    gap: var(--space-4);
+  }
 }
 
 .title {
   color: var(--color-ink);
   font-size: var(--text-title-md);
-  font-weight: 600;
+  font-weight: 700;
   line-height: var(--leading-title);
 }
 
@@ -85,8 +124,15 @@
 
 .badge {
   flex: 0 0 auto;
-  width: 72px;
-  height: 72px;
+  width: 48px;
+  height: 48px;
+}
+
+@media (min-width: 768px) {
+  .badge {
+    width: 56px;
+    height: 56px;
+  }
 }
 
 .badgeImage,

@@ -1,15 +1,22 @@
-/* Project card: surface, hairline, 12px radius. Featured: accent border. */
+/* Project card (Motion board): square, card fill, hairline. Featured: accent border. */
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 10px;
   height: 100%;
   min-width: 0;
   padding: var(--space-4);
   border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  border-radius: var(--radius-square);
+  background: var(--color-card);
+}
+
+@media (min-width: 768px) {
+  .card {
+    gap: var(--space-3);
+    padding: var(--space-5);
+  }
 }
 
 .featured {
@@ -36,6 +43,14 @@
 .title {
   margin-block-start: var(--space-1);
   color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 1.375rem;
+  }
 }
 
 .date {
@@ -46,7 +61,7 @@
 
 .description {
   color: var(--color-body);
-  font-size: var(--text-body-sm);
+  font-size: var(--text-caption);
   line-height: var(--leading-body);
   overflow-wrap: anywhere;
 }
@@ -62,6 +77,28 @@
 
 .actions > * {
   min-width: 0;
+}
+
+/* Square buttons with small letter-spaced capitals (the board); the shared Button keeps its look elsewhere. */
+.actions > a,
+.actions > button {
+  padding-inline: 18px;
+  border-radius: var(--radius-square);
+  font-size: var(--text-caption-upper);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.actions > a:focus-visible,
+.actions > button:focus-visible {
+  border-radius: var(--radius-square);
+}
+
+@media (min-width: 768px) {
+  .description {
+    font-size: var(--text-body-sm);
+  }
 }
 
 @media (max-width: 767px) {

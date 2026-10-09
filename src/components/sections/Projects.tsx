@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Project, Tab, TrackProfile } from '@/content';
+import { Reveal } from '@/components/motion';
 import { Section, SegmentedTabs, buttonClassName } from '@/components/ui';
 import { trackPath } from '@/lib/paths';
 import type { ViewerItemRef } from '@/components/viewer/viewerState';
@@ -18,9 +19,10 @@ export interface ProjectsProps {
 }
 
 /**
- * Projects (#projects) — centred heading, the segmented tab control (router links, so the
- * address always reflects the open tab and a tab change keeps the scroll position), then
- * the card grid: 1 / 2 / 3 columns by breakpoint. A tab with no projects shows an empty state.
+ * Projects (#projects) — the title on the left and the segmented tab control on the right (router
+ * links, so the address always reflects the open tab and a tab change keeps the scroll position),
+ * then the card grid: 1 / 2 / 3 columns by breakpoint, the cards rising in with a small stagger.
+ * A tab with no projects shows an empty state.
  */
 export function Projects({ track, tab, tabs, projects, onOpen }: ProjectsProps) {
   const items = tabs.map((candidate) => ({
@@ -33,14 +35,17 @@ export function Projects({ track, tab, tabs, projects, onOpen }: ProjectsProps) 
   const allTab = tabs.find((candidate) => candidate.id === 'all');
 
   return (
-    <Section id="projects" title="Projects" centered>
-      <SegmentedTabs label="Project categories" items={items} className={styles.tabs} renderLink={(item, props) => <Link to={item.href} {...props} />} />
+    <Section
+      id="projects"
+      title="Projects"
+      actions={<SegmentedTabs label="Project categories" items={items} className={styles.tabs} renderLink={(item, props) => <Link to={item.href} {...props} />} />}
+    >
       {projects.length > 0 ? (
         <ul role="list" className={styles.grid} data-testid="project-grid">
-          {projects.map((project) => (
-            <li key={project.slug} className={styles.cell}>
+          {projects.map((project, index) => (
+            <Reveal as="li" key={project.slug} className={styles.cell} delay={(index % 3) * 90}>
               <ProjectCard project={project} onOpen={onOpen} />
-            </li>
+            </Reveal>
           ))}
         </ul>
       ) : (

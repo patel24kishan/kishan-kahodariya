@@ -1,5 +1,5 @@
 .tabs {
-  margin-block-end: var(--space-8);
+  margin: 0;
 }
 
 /* A tab change swaps the cards under the visitor; the browser must not re-anchor the scroll
@@ -18,13 +18,13 @@
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
   }
 }
 
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-5);
   }
 }
 
@@ -46,7 +46,7 @@
   gap: var(--space-3);
   padding: var(--space-12) var(--space-4);
   border: 1px dashed var(--color-hairline-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-square);
   text-align: center;
 }
 

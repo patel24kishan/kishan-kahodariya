@@ -218,7 +218,7 @@ export default function Kit() {
           </p>
         </Section>
 
-        <Section id="colors" title="Colours">
+        <Section id="colors" title="Colours" titleStyle="plain">
           <ul role="list" className={styles.swatches}>
             {COLOR_TOKENS.map((token) => (
               <li key={token} className={styles.swatch}>
@@ -265,7 +265,7 @@ export default function Kit() {
           </div>
         </Section>
 
-        <Section id="type" title="Typography">
+        <Section id="type" title="Typography" titleStyle="plain">
           <ul role="list" className={styles.typeList}>
             {TYPE_SAMPLES.map((sample) => (
               <li key={sample.token} className={styles.typeRow}>
@@ -282,7 +282,7 @@ export default function Kit() {
           </p>
         </Section>
 
-        <Section id="space" title="Spacing, radii, layout">
+        <Section id="space" title="Spacing, radii, layout" titleStyle="plain">
           <ul role="list" className={styles.spaceList}>
             {SPACE_TOKENS.map((token) => (
               <li key={token} className={styles.spaceRow}>
@@ -323,7 +323,7 @@ export default function Kit() {
           </div>
         </Section>
 
-        <Section id="buttons" title="Buttons">
+        <Section id="buttons" title="Buttons" titleStyle="plain">
           <Demo label="Variants · md">
             <Button variant="accent">Game Dev Resume</Button>
             <Button variant="outline">View Code</Button>
@@ -397,7 +397,7 @@ export default function Kit() {
           </Demo>
         </Section>
 
-        <Section id="icon-buttons" title="Icon buttons">
+        <Section id="icon-buttons" title="Icon buttons" titleStyle="plain">
           <Demo label="Shapes and variants (all 44px or larger, all named)">
             <IconButton icon="close" label="Close viewer" shape="circle" />
             <IconButton icon="chevron-left" label="Previous screenshot" shape="circle" />
@@ -409,13 +409,18 @@ export default function Kit() {
           </Demo>
         </Section>
 
-        <Section id="chips" title="Chips">
+        <Section id="chips" title="Chips" titleStyle="plain">
           <Demo label="Skill chips · md · rounded">
             <Chip>Unity3D</Chip>
             <Chip>Unreal Engine</Chip>
             <Chip>AWS (Amazon Web Services)</Chip>
             <Chip variant="accent">Netcode</Chip>
             <Chip variant="accent">Photon</Chip>
+          </Demo>
+          <Demo label="Skill chips · md · square (Skills section)">
+            <Chip shape="square">Unity3D</Chip>
+            <Chip shape="square">AWS (Amazon Web Services)</Chip>
+            <Chip shape="square" variant="accent">Netcode</Chip>
           </Demo>
           <Demo label="Tag chips · sm · pill">
             <ul role="list" className={styles.tags}>
@@ -452,7 +457,15 @@ export default function Kit() {
           </div>
         </Section>
 
-        <Section id="tabs" title="Segmented tabs" centered>
+        <Section id="section-title" title="Section title" titleStyle="plain">
+          <Demo label="Display title: 800, uppercase, rises in on scroll">
+            <Section id="section-title-demo" title="Skills">
+              <p className={styles.note}>The content of the section.</p>
+            </Section>
+          </Demo>
+        </Section>
+
+        <Section id="tabs" title="Segmented tabs" titleStyle="plain" centered>
           <SegmentedTabs
             label="Project categories"
             items={tabItems}
@@ -472,7 +485,7 @@ export default function Kit() {
           </p>
         </Section>
 
-        <Section id="icons" title="Icons">
+        <Section id="icons" title="Icons" titleStyle="plain">
           <ul role="list" className={styles.iconGrid}>
             {ICON_NAMES.map((name) => (
               <li key={name} className={styles.iconCell}>
@@ -483,7 +496,7 @@ export default function Kit() {
           </ul>
         </Section>
 
-        <Section id="media" title="Media overlay button">
+        <Section id="media" title="Media overlay button" titleStyle="plain">
           <div className={styles.mediaGrid}>
             <div className={styles.card}>
               <MediaOverlayButton
@@ -606,7 +619,7 @@ export default function Kit() {
           </div>
         </Section>
 
-        <Section id="on-dark" title="On-dark region">
+        <Section id="on-dark" title="On-dark region" titleStyle="plain">
           <div className={styles.darkPanel} data-on-dark data-testid="on-dark-panel">
             <p className={styles.darkPanelTitle}>
               <code>data-on-dark</code> — near-black in both themes (the media viewer)
@@ -625,7 +638,7 @@ export default function Kit() {
           </div>
         </Section>
 
-        <Section id="theme" title="Theme toggle">
+        <Section id="theme" title="Theme toggle" titleStyle="plain">
           <div className={styles.toggleRow}>
             <div className={styles.toggleCell}>
               <ThemeToggle />
@@ -645,7 +658,7 @@ export default function Kit() {
           </p>
         </Section>
 
-        <Section id="footer-band" title="Footer band sample" className={styles.footerSection} containerClassName={styles.footerContainer}>
+        <Section id="footer-band" title="Footer band sample" titleStyle="plain" className={styles.footerSection} containerClassName={styles.footerContainer}>
           <div className={styles.band} data-on-accent data-testid="footer-band">
             <Container className={styles.bandInner}>
               <div className={styles.bandColumns}>
@@ -698,7 +711,7 @@ export default function Kit() {
           </div>
         </Section>
 
-        <Section id="a11y" title="Skip link and hidden text">
+        <Section id="a11y" title="Skip link and hidden text" titleStyle="plain">
           <p className={styles.note}>
             Press Tab from the address bar: the skip link appears top-left. Screen readers also hear the hidden text after this sentence
             <VisuallyHidden> — this text is visually hidden but announced</VisuallyHidden>.

@@ -52,6 +52,49 @@ for (const trackId of TRACK_IDS) {
       await expect(page.locator('#projects').getByRole('heading', { level: 2 })).toHaveText('Projects');
     });
 
+    test('the title is on the left and the square tabs on the right (desktop); the open tab is filled with the accent', async ({ page, isMobile }) => {
+      await openRoute(page, routeOf(track));
+      const title = page.locator('#projects').getByRole('heading', { level: 2 });
+      await expect(title).toHaveCSS('font-weight', '800');
+      await expect(title).toHaveCSS('text-transform', 'uppercase');
+      const nav = tabsNav(page);
+      const [titleBox, navBox] = await Promise.all([title.boundingBox(), nav.locator('ul').boundingBox()]);
+      if (isMobile) {
+        expect(titleBox!.y + titleBox!.height, 'tabs under the title').toBeLessThanOrEqual(navBox!.y + 1);
+        const viewportWidth = page.viewportSize()!.width;
+        expect(navBox!.width, 'tabs fill the width').toBeGreaterThan(viewportWidth - 2 * 24);
+      } else {
+        expect(titleBox!.x + titleBox!.width, 'title left of the tabs').toBeLessThanOrEqual(navBox!.x);
+        expect(titleBox!.x).toBeLessThan(navBox!.x);
+      }
+      const open = nav.locator('[aria-current="page"]');
+      await expect(open).toHaveCSS('background-color', hexToRgb(await cssVar(trackPage(page), '--color-accent')));
+      await expect(open).toHaveCSS('border-top-left-radius', '0px');
+      await expect(nav.locator('ul')).toHaveCSS('border-top-left-radius', '0px');
+      for (const link of await nav.getByRole('link').all()) await expect(link).toHaveJSProperty('tagName', 'A');
+    });
+
+    test('the cards are square and rise in once as they come into view', async ({ page }) => {
+      await openRoute(page, routeOf(track, 'all'));
+      const last = cards(page).last();
+      await expect(last).toHaveCSS('border-top-left-radius', '0px');
+      // The last card is far below the fold: hidden by script until it is reached, then shown, then left alone.
+      const cell = page.locator('[data-testid="project-grid"] > li').last();
+      await expect(cell).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(cell).toHaveCSS('opacity', '0');
+      await cell.scrollIntoViewIfNeeded();
+      await expect(cell).not.toHaveAttribute('data-reveal', /./, { timeout: 8000 });
+      await expect(cell).toHaveCSS('opacity', '1');
+      await expect(cell).toHaveCSS('transform', 'none');
+      // Scrolling away and back does not hide it again.
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await page.waitForTimeout(150);
+      await cell.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(150);
+      await expect(cell).not.toHaveAttribute('data-reveal', /./);
+      await expect(cell).toHaveCSS('opacity', '1');
+    });
+
     for (const tab of tabs) {
       test(`the ${tab.id} tab shows getProjects() in order`, async ({ page }) => {
         await openRoute(page, routeOf(track, tab.id));
@@ -94,9 +137,12 @@ for (const trackId of TRACK_IDS) {
 
     test('every card shows its project exactly as stored', async ({ page }) => {
       test.slow(); // every field, link, icon and variant of every published project: 20+ cards
-      await openRoute(page, routeOf(track, 'all'));
       const projects = content.getProjects(trackId, 'all');
       expect(projects.length).toBeGreaterThan(0);
+      // A card slides only through the screenshots that load, and a hot-linked one is blocked by
+      // default (it fails at once, which is the right behaviour). Let every screenshot load, so
+      // the card shows what is stored and the expectations below come from the content.
+      await openRoute(page, routeOf(track, 'all'), { serveImages: projects.flatMap((project) => project.screenshots.map((shot) => assetHref(shot.src))).filter(isExternal) });
       for (const project of projects) {
         const article = card(page, project.slug);
         await expect(article, project.slug).toHaveCount(1);

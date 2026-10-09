@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Footer fixture</title>
+    <meta name="robots" content="noindex" />
+    <!--
+      Test-only page (tests/pages/sections.spec.ts). Served by the Vite dev server at
+      /kishan-kahodariya/tests/pages/support/footer-fixture.html; not part of any build. It mounts
+      the real SiteFooter. ?label=<text> sets contactLabel; ?label (no value) passes ""; no
+      "label" parameter at all passes nothing.
+    -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./footer-fixture.tsx"></script>
+  </body>
+</html>

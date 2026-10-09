@@ -23,6 +23,7 @@
   --color-canvas: #0a0a0a;
   --color-surface: #1a1a1a;
   --color-surface-raised: #242424;
+  --color-card: #141414;  /* project / education / certificate cards (Motion boards) */
   --color-hairline: #2a2a2a;
   --color-hairline-strong: #3a3a3a;
   --color-ink: #ffffff;   /* 19.6:1 on canvas */
@@ -61,6 +62,12 @@
   --text-button: 0.875rem;
   --text-nav: 0.875rem;
 
+  /* Motion sections: display type is weight 800, uppercase. Phone value, then desktop below. */
+  --text-section: clamp(2.25rem, 11.3vw, 3.5rem);   /* section h2: 36px @320, 44px @390, up to 56px */
+  --text-section-sm: clamp(1.875rem, 10vw, 2.5rem); /* column titles and footer title: 30px @320, 39px @390 */
+  --weight-display: 800;
+  --leading-section: 0.95;
+
   --leading-display: 1.05;
   --leading-heading: 1.15;
   --leading-title: 1.3;
@@ -87,14 +94,16 @@
   --space-24: 6rem;
 
   /* ---- Radii (no shadows anywhere) --------------------------------------------------- */
+  --radius-square: 0px;   /* cards, tabs, skill chips and card buttons in the Motion sections */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-pill: 9999px;
 
   /* ---- Layout: phone (< 768px) ------------------------------------------------------- */
-  --container-max: 1200px;
+  --container-max: 1312px;  /* a 1440px screen minus the boards' 64px side margins (1200 until 1360px wide) */
   --gutter: 16px;
   --section-gap: 48px;
+  --section-pad: 38px;      /* above and below a section's content: 20% less than half the gap */
   --nav-height: 64px;
 
   /* ---- Motion: transform / opacity only --------------------------------------------- */
@@ -102,6 +111,8 @@
   --duration-base: 200ms;
   --duration-slow: 320ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --reveal-distance: 28px;  /* how far a revealed block rises */
 
   /* ---- Stacking ---------------------------------------------------------------------- */
   --z-nav: 50;
@@ -114,6 +125,10 @@
   :root {
     --gutter: 24px;
     --section-gap: 64px;
+    --section-pad: 40px;
+    --text-section: clamp(3.5rem, 1.21rem + 4.76vw, 5.5rem);    /* 56px @768 → 88px @1440 */
+    --text-section-sm: clamp(2.5rem, 0.97rem + 3.37vw, 4rem);   /* 40px → 64px */
+    --reveal-distance: 36px;
   }
 }
 
@@ -122,6 +137,7 @@
   :root {
     --gutter: 40px;
     --section-gap: 96px;
+    --section-pad: 48px;
   }
 }
 
@@ -152,6 +168,7 @@
   --color-canvas: #f7f7f5;
   --color-surface: #ffffff;
   --color-surface-raised: #efefed;
+  --color-card: #ffffff;
   --color-hairline: #e4e4e1;
   --color-hairline-strong: #c6c6c2;
   --color-ink: #0a0a0a;   /* 18.5:1 on canvas */
@@ -202,6 +219,7 @@
   --color-canvas: #0a0a0a;
   --color-surface: #1a1a1a;
   --color-surface-raised: #242424;
+  --color-card: #141414;
   --color-hairline: #2a2a2a;
   --color-hairline-strong: #3a3a3a;
   --color-ink: #ffffff;

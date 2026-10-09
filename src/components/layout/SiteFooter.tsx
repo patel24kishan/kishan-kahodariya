@@ -1,4 +1,5 @@
 import type { SocialLink } from '@/content';
+import { Reveal } from '@/components/motion';
 import { Container, Icon } from '@/components/ui';
 import { isExternalUrl } from '@/lib/paths';
 import styles from './SiteFooter.module.css';
@@ -8,16 +9,22 @@ export interface SiteFooterProps {
   links: SocialLink[];
   /** site.credit — one line each. */
   credit: string[];
+  /** site.contactLabel — the title of the band. Missing or blank: "Get in touch". */
+  contactLabel?: string;
 }
 
+const DEFAULT_CONTACT_LABEL = 'Get in touch';
+
 /**
- * SiteFooter — the accent band (data-on-accent: near-black text and focus ring inside) with
- * the contact block, left-aligned ("Get in touch": the email address as one large link, the
- * other links as small outlined buttons), then the near-black credit strip in accent text. The
- * section links and the theme toggle live in the docked nav bar only. The strip sits outside the band so its colours are the raw
- * accent on near-black in both themes.
+ * SiteFooter — the accent band (data-on-accent: near-black text and focus ring inside) with the
+ * contact block, left-aligned: the title (site.contactLabel, "Get in touch" when blank), the email
+ * address as one large link and the other links as small outlined buttons, each rising in once as
+ * the band comes into view. Then the near-black credit strip in accent text; it sits outside the
+ * band so its colours are the raw accent on near-black in both themes. The section links and the
+ * theme toggle live in the docked nav bar only.
  */
-export function SiteFooter({ links, credit }: SiteFooterProps) {
+export function SiteFooter({ links, credit, contactLabel }: SiteFooterProps) {
+  const title = contactLabel?.trim() || DEFAULT_CONTACT_LABEL;
   // The email link is the headline of the block; every other link is a small button under it.
   const email = links.find((link) => link.url.trim().toLowerCase().startsWith('mailto:'));
   const others = links.filter((link) => link !== email);
@@ -27,15 +34,19 @@ export function SiteFooter({ links, credit }: SiteFooterProps) {
       <div className={styles.band} data-on-accent>
         <Container className={styles.inner}>
           <div className={styles.contact}>
-            <h2 className={styles.contactTitle}>Get in touch</h2>
+            <Reveal as="h2" className={styles.contactTitle}>
+              {title}
+            </Reveal>
             {email && address && (
-              <a href={email.url} className={styles.email} data-footer-email>
-                <span className={styles.emailText}>{address}</span>
-                <Icon name="external" size={24} className={styles.emailIcon} />
-              </a>
+              <Reveal as="div" className={styles.emailRow} delay={100}>
+                <a href={email.url} className={styles.email} data-footer-email>
+                  <span className={styles.emailText}>{address}</span>
+                  <Icon name="external" size={24} className={styles.emailIcon} />
+                </a>
+              </Reveal>
             )}
             {others.length > 0 && (
-              <ul role="list" className={styles.connect}>
+              <Reveal as="ul" role="list" className={styles.connect} delay={200}>
                 {others.map((link) => {
                   const external = isExternalUrl(link.url);
                   return (
@@ -52,7 +63,7 @@ export function SiteFooter({ links, credit }: SiteFooterProps) {
                     </li>
                   );
                 })}
-              </ul>
+              </Reveal>
             )}
             {!email && others.length === 0 && <p className={styles.empty}>No links yet.</p>}
           </div>

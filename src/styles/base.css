@@ -124,3 +124,52 @@ time,
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Reveal-on-scroll (src/components/motion). The server HTML and the page without JavaScript
+ * carry none of these attributes, so everything is visible. Once JavaScript has run, the hook
+ * marks only the blocks that are still below the fold as hidden, then as shown when they enter
+ * the view; the marks are removed again when the entrance is over. Only transform and opacity.
+ */
+[data-reveal='draw-x'] {
+  transform-origin: left center;
+}
+
+[data-reveal='draw-y'] {
+  transform-origin: center top;
+}
+
+[data-reveal='rise'][data-reveal-state='hidden'] {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-distance), 0);
+}
+
+[data-reveal='draw-x'][data-reveal-state='hidden'] {
+  transform: scaleX(0);
+}
+
+[data-reveal='draw-y'][data-reveal-state='hidden'] {
+  transform: scaleY(0);
+}
+
+[data-reveal-state='shown'] {
+  transition:
+    opacity 900ms var(--ease-out) var(--reveal-delay, 0ms),
+    transform 900ms var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+[data-reveal='draw-x'][data-reveal-state='shown'] {
+  transition: transform 1100ms var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+[data-reveal='draw-y'][data-reveal-state='shown'] {
+  transition: transform 1600ms var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
