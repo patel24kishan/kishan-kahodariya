@@ -40,6 +40,11 @@
       "label": "Play",
       "url": "https://ghosts24.itch.io/dragonquest",
       "kind": "play"
+    },
+    {
+      "label": "View Code",
+      "url": "https://github.com/kishan-gamedev/2D-Platformer",
+      "kind": "code"
     }
   ],
   "legacyId": null
