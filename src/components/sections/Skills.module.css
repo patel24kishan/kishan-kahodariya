@@ -1,32 +1,54 @@
+/* Numbered rows: a line above each row, then number · group name · chips. */
+
 .rows {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--color-hairline);
 }
 
 .row {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-3);
-  padding-block: var(--space-5);
-  border-bottom: 1px solid var(--color-hairline);
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-3);
+  row-gap: var(--space-3);
+  align-items: baseline;
+  padding-block: 18px;
   min-width: 0;
 }
 
-@media (min-width: 768px) {
-  .row {
-    grid-template-columns: 200px minmax(0, 1fr);
-    gap: var(--space-6);
-    padding-block: var(--space-6);
-  }
+/* The lines draw themselves across (scaleX); the first one is the accent. */
+.rule {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--color-hairline-strong);
+}
+
+.ruleFirst {
+  height: 2px;
+  background: var(--color-accent-border);
+}
+
+.ruleEnd {
+  top: auto;
+  bottom: 0;
+}
+
+.number {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
 }
 
 .name {
   color: var(--color-ink);
-  font-size: var(--text-title-md);
+  font-size: 1.125rem;
   font-weight: 700;
-  letter-spacing: var(--tracking-title);
-  padding-block-start: 4px;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-title);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .nameEmphasised {
@@ -37,8 +59,54 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* Hover and keyboard focus inside the row light the group up (instant: colour never animates). */
+@media (hover: hover) {
+  .row:hover .name {
+    color: var(--color-accent-ink);
+  }
+
+  .row:hover .chips > li {
+    border-color: var(--color-accent-border);
+    color: var(--color-ink);
+  }
+}
+
+.row:focus-within .name {
+  color: var(--color-accent-ink);
+}
+
+.row:focus-within .chips > li {
+  border-color: var(--color-accent-border);
+  color: var(--color-ink);
 }
 
 .empty {
   color: var(--color-body);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 56px 220px minmax(0, 1fr);
+    column-gap: var(--space-6);
+    align-items: start;
+    padding-block: 28px;
+  }
+
+  .number {
+    padding-block-start: 8px;
+    font-size: var(--text-caption-upper);
+  }
+
+  .name {
+    font-size: var(--text-title-lg);
+  }
+
+  .chips {
+    grid-column: auto;
+    gap: 10px;
+  }
 }

@@ -1,4 +1,5 @@
 import type { Certificate, Education as EducationEntry } from '@/content';
+import { Reveal } from '@/components/motion';
 import { Icon, Section, VisuallyHidden, cx } from '@/components/ui';
 import { assetUrl, isExternalUrl } from '@/lib/paths';
 import { ContentImage } from './ContentImage';
@@ -15,17 +16,21 @@ export interface EducationProps {
 }
 
 /**
- * Education & Certificates (#education) — two columns on desktop, stacked on phones.
- * Certificates lead on a page whose track says so.
+ * Education & Certificates (#education) — two columns on desktop, stacked on phones, each with a
+ * large title of its own and cards that rise in one after another. Certificates lead on a page
+ * whose track says so. The section keeps one h2 ("Education & Certificates") for assistive
+ * technology; the two visible titles are h3.
  */
 export function Education({ education, certificates, certificatesFirst }: EducationProps) {
   const educationColumn = (
     <div className={styles.column} data-column="education" key="education">
-      <h3 className={styles.columnTitle}>Education</h3>
+      <Reveal as="h3" className={styles.columnTitle}>
+        Education
+      </Reveal>
       {education.length > 0 ? (
         <ul role="list" className={styles.list}>
-          {education.map((entry) => (
-            <li key={entry.slug}>
+          {education.map((entry, index) => (
+            <Reveal as="li" key={entry.slug} delay={(index + 1) * 90}>
               <article className={cx(styles.card, styles.educationCard)} data-education={entry.slug}>
                 <h4 className={styles.title}>{entry.school}</h4>
                 {entry.degree && <p className={styles.degree}>{entry.degree}</p>}
@@ -42,7 +47,7 @@ export function Education({ education, certificates, certificatesFirst }: Educat
                   </div>
                 )}
               </article>
-            </li>
+            </Reveal>
           ))}
         </ul>
       ) : (
@@ -53,14 +58,16 @@ export function Education({ education, certificates, certificatesFirst }: Educat
 
   const certificatesColumn = (
     <div className={styles.column} data-column="certificates" key="certificates">
-      <h3 className={styles.columnTitle}>Certificates</h3>
+      <Reveal as="h3" className={styles.columnTitle}>
+        Certificates
+      </Reveal>
       {certificates.length > 0 ? (
         <ul role="list" className={styles.list}>
-          {certificates.map((certificate) => {
+          {certificates.map((certificate, index) => {
             const url = certificate.url.trim();
             const external = isExternalUrl(url);
             return (
-              <li key={certificate.slug}>
+              <Reveal as="li" key={certificate.slug} delay={(index + 1) * 90}>
                 <article className={cx(styles.card, styles.certificateCard)} data-certificate={certificate.slug}>
                   <div className={styles.badge}>
                     <ContentImage
@@ -99,7 +106,7 @@ export function Education({ education, certificates, certificatesFirst }: Educat
                     )}
                   </div>
                 </article>
-              </li>
+              </Reveal>
             );
           })}
         </ul>
@@ -110,7 +117,7 @@ export function Education({ education, certificates, certificatesFirst }: Educat
   );
 
   return (
-    <Section id="education" title="Education & Certificates">
+    <Section id="education" title="Education & Certificates" titleHidden>
       <div className={styles.columns} data-certificates-first={certificatesFirst || undefined}>
         {certificatesFirst ? [certificatesColumn, educationColumn] : [educationColumn, certificatesColumn]}
       </div>

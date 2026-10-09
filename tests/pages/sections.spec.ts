@@ -1,19 +1,21 @@
 import { expect, test } from '@playwright/test';
 import { assetHref, content, isExternal, routeOf, TRACK_IDS } from './support/content';
-import { cssVar, hexToRgb, openRoute, trackPage } from './support/page';
+import AxeBuilder from '@axe-core/playwright';
+import { blockOtherOrigins, cssVar, hexToRgb, openRoute, presetTheme, THEMES, trackPage } from './support/page';
+import { pendingReveals, revealAll } from './support/reveal';
 
 /** Experience, Skills, Education & Certificates and the footer, per page, against the content API. */
 const site = content.getSite();
+const CONTACT_TITLE = site.contactLabel.trim() || 'Get in touch';
 
 for (const trackId of TRACK_IDS) {
   const track = content.getTrack(trackId);
 
   test.describe(`${track.route} experience`, () => {
     const entries = content.getExperience(trackId);
-    const logos = entries.map((entry) => assetHref(entry.logo)).filter((url) => url !== '' && isExternal(url));
 
     test('lists every job in order with its company, role, date, bullets and tags', async ({ page }) => {
-      await openRoute(page, routeOf(track), { serveImages: logos });
+      await openRoute(page, routeOf(track));
       const jobs = page.locator('#experience [data-experience]');
       await expect(jobs).toHaveCount(entries.length);
       expect(await jobs.evaluateAll((list) => list.map((job) => job.getAttribute('data-experience')))).toEqual(entries.map((entry) => entry.slug));
@@ -40,30 +42,48 @@ for (const trackId of TRACK_IDS) {
         await expect(remote).toHaveCount(entry.remote ? 1 : 0);
         if (entry.remote) await expect(remote).toHaveText('Remote');
 
-        const logo = job.locator('img[data-experience-logo]');
-        if (entry.logo) {
-          await expect(logo).toHaveCount(1);
-          await expect(logo).toHaveAttribute('src', assetHref(entry.logo));
-          await expect(logo).toHaveAttribute('alt', '');
-          const box = await logo.boundingBox();
-          expect(box!.width).toBeLessThanOrEqual(64);
-        } else {
-          await expect(logo).toHaveCount(0);
-        }
+        // The Motion board has no logo: the timeline is dot, date, company, role, bullets, tags.
+        await expect(job.locator('img')).toHaveCount(0);
       }
     });
 
-    test('a logo that does not load disappears instead of showing a broken image', async ({ page }) => {
-      const external = entries.filter((entry) => entry.logo && isExternal(entry.logo));
-      test.skip(external.length === 0, 'no hot-linked logo in the content');
-      // Other origins are blocked, so every hot-linked logo fails — once it is asked for (they load lazily).
+    test('the title is in the left column and the timeline on the right (desktop), stacked on phones', async ({ page, isMobile }) => {
+      test.skip(entries.length === 0, 'no experience in the content');
       await openRoute(page, routeOf(track));
+      await revealAll(page); // positions are compared at rest, not mid-entrance
+      const title = page.locator('#experience').getByRole('heading', { level: 2 });
+      await expect(title).toHaveAccessibleName('Experience');
+      await expect(title).toHaveAttribute('id', 'experience-title');
+      await expect(title).toHaveCSS('font-weight', '800');
+      await expect(title).toHaveCSS('text-transform', 'uppercase');
+      const [titleBox, timelineBox] = await Promise.all([title.boundingBox(), page.locator('#experience [data-timeline-line]').boundingBox()]);
+      if (isMobile) expect(titleBox!.y + titleBox!.height).toBeLessThanOrEqual(timelineBox!.y + 1);
+      else expect(titleBox!.x + titleBox!.width).toBeLessThanOrEqual(timelineBox!.x + 1);
+    });
+
+    test('an accent line draws down the timeline with scaleY, and each job has a dot, accent for a current job', async ({ page }) => {
+      test.skip(entries.length === 0, 'no experience in the content');
+      await openRoute(page, routeOf(track));
+      const line = page.locator('#experience [data-timeline-line]');
+      await expect(line).toHaveCount(1);
+      await expect(line).toHaveAttribute('aria-hidden', 'true');
+      await expect(line).toHaveCSS('background-color', hexToRgb(await cssVar(trackPage(page), '--color-accent-border')));
+      // It starts collapsed (scaleY(0)) and moves only by transform: its layout height never changes.
+      await expect(line).toHaveAttribute('data-reveal', 'draw-y');
+      const heightBefore = await line.evaluate((element) => (element as HTMLElement).offsetHeight);
       await page.locator('#experience').scrollIntoViewIfNeeded();
-      for (const entry of external) {
-        await page.locator(`#experience [data-experience="${entry.slug}"]`).scrollIntoViewIfNeeded();
-        await expect(page.locator(`#experience [data-experience="${entry.slug}"] img[data-experience-logo]`)).toHaveCount(0);
+      await expect(line).not.toHaveAttribute('data-reveal', /./, { timeout: 10_000 });
+      await expect(line).toHaveCSS('transform', 'none');
+      expect(await line.evaluate((element) => (element as HTMLElement).offsetHeight)).toBe(heightBefore);
+
+      const dots = page.locator('#experience [data-experience-dot]');
+      await expect(dots).toHaveCount(entries.length);
+      const accent = hexToRgb(await cssVar(trackPage(page), '--color-accent-border'));
+      for (const [index, entry] of entries.entries()) {
+        await expect(dots.nth(index)).toHaveAttribute('data-experience-dot', entry.present ? 'present' : 'past');
+        if (entry.present) await expect(dots.nth(index)).toHaveCSS('background-color', accent);
+        else await expect(dots.nth(index)).not.toHaveCSS('background-color', accent);
       }
-      await expect(page.locator('#experience [data-experience]')).toHaveCount(entries.length);
     });
   });
 
@@ -100,14 +120,60 @@ for (const trackId of TRACK_IDS) {
           if (group.skills.length > 0) await expect(chips.first()).toHaveCSS('border-top-color', hairlineStrong);
         }
       }
-      // Rows, not cards: a hairline between rows, no surface fill.
+      // Rows, not cards: no surface fill; the lines are drawn by separate elements (scaleX).
       await expect(rows.first()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-      await expect(rows.first()).toHaveCSS('border-bottom-width', '1px');
+      // Square chips.
+      if (groups[0]!.skills.length > 0) await expect(rows.first().locator('ul li').first()).toHaveCSS('border-top-left-radius', '0px');
+    });
+
+    test('the rows are numbered 01, 02, … in order, and every skill appears exactly once', async ({ page }) => {
+      test.skip(groups.length === 0, 'no skills in the content');
+      await openRoute(page, routeOf(track));
+      const numbers = await page.locator('#skills [data-skill-number]').evaluateAll((list) => list.map((element) => element.textContent));
+      expect(numbers).toEqual(groups.map((_, index) => String(index + 1).padStart(2, '0')));
+      // Total chips = total skills, and each (group, skill) pair is one element: nothing is duplicated (no marquee copy).
+      const all = groups.flatMap((group) => group.skills);
+      await expect(page.locator('#skills [data-skill-group] ul li')).toHaveCount(all.length);
+      const rendered = await page.locator('#skills [data-skill-group]').evaluateAll((rows) => rows.map((row) => [...row.querySelectorAll('ul li')].map((chip) => chip.textContent)));
+      expect(rendered).toEqual(groups.map((group) => group.skills));
+      // No counter line ("4 groups · 20 skills") and nothing that moves by itself.
+      expect(await page.locator('#skills').innerText()).not.toMatch(/d+s+(?:groups?|skills?)/i);
+      const animated = await page.locator('#skills *').evaluateAll((list) => list.filter((element) => getComputedStyle(element).animationName !== 'none').length);
+      expect(animated).toBe(0);
+    });
+
+    test('a line above each row (the first in the accent) and one under the last, drawn with scaleX', async ({ page }) => {
+      test.skip(groups.length === 0, 'no skills in the content');
+      await openRoute(page, routeOf(track));
+      const rules = page.locator('#skills [data-skill-rule]');
+      await expect(rules).toHaveCount(groups.length + 1);
+      await expect(rules.first()).toHaveCSS('height', '2px');
+      await expect(rules.first()).toHaveCSS('background-color', hexToRgb(await cssVar(trackPage(page), '--color-accent-border')));
+      await expect(rules.nth(1)).toHaveCSS('height', groups.length > 1 ? '1px' : '1px');
+      await expect(rules.first()).toHaveAttribute('data-reveal', 'draw-x');
+      await page.locator('#skills').scrollIntoViewIfNeeded();
+      await expect(rules.first()).not.toHaveAttribute('data-reveal', /./, { timeout: 10_000 });
+      await expect(rules.first()).toHaveCSS('transform', 'none');
+    });
+
+    test('hovering a row lights its group up (pointer devices)', async ({ page, isMobile }) => {
+      test.skip(isMobile || groups.length === 0, 'no hover on touch devices');
+      await openRoute(page, routeOf(track));
+      await revealAll(page);
+      const plain = groups.findIndex((group) => !(group.emphasis === 'both' || group.emphasis === trackId) && group.skills.length > 0);
+      test.skip(plain < 0, 'every group is emphasised on this page');
+      const row = page.locator('#skills [data-skill-group]').nth(plain);
+      const ink = hexToRgb(await cssVar(trackPage(page), '--color-ink'));
+      await expect(row.getByRole('heading', { level: 3 })).toHaveCSS('color', ink);
+      await row.getByRole('heading', { level: 3 }).hover();
+      await expect(row.getByRole('heading', { level: 3 })).toHaveCSS('color', hexToRgb(await cssVar(trackPage(page), '--color-accent-ink')));
+      await expect(row.locator('ul li').first()).toHaveCSS('border-top-color', hexToRgb(await cssVar(trackPage(page), '--color-accent-border')));
     });
 
     test('the group name sits beside the chips on desktop and above them on phones', async ({ page, isMobile }) => {
       test.skip(groups.length === 0 || groups[0]!.skills.length === 0, 'no skills in the content');
       await openRoute(page, routeOf(track));
+      await revealAll(page);
       const row = page.locator(`#skills [data-skill-group="${groups[0]!.slug}"]`);
       const [title, chips] = await Promise.all([row.getByRole('heading', { level: 3 }).boundingBox(), row.locator('ul').boundingBox()]);
       if (isMobile) expect(title!.y + title!.height).toBeLessThanOrEqual(chips!.y + 1);
@@ -192,7 +258,7 @@ for (const trackId of TRACK_IDS) {
 
       // The contact block: the title, the email address as one large link, the other links as
       // small outlined buttons in the footer order.
-      await expect(footer.getByRole('heading', { level: 2, name: 'Get in touch' })).toHaveCount(1);
+      await expect(footer.getByRole('heading', { level: 2, name: CONTACT_TITLE, exact: true })).toHaveCount(1);
       const emailLink = links.find((link) => link.url.trim().toLowerCase().startsWith('mailto:'));
       const others = links.filter((link) => link !== emailLink);
       const email = footer.locator('a[data-footer-email]');
@@ -216,7 +282,7 @@ for (const trackId of TRACK_IDS) {
         expect(box!.height).toBeGreaterThanOrEqual(44);
         expect(box!.width).toBeGreaterThanOrEqual(44);
       }
-      const titleBox = await footer.getByRole('heading', { level: 2, name: 'Get in touch' }).boundingBox();
+      const titleBox = await footer.getByRole('heading', { level: 2, name: CONTACT_TITLE, exact: true }).boundingBox();
       const gutter = parseFloat(await cssVar(page.locator('html'), '--gutter'));
       expect(titleBox!.x, 'left-aligned with the page gutter').toBeLessThanOrEqual(gutter + 64);
       if (emailLink && others.length > 0) {
@@ -275,4 +341,162 @@ for (const trackId of TRACK_IDS) {
       expect(shared(footerOnPage as string[], heroUrls as string[])).toEqual(shared(apiFooter, apiHero));
     });
   });
+  test.describe(`${track.route} education layout`, () => {
+    test('two columns on desktop, stacked on phones, with large uppercase column titles; cards are square', async ({ page, isMobile }) => {
+      await openRoute(page, routeOf(track));
+      const columns = page.locator('#education [data-column]');
+      await expect(columns).toHaveCount(2);
+      const [first, second] = await Promise.all([columns.nth(0).boundingBox(), columns.nth(1).boundingBox()]);
+      if (isMobile) {
+        expect(first!.y + first!.height, 'stacked').toBeLessThanOrEqual(second!.y + 1);
+      } else {
+        expect(Math.abs(first!.y - second!.y), 'side by side').toBeLessThan(2);
+        expect(first!.x + first!.width).toBeLessThanOrEqual(second!.x);
+        expect(Math.abs(first!.width - second!.width), 'equal columns').toBeLessThan(2);
+      }
+      // certificatesFirst decides which one leads (also covered in structure.spec).
+      await expect(columns.first()).toHaveAttribute('data-column', track.certificatesFirst ? 'certificates' : 'education');
+      for (const column of await columns.all()) {
+        const title = column.getByRole('heading', { level: 3 }).first();
+        await expect(title).toHaveCSS('font-weight', '800');
+        await expect(title).toHaveCSS('text-transform', 'uppercase');
+        const size = parseFloat(await title.evaluate((element) => getComputedStyle(element).fontSize));
+        expect(size).toBeGreaterThanOrEqual(isMobile ? 30 : 40);
+      }
+      await expect(columns.first().getByRole('heading', { level: 3 }).first()).toHaveText(track.certificatesFirst ? 'Certificates' : 'Education');
+      // One h2 for the section, kept for assistive technology.
+      await expect(page.locator('#education').getByRole('heading', { level: 2 })).toHaveText('Education & Certificates');
+      const card = page.locator('#education [data-education], #education [data-certificate]').first();
+      await expect(card).toHaveCSS('border-top-left-radius', '0px');
+    });
+  });
+
+  test.describe(`${track.route} reveal on scroll`, () => {
+    test('blocks below the fold are hidden by script, rise in once, and are left in their normal state', async ({ page }) => {
+      await openRoute(page, routeOf(track));
+      // Nothing that is in view at load is hidden: the h1 (hero) carries no reveal mark.
+      await expect(page.getByRole('heading', { level: 1 })).not.toHaveAttribute('data-reveal', /./);
+      const title = page.locator('#education [data-column] h3').first();
+      await expect(title).toHaveAttribute('data-reveal-state', 'hidden');
+      await expect(title).toHaveCSS('opacity', '0');
+      await expect(title).not.toHaveCSS('transform', 'none');
+      await title.scrollIntoViewIfNeeded();
+      await expect(title).not.toHaveAttribute('data-reveal', /./, { timeout: 8000 });
+      await expect(title).toHaveCSS('opacity', '1');
+      await expect(title).toHaveCSS('transform', 'none');
+      // Once: leaving and returning does not hide or replay it.
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await page.waitForTimeout(200);
+      await title.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(200);
+      await expect(title).not.toHaveAttribute('data-reveal', /./);
+      await expect(title).toHaveCSS('opacity', '1');
+    });
+
+    test('only transform and opacity move while a block is entering', async ({ page }) => {
+      await openRoute(page, routeOf(track));
+      const title = page.locator('#education [data-column] h3').first();
+      await title.evaluate((element) => element.scrollIntoView({ behavior: 'instant', block: 'center' }));
+      await expect(title).toHaveAttribute('data-reveal-state', 'shown');
+      const property = await title.evaluate((element) => getComputedStyle(element).transitionProperty.split(',').map((part) => part.trim()).sort());
+      expect(property).toEqual(['opacity', 'transform']);
+    });
+
+    test('nothing shifts the layout while the blocks arrive', async ({ page }) => {
+      await openRoute(page, routeOf(track));
+      const measure = () =>
+        page.evaluate(() => ({
+          page: document.documentElement.scrollHeight,
+          boxes: [...document.querySelectorAll<HTMLElement>('main > section, footer')].map((element) => [element.id || element.tagName, element.offsetTop, element.offsetHeight]),
+        }));
+      const before = await measure();
+      expect(await pendingReveals(page)).toBeGreaterThan(0);
+      await revealAll(page);
+      expect(await measure()).toEqual(before);
+    });
+  });
+
+  test.describe(`${track.route} small screen and contrast`, () => {
+    test('no sideways scroll at 320px and every section title fits', async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await openRoute(page, routeOf(track, 'all'));
+      await revealAll(page);
+      const widths = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, body: document.body.scrollWidth }));
+      expect(widths.scroll).toBeLessThanOrEqual(320);
+      expect(widths.body).toBeLessThanOrEqual(320);
+      const titles = await page
+        .locator('main h2, main h3, footer h2')
+        .evaluateAll((all) => all.filter((element) => element.getBoundingClientRect().width > 2).map((element) => ({ text: element.textContent, right: element.getBoundingClientRect().right, scroll: element.scrollWidth, client: element.clientWidth })));
+      for (const title of titles) {
+        expect(title.right, `${title.text} stays inside the screen`).toBeLessThanOrEqual(320);
+        expect(title.scroll, `${title.text} does not overflow its box`).toBeLessThanOrEqual(title.client + 1);
+      }
+    });
+
+    for (const theme of THEMES) {
+      test(`axe finds nothing in any section or the footer — ${theme}`, async ({ page }) => {
+        await openRoute(page, routeOf(track, 'all'), { theme });
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        await revealAll(page);
+        for (const selector of ['#projects', '#experience', '#skills', '#education', 'footer']) {
+          const results = await new AxeBuilder({ page }).include(selector).analyze();
+          const summary = results.violations.map((violation) => ({ id: violation.id, nodes: violation.nodes.slice(0, 4).map((node) => ({ target: node.target, summary: node.failureSummary })) }));
+          expect(summary, `${selector}: ${JSON.stringify(summary, null, 2)}`).toEqual([]);
+        }
+      });
+    }
+  });
 }
+
+test.describe('reduced motion', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  test('nothing is hidden and nothing moves', async ({ page }) => {
+    const track = content.getTrack('game');
+    await openRoute(page, routeOf(track, 'all'));
+    await page.waitForTimeout(300);
+    await expect(page.locator('[data-reveal]')).toHaveCount(0);
+    for (const selector of ['#projects h2', '#experience h2', '#skills h2', '#education [data-column] h3', 'footer h2']) {
+      const element = page.locator(selector).first();
+      await expect(element, selector).toHaveCSS('opacity', '1');
+      await expect(element, selector).toHaveCSS('transform', 'none');
+    }
+    const lastCell = page.locator('[data-testid="project-grid"] > li').last();
+    await expect(lastCell).toHaveCSS('opacity', '1');
+  });
+});
+
+test.describe('footer title', () => {
+  const FIXTURE = 'tests/pages/support/footer-fixture.html';
+
+  async function title(page: import('@playwright/test').Page, query: string) {
+    await blockOtherOrigins(page);
+    await page.goto(`${FIXTURE}${query}`);
+    const heading = page.getByRole('contentinfo').getByRole('heading', { level: 2 });
+    await heading.waitFor();
+    return heading;
+  }
+
+  test('shows contactLabel when it is set', async ({ page }) => {
+    await expect(await title(page, '?label=Say%20hello')).toHaveText('Say hello');
+  });
+
+  for (const [name, query] of [
+    ['missing', ''],
+    ['empty', '?label='],
+    ['blank', '?label=%20%20'],
+  ] as const) {
+    test(`falls back to "Get in touch" when it is ${name}`, async ({ page }) => {
+      await expect(await title(page, query)).toHaveText('Get in touch');
+    });
+  }
+
+  test('is large, 800 and uppercase, on the accent band, with the credit strip below', async ({ page }) => {
+    const heading = await title(page, '');
+    await expect(heading).toHaveCSS('font-weight', '800');
+    await expect(heading).toHaveCSS('text-transform', 'uppercase');
+    const footer = page.getByRole('contentinfo');
+    const [band, credit] = await Promise.all([footer.locator('[data-on-accent]').boundingBox(), footer.getByText('Fixture credit.').boundingBox()]);
+    expect(band!.y + band!.height).toBeLessThanOrEqual(credit!.y + 1);
+  });
+});

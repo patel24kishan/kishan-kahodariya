@@ -1,75 +1,62 @@
+/* Timeline: an accent line on the left that draws downward, a dot per job, the job beside it. */
+
+.timeline {
+  position: relative;
+  padding-inline-start: 24px;
+}
+
+.line {
+  position: absolute;
+  inset-block: 6px;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--color-accent-border);
+}
+
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  max-width: 880px;
+  gap: 30px;
 }
 
 .item {
+  position: relative;
   min-width: 0;
+}
+
+.dot {
+  position: absolute;
+  inset-inline-start: -30px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-hairline-strong);
+}
+
+.dotCurrent {
+  background: var(--color-accent-border);
 }
 
 .job {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-}
-
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--space-3) var(--space-4);
-}
-
-.logo,
-.logoGap {
-  flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
-}
-
-.logo {
-  padding: 4px;
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-sm);
-  background: #ffffff; /* logos are drawn for a light background; keeps them legible in dark mode */
-  object-fit: contain;
-}
-
-/* A logo that did not load: the same box, invisible, so the header does not reflow. */
-.logoGap {
-  visibility: hidden;
-}
-
-.titles {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1 1 200px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
-.company {
-  color: var(--color-ink);
-}
-
-.role {
-  color: var(--color-body);
-  font-weight: 500;
+.when {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
 .date {
-  flex: 0 0 auto;
   color: var(--color-muted);
-  font-size: var(--text-caption);
+  font-size: var(--text-caption-upper);
   font-weight: 500;
   line-height: var(--leading-title);
-  padding-block-start: 2px;
 }
 
 .where {
@@ -78,16 +65,41 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--color-muted);
+  font-size: var(--text-caption-upper);
+}
+
+.what {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.company {
+  color: var(--color-ink);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-title);
+  line-height: var(--leading-title);
+  overflow-wrap: anywhere;
+}
+
+.role {
+  color: var(--color-body);
   font-size: var(--text-caption);
+}
+
+.roleCurrent {
+  color: var(--color-accent-ink);
 }
 
 .bullets {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-inline-start: 1.25em;
+  margin-block-start: var(--space-2);
+  padding-inline-start: 1.1em;
   color: var(--color-body);
-  font-size: var(--text-body);
+  font-size: var(--text-caption);
   line-height: var(--leading-body);
 }
 
@@ -103,8 +115,61 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-2);
+  margin-block-start: var(--space-3);
 }
 
 .empty {
   color: var(--color-body);
+}
+
+@media (min-width: 768px) {
+  .timeline {
+    padding-inline-start: 40px;
+  }
+
+  .list {
+    gap: 0;
+  }
+
+  .item {
+    padding-block-end: 36px;
+  }
+
+  .item:last-child {
+    padding-block-end: 0;
+  }
+
+  .dot {
+    inset-inline-start: -46px;
+    top: 8px;
+  }
+
+  .job {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  .date {
+    padding-block-start: 2px;
+    font-size: var(--text-caption);
+  }
+
+  .company {
+    font-size: 1.625rem;
+  }
+
+  .role {
+    margin-block-start: 2px;
+  }
+
+  .bullets {
+    max-width: 640px;
+    margin-block-start: 10px;
+    font-size: var(--text-body-sm);
+  }
+
+  .tags {
+    margin-block-start: var(--space-3);
+  }
 }

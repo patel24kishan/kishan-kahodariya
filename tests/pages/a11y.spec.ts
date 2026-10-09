@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { focusRingOf } from '../design/helpers';
 import { content, hasParseableVideo, routeOf, TRACK_IDS } from './support/content';
 import { openRoute, THEMES, viewer } from './support/page';
+import { revealAll } from './support/reveal';
 
 /** axe on both pages in both themes (viewer closed and open), reduced motion, touch targets. */
 
@@ -11,6 +12,8 @@ async function expectNoAxeViolations(page: Page, options: { excludeIframe?: bool
   // would be measured as such.
   await expect(page.locator('#about').getByRole('heading', { level: 1 })).toHaveCSS('opacity', '1');
   await page.waitForTimeout(400);
+  // The blocks below the fold fade in as they are reached: bring them all in, axe reads computed colours.
+  await revealAll(page);
   let builder = new AxeBuilder({ page });
   if (options.excludeIframe) builder = builder.exclude('iframe');
   const results = await builder.analyze();

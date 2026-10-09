@@ -27,3 +27,18 @@
 .pill {
   border-radius: var(--radius-pill);
 }
+
+/* Square corners: the skill chips of the Motion boards. */
+.square {
+  border-radius: var(--radius-square);
+  padding: 10px 18px;
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  .square {
+    padding: 8px 14px;
+    font-size: var(--text-caption);
+  }
+}

@@ -1,7 +1,7 @@
 /* Accent band + credit strip. Text tokens inside the band come from [data-on-accent]. */
 
 .footer {
-  margin-block-start: calc(var(--section-gap) / 2);
+  margin-block-start: var(--section-pad);
 }
 
 .band {
@@ -12,8 +12,7 @@
 .inner {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  padding-block: var(--space-10) var(--space-8);
+  padding-block: var(--section-pad);
 }
 
 /* ---- Contact block: big title, the email as one large link, the rest as small buttons ---- */
@@ -21,29 +20,33 @@
 .contact {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 14px;
   min-width: 0;
 }
 
 .contactTitle {
   margin: 0;
   color: var(--color-on-accent);
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  font-weight: 800;
+  font-size: var(--text-section-sm);
+  font-weight: var(--weight-display);
   line-height: 1;
   letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
+.emailRow {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
 .email {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
   gap: var(--space-3);
   max-width: 100%;
   min-height: 44px;
   color: var(--color-on-accent);
-  font-size: clamp(1.05rem, 2.6vw, 1.75rem);
+  font-size: clamp(1.125rem, 0.9rem + 1vw, 1.875rem);
   font-weight: 700;
   letter-spacing: -0.01em;
   text-decoration: none;
@@ -127,7 +130,7 @@
 /* ---- Credit strip: near-black with accent text in both themes ------------------------- */
 
 .credit {
-  padding-block: var(--space-5);
+  padding-block: 20px;
   background: var(--color-on-accent);
   color: var(--color-accent);
   text-align: center;
@@ -137,4 +140,27 @@
   color: var(--color-accent);
   font-size: var(--text-caption);
   line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .inner {
+    padding-block: 58px;
+  }
+
+  .contact {
+    gap: 22px;
+  }
+
+  .connect {
+    gap: 10px;
+  }
+
+  .chip {
+    padding-inline: 22px;
+    font-size: var(--text-caption-upper);
+  }
+
+  .credit {
+    padding-block: 22px;
+  }
 }
