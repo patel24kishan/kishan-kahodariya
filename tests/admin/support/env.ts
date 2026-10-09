@@ -127,6 +127,50 @@ export function runScript(script: string, args: readonly string[] = []): RunResu
 export const validateCms = (args: readonly string[] = []): RunResult => runScript('scripts/validate-cms-config.ts', args);
 export const validateContent = (dir: string): RunResult => runScript('scripts/validate-content.ts', ['--dir', dir]);
 
+// ---------------------------------------------------------------------------------------
+// The "NOTE — N content files were tidied" part of the content check
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The tidied values a content check printed, one string per value: "projects/x.json | field:
+ * what was done". The path is cut at the content folder, so two runs on different copies can
+ * be compared.
+ */
+export function tidiedValues(stdout: string): string[] {
+  const lines = stdout.split(/\r?\n/);
+  const start = lines.findIndex((line) => line.startsWith('NOTE —'));
+  if (start < 0) return [];
+  const found: string[] = [];
+  let file = '';
+  for (const line of lines.slice(start + 1)) {
+    const fileMatch = /^ {2}\S.*?((?:(?:projects|experience|skills|links|education|certificates|tracks)[\\/][^\\/]+|site)\.json)\s*$/.exec(line);
+    if (fileMatch) file = (fileMatch[1] ?? '').replace(/\\/g, '/');
+    else if (/^ {4}\S/.test(line) && file) found.push(`${file} | ${line.trim()}`);
+  }
+  return found;
+}
+
+let baseline: string[] | undefined;
+
+/** What the owner's real content already has tidied today (for example blank screenshot rows). */
+export function realContentTidiedValues(): string[] {
+  baseline ??= tidiedValues(validateContent(contentDir).stdout);
+  return baseline;
+}
+
+/**
+ * Fails when the content check tidied anything that the real content does not already have
+ * tidied: the dashboard wrote every key, so the reader had nothing of its own to fill in.
+ * The owner's own files may carry tidied values; their count must not matter to the test.
+ */
+export function expectNoNewNotes(stdout: string, message = 'the reader filled in nothing'): void {
+  const known = realContentTidiedValues();
+  const extra = tidiedValues(stdout).filter((value) => !known.includes(value));
+  if (extra.length > 0) {
+    throw new Error(`${message}\nThe content check tidied values that the real content does not already have tidied:\n  ${extra.join('\n  ')}`);
+  }
+}
+
 /** Replaces one exact piece of text, and fails loudly when it is not there exactly once. */
 export function replaceOnce(text: string, find: string, replacement: string): string {
   const parts = text.split(find);

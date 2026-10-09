@@ -37,7 +37,7 @@ import {
   type Dict,
 } from './support/cms-model';
 import { Dashboard, cdnSkipMessage, cdnStatus, webpSize } from './support/dashboard';
-import { contentDir, contentTree, makeTempDir, removeTempDirs, validateContent, writeTree } from './support/env';
+import { contentDir, contentTree, expectNoNewNotes, makeTempDir, removeTempDirs, validateContent, writeTree } from './support/env';
 
 test.afterAll(removeTempDirs);
 
@@ -238,7 +238,7 @@ test.describe('a new item with only the required fields filled', () => {
     expect(await dashboard.contentFiles()).toEqual(expectedTree);
     const check = await contentCheck(dashboard, 'new-items');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout, 'every field of every new file was written: the reader filled in nothing').not.toContain('NOTE');
+    expectNoNewNotes(check.stdout, 'every field of every new file was written: the reader filled in nothing');
     expect(check.stdout, 'the new items are counted as drafts').toMatch(/links: \d+ \(\d+ published\)/);
   });
 });
@@ -601,7 +601,7 @@ test.describe('a resume and a summary for one project tab', () => {
     expect(dashboard.configComplaints()).toEqual([]);
     const check = await contentCheck(dashboard, 'tab-resume');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout, 'every key was written: the reader filled in nothing').not.toContain('NOTE');
+    expectNoNewNotes(check.stdout, 'every key was written: the reader filled in nothing');
     api = await siteApi(dashboard, 'tab-resume-2');
     expect(api.getResume('game', firstTab.id)).toEqual({ url: 'https://example.com/first-tab-resume', label: track.resumeLabel });
     expect(api.getResume('game', secondTab.id)).toEqual({ url: 'https://example.com/second-tab-resume', label: 'Second Tab Resume' });
@@ -650,7 +650,7 @@ test.describe('a resume and a summary for one project tab', () => {
     expect(dashboard.configComplaints()).toEqual([]);
     const check = await contentCheck(dashboard, 'tab-summary');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout, 'every key was written: the reader filled in nothing').not.toContain('NOTE');
+    expectNoNewNotes(check.stdout, 'every key was written: the reader filled in nothing');
 
     // The site: that tab shows the text, every other tab and the other page keep their own,
     // and the resume of the tab is still the main one.
@@ -753,7 +753,7 @@ test.describe('the footer order of a link', () => {
     expect(after.getLinks('game', 'hero').map((link) => link.slug), 'the buttons next to the name keep their order').toEqual(hero.map((link) => link.slug));
     const check = await contentCheck(dashboard, 'footer-order');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout).not.toContain('NOTE');
+    expectNoNewNotes(check.stdout);
   });
 
   test('a new link gets both positions written (0 and 0), so nothing is left for the reader to fill in', async ({ page }) => {
@@ -769,7 +769,7 @@ test.describe('the footer order of a link', () => {
     expect(Object.keys(link)).toEqual(Object.keys(parsed(Object.keys(tree).find((name) => name.startsWith('content/links/')) ?? '')));
     const check = await contentCheck(dashboard, 'new-link');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout).not.toContain('NOTE');
+    expectNoNewNotes(check.stdout);
   });
 });
 
@@ -826,7 +826,7 @@ test.describe('files written before the logo, the footer order and the resume li
     expect(parsed(linkPath, after).orderFooter).toBe(0);
     const check = await contentCheck(dashboard, 'old-files');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout, 'nothing is left for the reader to fill in').not.toContain('NOTE');
+    expectNoNewNotes(check.stdout, 'nothing is left for the reader to fill in');
   });
 });
 
@@ -874,7 +874,7 @@ test.describe('the site logo', () => {
     await expect.poll(() => dashboard.file(sitePath), 'after removing the picture').toBe(withoutLogo);
     check = await contentCheck(dashboard, 'logo-removed');
     expect(check.status, check.output).toBe(0);
-    expect(check.stdout).not.toContain('NOTE');
+    expectNoNewNotes(check.stdout);
     const api = await siteApi(dashboard, 'logo-removed-api');
     expect(api.getSite().logo).toBe('');
     expect(api.getSite().monogram).toBe(site.monogram);

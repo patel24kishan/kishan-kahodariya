@@ -145,7 +145,8 @@ the other page; the rest keep their order.
    share link — leave it empty to hide the button) and the **Resume button text**.
 3. **Project tab that opens first** is the tab a visitor sees when the page opens.
 4. **Profile photo**, **Browser tab and search title**, **Search result description** are
-   here too.
+   here too, and so are the background video and the badge (the buttons and the numbers are
+   under **Site settings**; see "Change the top section" below).
 5. Press **Save**.
 
 Your name, the logo, the footer credit lines and the project tabs are under
@@ -223,6 +224,39 @@ The logo is the small picture in the top-left corner of both pages.
 
 To show the **Logo letters** (`KK`) instead of a picture, click **Remove** under **Logo
 image** and save.
+
+### Change the top section: video, badge, buttons and numbers
+
+The top section of each page has a video playing silently behind your name, two buttons, a
+small badge and a row of numbers. Leaving a field empty hides that part; nothing breaks.
+
+On each page (**Pages**, then **Game page** or **Software page**):
+
+- **Background video of the top section** — paste the address of a video file (it starts with
+  `https://` and usually ends in `.mp4`). Do not upload video files here; keep them small, a
+  big file makes the page slow to open. Empty means no video: the dark background is shown.
+- **Picture shown before the video** — shown while the video loads, and for visitors whose
+  device does not play it. Upload it like any other picture. Empty means no picture.
+- **Badge, first line** and **Badge, second line** — for example *AWS Certified* and
+  *Solution Architect*. Empty on both lines hides the badge.
+
+Under **Site settings** (the same for both pages):
+
+- **Text of the "See my work" button** — empty hides the button.
+- **Text of the contact button** — also the title of the coloured band at the bottom. Empty
+  shows "Get in touch".
+- **Numbers in the top section** — one row per number, in the order shown (drag to
+  reorder). For each row, choose **Where the number comes from**:
+  - a counted number (projects, companies, years of experience, certificates) is worked out
+    by the site and **updates by itself** when you add or remove items, or when a year goes
+    by. You do not type it;
+  - **A number I type myself** uses what you write in **Your number**, for example `12+`.
+
+  Write the words under the number in **Words under the number**. A row with no words, or
+  whose number comes out as 0 or empty, is not shown. Delete all the rows to hide the whole
+  row of numbers.
+
+The preview shows these as text and a simple layout. It does not play the video.
 
 ## 9. Add a new project tab
 

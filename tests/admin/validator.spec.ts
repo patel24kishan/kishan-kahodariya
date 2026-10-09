@@ -230,6 +230,75 @@ const CASES: Case[] = [
     },
     expect: [/Page \(audience\)/, /offers the option\(s\) "press" that the schema rejects/],
   },
+  // ---- the top section (video, badge, buttons, numbers) ----
+  {
+    name: 'a hero field of a page is missing',
+    config: (config) => removeField(pageFile(config, 'softdev'), 'heroVideo'),
+    expect: [/where:\s+Pages › Software page\n\s+problem: the field "heroVideo" is in the schema but not in the config/, /lost on the next save/],
+  },
+  {
+    name: 'the numbers of the top section are missing from Site settings',
+    config: (config) => removeField(site(config), 'stats'),
+    expect: [/where:\s+Site settings\n\s+problem: the field "stats" is in the schema but not in the config/],
+  },
+  {
+    name: 'a button text of Site settings is missing',
+    config: (config) => removeField(site(config), 'workLabel'),
+    expect: [/"workLabel" is in the schema but not in the config/],
+  },
+  {
+    name: 'the badge lines in another order than the schema',
+    config: (config) => {
+      const game = pageFile(config, 'game');
+      const first = fields(game).findIndex((entry) => entry.name === 'badgeLine1');
+      const second = fields(game).findIndex((entry) => entry.name === 'badgeLine2');
+      [fields(game)[first], fields(game)[second]] = [fields(game)[second] as Dict, fields(game)[first] as Dict];
+    },
+    expect: [/Game page/, /the fields are in a different order than the schema/],
+  },
+  {
+    name: 'the source of a number misses an option of the schema',
+    config: (config) => {
+      const source = field(field(site(config), 'stats'), 'source');
+      source.options = list(source.options, 'options').filter((option) => option.value !== 'certificates');
+    },
+    expect: [/\(source\)/, /is missing the option\(s\) "certificates"/],
+  },
+  {
+    name: 'the source of a number offers an option the schema rejects',
+    config: (config) => {
+      (field(field(site(config), 'stats'), 'source').options as unknown[]).push({ label: 'Followers', value: 'followers' });
+    },
+    expect: [/\(source\)/, /offers the option\(s\) "followers" that the schema rejects/],
+  },
+  {
+    name: 'a button text made required',
+    config: (config) => {
+      field(site(config), 'contactLabel').required = true;
+    },
+    expect: [/Text of the contact button \(contactLabel\)/, /is optional in the schema: add `required: false`/],
+  },
+  {
+    name: 'a badge line as a switch',
+    config: (config) => {
+      field(pageFile(config, 'game'), 'badgeLine1').widget = 'boolean';
+    },
+    expect: [/Badge, first line \(badgeLine1\)/, /is a string in the schema/],
+  },
+  {
+    name: 'the video address accepts a bare name the content check refuses',
+    config: (config) => {
+      field(pageFile(config, 'game'), 'heroVideo').pattern = field(pageFile(config, 'game'), 'heroPoster').pattern;
+    },
+    expect: [/Background video of the top section \(heroVideo\)/, /the form accepts "example\.com" but the content check rejects it/],
+  },
+  {
+    name: 'a hero number without words is not what the schema says',
+    config: (config) => {
+      field(field(site(config), 'stats'), 'label').required = true;
+    },
+    expect: [/Words under the number \(label\)/, /is optional in the schema: add `required: false`/],
+  },
   {
     name: 'a choice made optional',
     config: (config) => {

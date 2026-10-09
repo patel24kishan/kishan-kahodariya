@@ -1079,12 +1079,33 @@ test.describe('validate:content script — notes for tidied content', () => {
     return { dir, first, second };
   }
 
+  /**
+   * How many files and values the owner's real content already has tidied (blank screenshot
+   * rows, for example). The tests below add their own on top, so they compare against this
+   * baseline instead of a fixed number.
+   */
+  function realContentTidied(): { files: number; values: number; names: string[] } {
+    const stdout = runScript(VALIDATE, ['--dir', realContentDir]).stdout;
+    const head = /NOTE — (\d+) content files? (?:was|were) tidied while reading \((\d+) values?\)/.exec(stdout);
+    const names = [...stdout.matchAll(/^ {2}\S.*?([^\\/\s]+\.json)\s*$/gm)].map((match) => match[1] ?? '');
+    return { files: Number(head?.[1] ?? 0), values: Number(head?.[2] ?? 0), names };
+  }
+
+  /** The note's first line for a copy that adds `addedFiles` files and `addedValues` values of its own. */
+  function expectedNoteHead(addedFiles: number, addedValues: number, first: string, second: string): string {
+    const base = realContentTidied();
+    // The test's own files must be untouched by the real content, or the sums below would be wrong.
+    expect(base.names, 'the test edits files the real content has already tidied').not.toContain(first);
+    expect(base.names, 'the test edits files the real content has already tidied').not.toContain(second);
+    return `NOTE — ${base.files + addedFiles} content files were tidied while reading (${base.values + addedValues} values)`;
+  }
+
   test('prints a NOTE listing the files and fields, and still exits 0', () => {
     const { dir, first, second } = tidiedCopy();
     const result = runScript(VALIDATE, ['--dir', dir]);
     expect(result.status, result.output).toBe(0);
     expect(result.stdout).toContain('Content OK');
-    expect(result.stdout).toContain('NOTE — 2 content files were tidied while reading (4 values)');
+    expect(result.stdout).toContain(expectedNoteHead(2, 4, first, second));
     expect(result.stdout).toContain('This is not an error and nothing is blocked');
     expect(result.stdout).toContain(`projects/${first}`);
     expect(result.stdout).toContain('longDescription: was missing, read as ""');
@@ -1118,13 +1139,14 @@ test.describe('validate:content script — notes for tidied content', () => {
   });
 
   test('notes are still printed next to real errors, and the exit code is 1 because of the errors', () => {
-    const { dir, first } = tidiedCopy();
+    const { dir, first, second } = tidiedCopy();
     rmSync(path.join(dir, 'tracks', 'softdev.json'));
     const result = runScript(VALIDATE, ['--dir', dir]);
     expect(result.status, result.output).toBe(1);
     expect(result.stderr).toContain('Content check failed — 1 problem');
     expect(result.stderr).toContain('tracks/softdev.json');
-    expect(result.stdout).toContain('NOTE — 2 content files were tidied');
+    expect(result.stdout).toContain(expectedNoteHead(2, 4, first, second).replace(/ \(\d+ values\)$/, ''));
+    expect(result.stdout).toContain(`projects/${second}`);
     expect(result.stdout).toContain(`projects/${first}`);
   });
 });
