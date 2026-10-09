@@ -12,7 +12,7 @@
   "category": "unity",
   "audience": "game",
   "featured": false,
-  "published": false,
+  "published": true,
   "orderGame": 0,
   "orderSoftdev": 0,
   "hoverText": "View ScreenShots & Gameplay",
