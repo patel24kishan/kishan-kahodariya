@@ -9,9 +9,8 @@
 ## What happened
 
 With the motion hero and header merged on top of the sections work, the whole dev suite
-(`PW_PORT=5186 npx playwright test`) has 14 or 15 failures (two runs: 15 failed / 1594 passed /
-87 skipped each; the hover test below failed in the second run only), all in two files that are
-not mine to edit. None is a page defect; each is a test that still assumes the old hero or the
+(`PW_PORT=5186 npx playwright test`) has 14 or 15 failures in two files that are not mine to edit (final run: 15 failed / 1594 passed
+/ 87 skipped, all 15 listed here; in the run before it the hover test below passed). None is a page defect; each is a test that still assumes the old hero or the
 old header:
 
 | Test (both pages unless noted) | Project | Why it fails now |
