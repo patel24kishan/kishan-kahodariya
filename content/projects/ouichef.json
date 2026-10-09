@@ -15,7 +15,7 @@
   ],
   "category": "unity",
   "audience": "game",
-  "featured": false,
+  "featured": true,
   "published": true,
   "orderGame": 80,
   "orderSoftdev": 80,
@@ -26,15 +26,15 @@
       "alt": ""
     },
     {
+      "src": "/uploads/oc-6.webp",
+      "alt": ""
+    },
+    {
       "src": "/uploads/oc-2.webp",
       "alt": ""
     },
     {
       "src": "/uploads/oc-3.webp",
-      "alt": ""
-    },
-    {
-      "src": "/uploads/oc-5.webp",
       "alt": ""
     }
   ],
