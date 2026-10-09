@@ -3,7 +3,7 @@
   "title": "Galaxy Shooter",
   "shortDescription": "A classic 2D Unity PC game featuring enemy shooting mechanics and engaging power-ups for player enjoyment.",
   "longDescription": "",
-  "dateDisplay": "2018",
+  "dateDisplay": "June 2018",
   "tags": [
     "Unity",
     "C#",
@@ -19,8 +19,20 @@
   "hoverText": "",
   "screenshots": [
     {
-      "src": "https://img.itch.zone/aW1nLzIyNzEwMDIucG5n/347x500/JMUHKM.png",
-      "alt": "Galaxy Shooter cover image"
+      "src": "/uploads/gs-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/gs-2.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/gs-4.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/gs-3.webp",
+      "alt": ""
     }
   ],
   "videoUrl": "",

@@ -3,7 +3,7 @@
   "title": "Infinite Racing",
   "shortDescription": "Vertical mobile 2D Unity game reminiscent of classic endless traffic racers.",
   "longDescription": "",
-  "dateDisplay": "2018",
+  "dateDisplay": "July 2018",
   "tags": [
     "Unity",
     "C#",
@@ -21,9 +21,25 @@
     {
       "src": "https://img.itch.zone/aW1nLzk2NjA0NzYucG5n/347x500/eTpBn%2F.png",
       "alt": "Infinite Racing cover image"
+    },
+    {
+      "src": "",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ir-4.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ir-5.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ir-1.webp",
+      "alt": ""
     }
   ],
-  "videoUrl": "",
+  "videoUrl": "https://youtube.com/shorts/NYW2XpNUo2U?feature=share",
   "links": [
     {
       "label": "View Code",

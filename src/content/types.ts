@@ -51,14 +51,19 @@ export interface SiteSettings {
   categories: Category[];
 }
 
-/** A resume that replaces the page's own resume while one project tab is open. */
+/**
+ * What one project tab shows in the hero instead of the page's own: a resume, a summary, or
+ * both. Each part is optional on its own; an empty part falls back to the page's.
+ */
 export interface TabResume {
   /** Category id ("unreal", "unity", "webapps") or "all". */
   tab: string;
-  /** "" means not set yet: the page falls back to resumeUrl. */
+  /** Resume link for this tab. "" means not set: the page falls back to resumeUrl. */
   url: string;
   /** Button text for this tab. "" uses resumeLabel. */
   label: string;
+  /** Hero summary for this tab. "" means: use the page's main summary. */
+  summary: string;
 }
 
 /** content/tracks/game.json and content/tracks/softdev.json */
@@ -73,7 +78,10 @@ export interface TrackProfile {
   resumeUrl: string;
   /** Button text: "Game Dev Resume". */
   resumeLabel: string;
-  /** Resumes for specific project tabs; read them through getResume(). [] = one resume on every tab. */
+  /**
+   * Resume and/or summary for specific project tabs; read them through getResume() and
+   * getSummary(). [] = the page's own resume and summary on every tab.
+   */
   tabResumes: TabResume[];
   /** Category id (or "all") of the tab that is open first on this page. */
   defaultTab: string;

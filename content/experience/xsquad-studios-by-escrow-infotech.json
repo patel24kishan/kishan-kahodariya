@@ -2,28 +2,32 @@
   "slug": "xsquad-studios-by-escrow-infotech",
   "company": "Xsquad Studios by Escrow Infotech",
   "role": "Game Developer",
-  "location": "",
+  "location": "Surat, India",
   "remote": false,
   "startDate": "2019-06",
   "endDate": "2020-09",
   "present": false,
-  "dateDisplay": "June 2019 - September 2020",
+  "dateDisplay": "June 2019 - Sept 2020",
   "logo": "https://media.glassdoor.com/sql/1759068/escrow-infotech-squarelogo-1559125938891.png",
   "bullets": [
     "Worked as game developer to developDeveloped Unity projects in a collaborative team environment of five including developers, designer, tester, and release team utilizing agile methodology."
   ],
-  "bulletsGame": [],
-  "bulletsSoftdev": [],
+  "bulletsGame": [
+    "Built player controllers, inventory, combat and progression for Scarfall, a multiplayer mobile shooter, using Unity, Photon and Netcode ([700K+ downloads], 4.2 rating).",
+    "Solo-built PaintIt3D from design to launch (5,000+ downloads), leading a team of 3 members."
+  ],
+  "bulletsSoftdev": [
+    "Iterate on system designs within Unity to create adapting gameplay for their existing shipped titles, and build subsystems from scratch.",
+    "As a product owner, took full ownership as a solo developer for PaintIt3D with Unity and C#, initial design to designing a 20-level mobile title that reached 5,000+ commercial downloads."
+  ],
   "tags": [
     "Unity",
     "C#",
-    "Photoshop",
     "Git",
-    "Unity Plugins",
     "Photon Engine"
   ],
-  "audience": "game",
-  "orderGame": 50,
-  "orderSoftdev": 50,
+  "audience": "both",
+  "orderGame": 70,
+  "orderSoftdev": 70,
   "published": true
 }

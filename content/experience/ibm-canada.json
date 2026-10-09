@@ -2,29 +2,36 @@
   "slug": "ibm-canada",
   "company": "IBM Canada",
   "role": "Application Developer",
-  "location": "",
+  "location": "Halifax, CAD",
   "remote": false,
   "startDate": "2023-12",
   "endDate": "2024-02",
   "present": false,
-  "dateDisplay": "December 2023 - February 2024",
+  "dateDisplay": "Dec 2023 - Feb 2024",
   "logo": "https://www.svgrepo.com/show/349407/ibm.svg",
   "bullets": [
     "Working on the frontend of the web application using ReactJS, Redux, and Material UI."
   ],
-  "bulletsGame": [],
-  "bulletsSoftdev": [],
+  "bulletsGame": [
+    "Developed Digital Twin simulations in Unity, designed so non-technical users could operate complex technical environments.",
+    "Built features and verification flows for Bell Mobility's Exclusive Partner Program, an enterprise web app, with React on the front end and .NET/C# business logic.",
+    "On-call for the Cloud production environment: monitored systems, shipped hotfixes, and maintained MySQL-backed microservices."
+  ],
+  "bulletsSoftdev": [
+    "Developed Digital Twin simulations in Unity, designed so non-technical users could operate complex technical environments.",
+    "Built features and verification flows for Bell Mobility's Exclusive Partner Program, an enterprise web app, with React on the front end and .NET/C# business logic.",
+    "On-call for the Cloud production environment: monitored systems, shipped hotfixes, and maintained MySQL-backed microservices."
+  ],
   "tags": [
+    "Springboot",
+    "Java",
     "ReactJS",
     "AWS",
-    "Java",
-    "Springboot",
-    "Unit testing",
-    "Junit",
-    "Mockito"
+    "Github Actions",
+    "Postman"
   ],
-  "audience": "softdev",
-  "orderGame": 30,
-  "orderSoftdev": 30,
+  "audience": "both",
+  "orderGame": 40,
+  "orderSoftdev": 40,
   "published": true
 }

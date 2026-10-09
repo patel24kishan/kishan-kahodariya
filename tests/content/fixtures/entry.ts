@@ -14,6 +14,7 @@ import {
   getResume,
   getSite,
   getSkillGroups,
+  getSummary,
   getTabs,
   getTracks,
   resolveTab,
@@ -34,6 +35,8 @@ export interface ContentSnapshot {
   footerLinks: string[];
   /** "<button text> → <address>" of the resume on each page's default tab, game first. */
   resumes: string[];
+  /** The summary of every tab of the game page, in tab order. */
+  summaries: string[];
   logo: string;
   education: string[];
   certificates: string[];
@@ -57,6 +60,7 @@ export function snapshot(): ContentSnapshot {
       const resume = getResume(track.id, resolveTab(track.id, undefined));
       return `${resume.label} → ${resume.url}`;
     }),
+    summaries: getTabs().map((tab) => getSummary('game', tab.id)),
     logo: getSite().logo,
     education: getEducation().map((entry) => entry.school),
     certificates: getCertificates('game').map((certificate) => certificate.title),

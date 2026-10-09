@@ -2,8 +2,8 @@
   "slug": "helpupdefend",
   "company": "HelpUpDefend",
   "role": "Game Developer",
-  "location": "",
-  "remote": false,
+  "location": "Toronto, CAD",
+  "remote": true,
   "startDate": "2024-12",
   "endDate": "2025-02",
   "present": false,
@@ -12,18 +12,25 @@
   "bullets": [
     "Worked in fully remote team environment developing gamified AR activities for their Unity-based social media platform, 65Square, serving 1,000+ Android/iOS users."
   ],
-  "bulletsGame": [],
-  "bulletsSoftdev": [],
+  "bulletsGame": [
+    "Built Social Room, an encrypted chat feature for the Dating Square app on iOS and Android, with Unity UI Toolkit, TextMesh Pro, the Agora SDK and XR Toolkit for AR.",
+    "Led junior developers while stepping into late-stage development and added GitHub Actions code-quality checks that improved build stability by 30%."
+  ],
+  "bulletsSoftdev": [
+    "Built a low-latency, encrypted real-time chat service on the Agora SDK, using Zenject dependency injection to keep client logic separate from backend services.",
+    "Fixed memory leaks and tuned GraphQL queries and serialization to keep the app stable for 5,000+ concurrent sessions."
+  ],
   "tags": [
     "Unity",
     "C#",
     "Agora SDK",
     "Git",
     "Zenject",
-    "Postman"
+    "Postman",
+    "AI - Gemini, Chatgpt"
   ],
-  "audience": "game",
-  "orderGame": 20,
-  "orderSoftdev": 20,
+  "audience": "both",
+  "orderGame": 30,
+  "orderSoftdev": 30,
   "published": true
 }

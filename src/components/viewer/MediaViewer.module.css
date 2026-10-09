@@ -277,6 +277,12 @@
   font-weight: 600;
 }
 
+/* The video thumbnail holds text: the dimming of the other thumbnails would take its label
+   below 4.5:1, so this one is never dimmed. */
+.thumb:has(.thumbVideo) {
+  opacity: 1;
+}
+
 .thumbFallback {
   display: inline-flex;
   color: var(--color-muted);

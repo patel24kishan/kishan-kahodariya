@@ -159,7 +159,7 @@ const ROW_IS_BLANK: Record<string, (row: unknown) => boolean> = {
   tabResumes: isBlankTabResumeRow,
 };
 
-/** A "resume for one tab" row that names no tab: it can never apply, dropped. */
+/** A "resume and summary for one tab" row that names no tab: it can never apply, dropped. */
 function isBlankTabResumeRow(row: unknown): boolean {
   return isBlank(valueAt(row, ['tab']));
 }
@@ -308,13 +308,16 @@ export const siteSchema = z
   });
 
 /**
- * A resume for one project tab. Whether `tab` names a real tab is a cross-file rule (see
- * validateContent). An empty `url` is valid: the row is prepared but not used yet.
+ * The resume and/or the summary of one project tab. Whether `tab` names a real tab is a
+ * cross-file rule (see validateContent). An empty `url` and an empty `summary` are both valid:
+ * each part falls back to the page's own, so a row may set one, both, or (prepared, not used
+ * yet) neither.
  */
 export const tabResumeSchema = z.strictObject({
   tab: requiredText,
   url: webUrl,
   label: text,
+  summary: text,
 });
 
 export const trackSchema = z
@@ -337,7 +340,7 @@ export const trackSchema = z
     metaDescription: text,
   })
   .superRefine((track, ctx) => {
-    // One resume per tab: with two rows for one tab nobody could tell which one is used.
+    // One row per tab: with two rows for one tab nobody could tell which one is used.
     const seen = new Set<string>();
     track.tabResumes.forEach((row, index) => {
       if (!seen.has(row.tab)) {
@@ -346,7 +349,7 @@ export const trackSchema = z
       }
       ctx.addIssue({
         code: 'custom',
-        message: `"${row.tab}" has more than one row (a tab can have only one resume)`,
+        message: `"${row.tab}" has more than one row (a tab can have only one row)`,
         path: ['tabResumes', index, 'tab'],
       });
     });

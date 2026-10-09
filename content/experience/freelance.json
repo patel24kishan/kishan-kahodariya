@@ -1,0 +1,34 @@
+{
+  "slug": "freelance",
+  "company": "Contract Work",
+  "role": "Frelancing Developer",
+  "location": "EU, USA, CAD",
+  "remote": true,
+  "startDate": "2021-01",
+  "endDate": "",
+  "present": true,
+  "dateDisplay": "Jan 2021 - Present",
+  "logo": "/uploads/logo-cloud.webp",
+  "bullets": [],
+  "bulletsGame": [
+    "Shipped 5 cross-platform titles for remote clients, turning design documents into playable demos for mobile and console.",
+    "Set up custom AI-tool in clients' workflows to speed up feature development, automate testing  saving at least 10 hours per week."
+  ],
+  "bulletsSoftdev": [
+    "Set up custom AI-tool in clients' workflows to speed up feature development, automate testing  saving at least 10 hours per week.",
+    "Delivered 5 cross-platform apps for remote clients end to end in Agile, from specs to release, integrating Android SDKs."
+  ],
+  "tags": [
+    "Unity",
+    "C#/.NET",
+    "AI Tools",
+    "Agile",
+    "Java/Springboot",
+    "Addressables",
+    "Mobile/Console Games"
+  ],
+  "audience": "both",
+  "orderGame": 60,
+  "orderSoftdev": 60,
+  "published": true
+}

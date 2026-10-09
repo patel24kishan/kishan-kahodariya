@@ -286,20 +286,21 @@ collections:
             default: ''
             hint: For example Game Dev Resume.
           - name: tabResumes
-            label: Resume for a specific tab
-            label_singular: Resume for one tab
+            label: Resume and summary for a specific tab
+            label_singular: Resume and summary for one tab
             widget: list
             required: false
             default: []
             summary: '{{tab}} — {{url}}'
             collapsed: auto
             hint: &tab_resumes_hint >-
-              Leave empty to use the main resume on every tab. Add a row to give one project
-              tab a resume of its own: while a visitor has that tab open, the resume button
-              opens the link of the row instead of the main resume. One row per tab.
+              Leave empty to use the main resume and the main summary on every tab. Add a row
+              to give one project tab a resume of its own, a summary of its own, or both: while
+              a visitor has that tab open, the page shows what the row holds instead of the
+              main one. Whatever a row leaves empty stays the main one. One row per tab.
             fields:
               - name: tab
-                label: Tab with its own resume
+                label: Tab this row is for
                 widget: relation
                 collection: _singletons
                 file: site
@@ -307,13 +308,13 @@ collections:
                 display_fields: ['categories.*.label']
                 search_fields: ['categories.*.label', 'categories.*.id']
                 required: true
-                hint: &tab_resume_tab_hint The project tab this resume is for. Use each tab in one row only — two rows for the same tab stop the next update of the site.
+                hint: &tab_resume_tab_hint The project tab this resume and summary are for. Use each tab in one row only — two rows for the same tab stop the next update of the site.
               - name: url
                 label: Resume link for this tab
                 widget: string
                 required: false
                 default: ''
-                hint: &tab_resume_url_hint A full address starting with https://, for example a Google Drive share link. While it is empty, this tab uses the main resume.
+                hint: &tab_resume_url_hint Optional. A full address starting with https://, for example a Google Drive share link. Leave empty to use the main resume above.
                 pattern:
                   - &web_pattern '^[Hh][Tt][Tt][Pp][Ss]?://[^\s/?#:@\\<>\[\]^|%]+(?::\d{1,5})?(?:[/?#]\S*)?$'
                   - &web_message 'Write a full address starting with https://, without spaces — or leave it empty.'
@@ -323,6 +324,12 @@ collections:
                 required: false
                 default: ''
                 hint: &tab_resume_label_hint Optional, for example Unreal Resume. Leave empty to use the resume button text above.
+              - name: summary
+                label: Summary on this tab
+                widget: text
+                required: false
+                default: ''
+                hint: &tab_summary_hint Leave empty to use the main summary above.
           - name: defaultTab
             label: Project tab that opens first
             widget: relation
@@ -406,8 +413,8 @@ collections:
             default: ''
             hint: For example Software Resume.
           - name: tabResumes
-            label: Resume for a specific tab
-            label_singular: Resume for one tab
+            label: Resume and summary for a specific tab
+            label_singular: Resume and summary for one tab
             widget: list
             required: false
             default: []
@@ -416,7 +423,7 @@ collections:
             hint: *tab_resumes_hint
             fields:
               - name: tab
-                label: Tab with its own resume
+                label: Tab this row is for
                 widget: relation
                 collection: _singletons
                 file: site
@@ -440,6 +447,12 @@ collections:
                 required: false
                 default: ''
                 hint: *tab_resume_label_hint
+              - name: summary
+                label: Summary on this tab
+                widget: text
+                required: false
+                default: ''
+                hint: *tab_summary_hint
           - name: defaultTab
             label: Project tab that opens first
             widget: relation

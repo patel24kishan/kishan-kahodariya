@@ -4,13 +4,22 @@ import { createContentApi } from '../../src/content/selectors';
 import type { TrackId } from '../../src/content/types';
 import { focusRingOf } from '../design/helpers';
 import { withBase } from './support/content';
-import { FIXTURE_CONTENT, LOGO_OK, type LogoCase } from './support/hero-fixture.content';
+import {
+  FIXTURE_CONTENT,
+  LOGO_OK,
+  MAIN_SUMMARY,
+  SOFTDEV_UNITY_SUMMARY,
+  UNITY_SUMMARY,
+  UNREAL_SUMMARY,
+  type LogoCase,
+} from './support/hero-fixture.content';
 import { blockOtherOrigins, cssVar, hexToRgb, presetTheme, tabsNav, THEMES, type Theme } from './support/page';
 
 /**
  * Cases the real content cannot produce, on tests/pages/support/hero-fixture.html (served by
  * the dev server, never built): a resume of its own on one project tab, a row without an
- * address, a page without a main resume; and a nav logo that is missing or does not load.
+ * address, a page without a main resume; a summary of its own on a tab (with and without a
+ * resume), a page without a main summary; and a nav logo that is missing or does not load.
  * The fixture mounts the real SiteNav, Hero and tab links and is wired like the real page.
  */
 const FIXTURE_PATH = 'tests/pages/support/hero-fixture.html';
@@ -130,6 +139,104 @@ test.describe('resume button per project tab', () => {
     const root = await openFixture(page, { track: 'softdev', path: '/softdev/all' });
     await expect(root).toHaveAttribute('data-tab', 'all');
     await expect(resumeButton(page)).toHaveCount(0);
+  });
+});
+
+test.describe('summary per project tab', () => {
+  const game = api.getTrack('game');
+  /** What each tab of the hand-made game page must show (see hero-fixture.content.ts). */
+  const EXPECTED: Record<string, { text: string; why: string }> = {
+    unreal: { text: UNREAL_SUMMARY, why: 'its own summary (the row has a resume too)' },
+    unity: { text: UNITY_SUMMARY, why: 'its own summary (the row has no resume address)' },
+    webapps: { text: MAIN_SUMMARY, why: 'no row: the main summary' },
+    all: { text: MAIN_SUMMARY, why: 'a row whose summary is only spaces: the main summary' },
+  };
+
+  function summaryBlock(page: Page): Locator {
+    return page.locator('#about [data-hero-summary]');
+  }
+
+  /** One <p> per paragraph (blank line between them); a line break inside one stays a <br>. */
+  async function expectSummary(page: Page, text: string): Promise<void> {
+    const block = summaryBlock(page);
+    if (text.trim() === '') {
+      await expect(block).toHaveCount(0);
+      return;
+    }
+    await expect(block).toHaveCount(1);
+    const paragraphs = text.split(/\n\s*\n/);
+    // innerText: a <br> reads as a line break (which the comparison treats as one space).
+    await expect(block.locator('p')).toHaveText(paragraphs.map((paragraph) => paragraph.replace(/\n/g, ' ')), { useInnerText: true });
+    await expect(block.locator('br')).toHaveCount(paragraphs.reduce((count, paragraph) => count + paragraph.split('\n').length - 1, 0));
+    // In its place: after the headline, before the buttons.
+    const around = await block.evaluate((element) => ({
+      before: element.previousElementSibling?.textContent ?? '',
+      afterHasButtons: element.nextElementSibling?.querySelector('[data-hero-resume], [data-hero-link]') !== null,
+      parentIsHeroText: element.parentElement?.querySelector(':scope > h1') !== null,
+    }));
+    expect(around).toEqual({ before: 'Fixture Headline', afterHasButtons: true, parentIsHeroText: true });
+  }
+
+  test('the hand-made content says what this test assumes', () => {
+    expect(game.summary).toBe(MAIN_SUMMARY);
+    for (const tab of tabs) expect(api.getSummary('game', tab.id), tab.id).toBe(EXPECTED[tab.id]!.text);
+    // The cases differ in which half of a row is set.
+    expect(api.getResume('game', 'unity').url, 'unity: a summary without a resume of its own').toBe(game.resumeUrl);
+    expect(api.getResume('game', 'all').url, 'all: a resume without a summary of its own').not.toBe(game.resumeUrl);
+    expect(UNREAL_SUMMARY.length).toBeGreaterThan(MAIN_SUMMARY.length * 3);
+  });
+
+  for (const tab of tabs) {
+    test(`opened straight on /gamedev/${tab.id}: ${EXPECTED[tab.id]!.why}`, async ({ page }) => {
+      const root = await openFixture(page, { path: `/gamedev/${tab.id}` });
+      await expect(root).toHaveAttribute('data-tab', tab.id);
+      await expectSummary(page, EXPECTED[tab.id]!.text);
+    });
+  }
+
+  test('the page without a tab in its address shows the summary of its first tab', async ({ page }) => {
+    const root = await openFixture(page, { path: '/gamedev' });
+    await expect(root).toHaveAttribute('data-tab', game.defaultTab);
+    await expectSummary(page, EXPECTED[game.defaultTab]!.text);
+  });
+
+  test('choosing a tab swaps the summary in place, each way, with the resume of the same tab', async ({ page }) => {
+    const root = await openFixture(page, { path: '/gamedev' });
+    await expectSummary(page, UNITY_SUMMARY);
+    // Mark the block: a tab change must update this very element, not replace it.
+    await summaryBlock(page).evaluate((block) => block.setAttribute('data-test-mark', 'same-element'));
+
+    for (const tabId of ['unreal', 'webapps', 'all', 'unity', 'unreal']) {
+      await chooseTab(page, root, tabId);
+      await expectSummary(page, EXPECTED[tabId]!.text);
+      await expect(summaryBlock(page), `after choosing ${tabId}`).toHaveAttribute('data-test-mark', 'same-element');
+      // The resume follows the same tab, by its own rule.
+      await expectResume(page, api.getResume('game', tabId));
+    }
+    await expect(page.locator('#about [data-hero-link]')).toHaveCount(api.getLinks('game', 'hero').length);
+  });
+
+  test('a page without a main summary shows the block only on the tab that has its own', async ({ page }) => {
+    const softdev = api.getTrack('softdev');
+    expect(softdev.summary).toBe('');
+    const root = await openFixture(page, { track: 'softdev', path: '/softdev' });
+    await expect(root).toHaveAttribute('data-tab', 'webapps');
+    await expectSummary(page, '');
+
+    await chooseTab(page, root, 'unity');
+    await expectSummary(page, SOFTDEV_UNITY_SUMMARY);
+    for (const tabId of ['all', 'unreal', 'webapps']) {
+      await chooseTab(page, root, tabId);
+      await expectSummary(page, '');
+      // The hero links stay.
+      await expect(page.locator('#about [data-hero-link]')).toHaveCount(api.getLinks('softdev', 'hero').length);
+    }
+  });
+
+  test('opened straight on the tab of that page that has a summary: it is there', async ({ page }) => {
+    const root = await openFixture(page, { track: 'softdev', path: '/softdev/unity' });
+    await expect(root).toHaveAttribute('data-tab', 'unity');
+    await expectSummary(page, SOFTDEV_UNITY_SUMMARY);
   });
 });
 

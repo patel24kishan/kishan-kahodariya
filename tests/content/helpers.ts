@@ -291,11 +291,12 @@ export function fixtureBundle(): ContentBundle {
   return {
     site: makeSite(),
     tracks: [
-      // One tab with a resume of its own, one row that is prepared but has no link yet.
+      // One tab with a resume of its own (and the page's summary), one row without a link
+      // that holds only a summary of its own.
       makeTrack('game', {
         tabResumes: [
-          { tab: 'unity', url: 'https://example.com/unity-resume', label: 'Unity Resume' },
-          { tab: 'webapps', url: '', label: '' },
+          { tab: 'unity', url: 'https://example.com/unity-resume', label: 'Unity Resume', summary: '' },
+          { tab: 'webapps', url: '', label: '', summary: 'Web Apps Tab Summary.' },
         ],
       }),
       makeTrack('softdev'),

@@ -398,7 +398,7 @@ test.describe('getResume', () => {
   });
 
   test('a tab with a link of its own overrides the resume on that tab only', () => {
-    const content = api([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]);
+    const content = api([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume', summary: '' }]);
     expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: 'Unreal Resume' });
     expect(content.getResume('game', 'unity')).toEqual(MAIN_GAME);
     expect(content.getResume('game', 'webapps')).toEqual(MAIN_GAME);
@@ -409,8 +409,8 @@ test.describe('getResume', () => {
 
   test('an override without a label keeps the page\'s button text', () => {
     const content = api([
-      { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '' },
-      { tab: 'unity', url: 'https://example.com/unity-resume', label: '   ' },
+      { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '', summary: '' },
+      { tab: 'unity', url: 'https://example.com/unity-resume', label: '   ', summary: '' },
     ]);
     expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: MAIN_GAME.label });
     expect(content.getResume('game', 'unity')).toEqual({ url: 'https://example.com/unity-resume', label: MAIN_GAME.label });
@@ -418,8 +418,8 @@ test.describe('getResume', () => {
 
   test('a row without a link is not used: the tab falls back to the page\'s resume, label included', () => {
     const content = api([
-      { tab: 'unreal', url: '', label: 'Unreal Resume' },
-      { tab: 'unity', url: '   ', label: 'Unity Resume' },
+      { tab: 'unreal', url: '', label: 'Unreal Resume', summary: '' },
+      { tab: 'unity', url: '   ', label: 'Unity Resume', summary: '' },
     ]);
     expect(content.getResume('game', 'unreal')).toEqual(MAIN_GAME);
     expect(content.getResume('game', 'unity')).toEqual(MAIN_GAME);
@@ -427,8 +427,8 @@ test.describe('getResume', () => {
 
   test('the "all" tab can have a row, and each page reads its own rows', () => {
     const content = api(
-      [{ tab: 'all', url: 'https://example.com/everything', label: 'Full Resume' }],
-      [{ tab: 'webapps', url: 'https://example.com/web-resume', label: '' }],
+      [{ tab: 'all', url: 'https://example.com/everything', label: 'Full Resume', summary: '' }],
+      [{ tab: 'webapps', url: 'https://example.com/web-resume', label: '', summary: '' }],
     );
     expect(content.getResume('game', 'all')).toEqual({ url: 'https://example.com/everything', label: 'Full Resume' });
     expect(content.getResume('game', 'webapps')).toEqual(MAIN_GAME);
@@ -437,15 +437,15 @@ test.describe('getResume', () => {
   });
 
   test('a tab that does not exist, or an id in another case, gets the page\'s resume', () => {
-    const content = api([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]);
+    const content = api([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume', summary: '' }]);
     for (const tab of ['godot', '', 'Unreal', 'unreal ']) expect(content.getResume('game', tab), JSON.stringify(tab)).toEqual(MAIN_GAME);
   });
 
   test('a page without a resume: only a tab with its own link has one', () => {
     const content = api(
       [
-        { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '' },
-        { tab: 'unity', url: '', label: 'Unity Resume' },
+        { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '', summary: '' },
+        { tab: 'unity', url: '', label: 'Unity Resume', summary: '' },
       ],
       [],
       { resumeUrl: '', resumeLabel: '' },
@@ -457,13 +457,13 @@ test.describe('getResume', () => {
   });
 
   test('returns a new object each time, never the stored row', () => {
-    const rows: TabResume[] = [{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }];
+    const rows: TabResume[] = [{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume', summary: '' }];
     const content = api(rows);
     const first = content.getResume('game', 'unreal');
     first.url = 'changed by the caller';
     first.label = 'changed by the caller';
     expect(content.getResume('game', 'unreal')).toEqual({ url: 'https://example.com/unreal-resume', label: 'Unreal Resume' });
-    expect(rows).toEqual([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]);
+    expect(rows).toEqual([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume', summary: '' }]);
     const main = content.getResume('game', 'unity');
     main.url = 'changed by the caller';
     expect(content.getResume('game', 'unity')).toEqual(MAIN_GAME);
@@ -478,6 +478,123 @@ test.describe('getResume', () => {
   test('throws for a track that does not exist, like getTrack', () => {
     const content = createContentApi(bundle({ tracks: [makeTrack('game')] }));
     expect(() => content.getResume('softdev', 'unity')).toThrow(/Unknown track: softdev/);
+  });
+});
+
+test.describe('getSummary', () => {
+  const MAIN_GAME = 'The game page summary.';
+  const MAIN_SOFTDEV = 'The software page summary.';
+  const TABS = ['unreal', 'unity', 'webapps', 'all'];
+
+  function row(tab: string, summary: string, url = '', label = ''): TabResume {
+    return { tab, url, label, summary };
+  }
+
+  function api(game: TabResume[], softdev: TabResume[] = [], gameOverrides: Partial<TrackProfile> = {}) {
+    return createContentApi(
+      bundle({
+        tracks: [
+          makeTrack('game', { summary: MAIN_GAME, tabResumes: game, ...gameOverrides }),
+          makeTrack('softdev', { summary: MAIN_SOFTDEV, tabResumes: softdev }),
+        ],
+      }),
+    );
+  }
+
+  test('no rows: every tab gets the page\'s own summary', () => {
+    const content = api([]);
+    for (const tab of TABS) {
+      expect(content.getSummary('game', tab)).toBe(MAIN_GAME);
+      expect(content.getSummary('softdev', tab)).toBe(MAIN_SOFTDEV);
+    }
+  });
+
+  test('a tab with a summary of its own overrides the summary on that tab only', () => {
+    const content = api([row('unreal', 'Unreal summary.'), row('unity', 'Unity summary.')]);
+    expect(content.getSummary('game', 'unreal')).toBe('Unreal summary.');
+    expect(content.getSummary('game', 'unity')).toBe('Unity summary.');
+    expect(content.getSummary('game', 'webapps')).toBe(MAIN_GAME);
+    expect(content.getSummary('game', 'all')).toBe(MAIN_GAME);
+    // The other page has its own list: the game page's rows do not reach it.
+    for (const tab of TABS) expect(content.getSummary('softdev', tab)).toBe(MAIN_SOFTDEV);
+  });
+
+  test('an empty or whitespace-only summary is not used: the tab falls back to the page\'s summary', () => {
+    const content = api([row('unreal', ''), row('unity', '   '), row('webapps', ' \n\t\n '), row('all', '\n')]);
+    for (const tab of TABS) expect(content.getSummary('game', tab), tab).toBe(MAIN_GAME);
+  });
+
+  test('summary and resume are independent: a row may set only one of them, or both', () => {
+    const content = createContentApi(
+      bundle({
+        tracks: [
+          makeTrack('game', {
+            summary: MAIN_GAME,
+            resumeUrl: 'https://example.com/game-resume',
+            resumeLabel: 'Game Dev Resume',
+            tabResumes: [
+              // Summary only: no link, and a label that is never used.
+              row('unreal', 'Unreal summary.', '', 'Never Used'),
+              // Resume only.
+              row('unity', '', 'https://example.com/unity-resume', 'Unity Resume'),
+              // Both.
+              row('all', 'Everything summary.', 'https://example.com/everything', ''),
+            ],
+          }),
+          makeTrack('softdev', { summary: MAIN_SOFTDEV }),
+        ],
+      }),
+    );
+    const main = { url: 'https://example.com/game-resume', label: 'Game Dev Resume' };
+    expect(content.getSummary('game', 'unreal')).toBe('Unreal summary.');
+    expect(content.getResume('game', 'unreal')).toEqual(main);
+    expect(content.getSummary('game', 'unity')).toBe(MAIN_GAME);
+    expect(content.getResume('game', 'unity')).toEqual({ url: 'https://example.com/unity-resume', label: 'Unity Resume' });
+    expect(content.getSummary('game', 'all')).toBe('Everything summary.');
+    expect(content.getResume('game', 'all')).toEqual({ url: 'https://example.com/everything', label: 'Game Dev Resume' });
+    expect(content.getSummary('game', 'webapps')).toBe(MAIN_GAME);
+    expect(content.getResume('game', 'webapps')).toEqual(main);
+  });
+
+  test('the text is returned exactly as written: paragraphs, line breaks and outer spaces', () => {
+    const text = '  First paragraph.\n\nSecond paragraph,\nsecond line.  ';
+    expect(api([row('unreal', text)]).getSummary('game', 'unreal')).toBe(text);
+  });
+
+  test('the "all" tab can have a summary, and each page reads its own rows', () => {
+    const content = api([row('all', 'Everything on the game page.')], [row('webapps', 'Web apps on the software page.')]);
+    expect(content.getSummary('game', 'all')).toBe('Everything on the game page.');
+    expect(content.getSummary('game', 'webapps')).toBe(MAIN_GAME);
+    expect(content.getSummary('softdev', 'webapps')).toBe('Web apps on the software page.');
+    expect(content.getSummary('softdev', 'all')).toBe(MAIN_SOFTDEV);
+  });
+
+  test('a tab that does not exist, or an id in another case, gets the page\'s summary', () => {
+    const content = api([row('unreal', 'Unreal summary.')]);
+    for (const tab of ['godot', '', 'Unreal', 'unreal ']) expect(content.getSummary('game', tab), JSON.stringify(tab)).toBe(MAIN_GAME);
+  });
+
+  test('a page without a summary: only a tab with its own text has one', () => {
+    const content = api([row('unreal', 'Unreal summary.'), row('unity', '')], [], { summary: '' });
+    expect(content.getSummary('game', 'unreal')).toBe('Unreal summary.');
+    expect(content.getSummary('game', 'unity')).toBe('');
+    expect(content.getSummary('game', 'all')).toBe('');
+  });
+
+  test('a track or a row made by hand without the new key behaves like an empty one', () => {
+    const { tabResumes: _unset, ...bare } = makeTrack('game', { summary: MAIN_GAME });
+    const noList = createContentApi(bundle({ tracks: [bare as TrackProfile, makeTrack('softdev')] }));
+    expect(noList.getSummary('game', 'unreal')).toBe(MAIN_GAME);
+
+    const oldRow = { tab: 'unreal', url: 'https://example.com/unreal-resume', label: '' } as TabResume;
+    const content = api([oldRow]);
+    expect(content.getSummary('game', 'unreal')).toBe(MAIN_GAME);
+    expect(content.getResume('game', 'unreal').url).toBe('https://example.com/unreal-resume');
+  });
+
+  test('throws for a track that does not exist, like getTrack', () => {
+    const content = createContentApi(bundle({ tracks: [makeTrack('game')] }));
+    expect(() => content.getSummary('softdev', 'unity')).toThrow(/Unknown track: softdev/);
   });
 });
 
@@ -562,7 +679,15 @@ test.describe('the real content through the API', () => {
         expect(resume.url, `${track.id}/${tab.id}`).toBe(own ? own.url : track.resumeUrl);
         if (track.resumeUrl !== '') expect(resume.url, `${track.id}/${tab.id}`).not.toBe('');
         if (!own) expect(resume.label, `${track.id}/${tab.id}`).toBe(track.resumeLabel);
+
+        // The same for the summary, on its own: a tab's text is used exactly when it is not blank.
+        const summary = api.getSummary(track.id, tab.id);
+        const ownText = track.tabResumes.find((row) => row.tab === tab.id && row.summary.trim() !== '');
+        expect(summary, `${track.id}/${tab.id}`).toBe(ownText ? ownText.summary : track.summary);
+        if (track.summary.trim() !== '') expect(summary.trim(), `${track.id}/${tab.id}`).not.toBe('');
       }
+      // Every row states every key, so nothing is left for the reader to fill in.
+      for (const row of track.tabResumes) expect(Object.keys(row), `${track.id} row`).toEqual(['tab', 'url', 'label', 'summary']);
       // Every row names a real tab, once.
       const rowTabs = track.tabResumes.map((row) => row.tab);
       expect(new Set(rowTabs).size, `${track.id} tab resumes`).toBe(rowTabs.length);

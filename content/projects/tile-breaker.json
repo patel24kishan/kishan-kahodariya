@@ -3,7 +3,7 @@
   "title": "Tile Breaker",
   "shortDescription": "Built from scratch, Timeless 2D tile-breaking game for mobile with powerups",
   "longDescription": "",
-  "dateDisplay": "2018",
+  "dateDisplay": "July 2018",
   "tags": [
     "Unity",
     "C#",
@@ -19,11 +19,15 @@
   "hoverText": "",
   "screenshots": [
     {
-      "src": "https://img.itch.zone/aW1nLzk2NjA0MTUucG5n/347x500/Avrkam.png",
-      "alt": "Tile Breaker cover image"
+      "src": "/uploads/tb-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/tb-2.webp",
+      "alt": ""
     }
   ],
-  "videoUrl": "",
+  "videoUrl": "https://youtube.com/shorts/FNmZa1E3wUI?feature=share",
   "links": [
     {
       "label": "View Code",

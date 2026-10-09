@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { assetHref, content, isExternal, routeOf, SECTION_IDS, SECTION_LABELS, TRACK_IDS } from './support/content';
+import { assetHref, content, isExternal, routeOf, TRACK_IDS } from './support/content';
 import { cssVar, hexToRgb, openRoute, trackPage } from './support/page';
 
 /** Experience, Skills, Education & Certificates and the footer, per page, against the content API. */
@@ -183,32 +183,45 @@ for (const trackId of TRACK_IDS) {
   test.describe(`${track.route} footer`, () => {
     const links = content.getLinks(trackId, 'footer');
 
-    test('has the Navigate links, the Connect buttons and the credit lines', async ({ page }) => {
+    test('has the contact block and the credit lines, and no section links', async ({ page }) => {
       await openRoute(page, routeOf(track));
       const footer = page.getByRole('contentinfo');
-      const navigate = footer.getByRole('navigation', { name: 'Footer' });
-      await expect(navigate.getByRole('heading', { level: 2 })).toHaveText('Navigate');
-      const navLinks = navigate.getByRole('link');
-      await expect(navLinks).toHaveCount(SECTION_IDS.length);
-      for (const [index, id] of SECTION_IDS.entries()) {
-        await expect(navLinks.nth(index)).toHaveAttribute('href', `#${id}`);
-        await expect(navLinks.nth(index)).toHaveText(SECTION_LABELS[index]!);
-      }
-      // Stacked.
-      if (SECTION_IDS.length > 1) {
-        const [first, second] = await Promise.all([navLinks.nth(0).boundingBox(), navLinks.nth(1).boundingBox()]);
-        expect(first!.y + first!.height).toBeLessThanOrEqual(second!.y + 1);
-      }
+      // No section links in the footer: the nav bar stays docked at the top of every page.
+      await expect(footer.getByRole('navigation')).toHaveCount(0);
+      await expect(footer.locator('a[href^="#"]')).toHaveCount(0);
 
-      await expect(footer.getByRole('heading', { level: 2, name: 'Connect' })).toHaveCount(1);
-      const connect = footer.locator('a[data-variant="onAccent"]');
-      await expect(connect).toHaveCount(links.length);
-      for (const [index, link] of links.entries()) {
+      // The contact block: the title, the email address as one large link, the other links as
+      // small outlined buttons in the footer order.
+      await expect(footer.getByRole('heading', { level: 2, name: 'Get in touch' })).toHaveCount(1);
+      const emailLink = links.find((link) => link.url.trim().toLowerCase().startsWith('mailto:'));
+      const others = links.filter((link) => link !== emailLink);
+      const email = footer.locator('a[data-footer-email]');
+      await expect(email).toHaveCount(emailLink ? 1 : 0);
+      if (emailLink) {
+        await expect(email).toHaveAttribute('href', emailLink.url);
+        await expect(email).toHaveText(emailLink.url.trim().slice('mailto:'.length).split('?')[0]!);
+        await expect(email).not.toHaveAttribute('target', '_blank');
+        const emailBox = await email.boundingBox();
+        expect(emailBox!.height).toBeGreaterThanOrEqual(44);
+      }
+      const connect = footer.locator('a[data-footer-link]');
+      await expect(connect).toHaveCount(others.length);
+      for (const [index, link] of others.entries()) {
+        await expect(connect.nth(index)).toHaveAttribute('data-footer-link', link.slug);
         await expect(connect.nth(index)).toHaveAttribute('href', link.url);
-        await expect(connect.nth(index)).toHaveText(new RegExp(`^${link.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
-        await expect(connect.nth(index).locator(`svg[data-icon="${link.icon}"]`)).toHaveCount(1);
+        await expect(connect.nth(index)).toHaveText(new RegExp(`^${link.label.replace(/[.*+?^${}()|[]\]/g, '\$&')}`));
         if (isExternal(link.url)) await expect(connect.nth(index)).toHaveAttribute('target', '_blank');
         else await expect(connect.nth(index)).not.toHaveAttribute('target', '_blank');
+        const box = await connect.nth(index).boundingBox();
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(box!.width).toBeGreaterThanOrEqual(44);
+      }
+      const titleBox = await footer.getByRole('heading', { level: 2, name: 'Get in touch' }).boundingBox();
+      const gutter = parseFloat(await cssVar(page.locator('html'), '--gutter'));
+      expect(titleBox!.x, 'left-aligned with the page gutter').toBeLessThanOrEqual(gutter + 64);
+      if (emailLink && others.length > 0) {
+        const [emailBox, firstBox] = await Promise.all([email.boundingBox(), connect.first().boundingBox()]);
+        expect(emailBox!.y + emailBox!.height, 'the buttons sit under the email').toBeLessThanOrEqual(firstBox!.y + 1);
       }
 
       // The accent band, with near-black text; the theme toggle is not in the footer.
@@ -243,11 +256,11 @@ for (const trackId of TRACK_IDS) {
       await expect(html).toHaveAttribute('data-theme', 'dark');
     });
 
-    test('the Connect buttons follow the footer order and the hero buttons the hero order, each from the content API', async ({ page }) => {
+    test('the footer links follow the footer order and the hero buttons the hero order, each from the content API', async ({ page }) => {
       await openRoute(page, routeOf(track));
       const hero = content.getLinks(trackId, 'hero');
       // The footer buttons carry no short name: they are told apart by their address.
-      const footerOnPage = await page.getByRole('contentinfo').locator('a[data-variant="onAccent"]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('href')));
+      const footerOnPage = await page.getByRole('contentinfo').locator('a[data-footer-email], a[data-footer-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('href')));
       expect(footerOnPage).toEqual(links.map((link) => link.url));
       const heroOnPage = await page.locator('#about [data-hero-link]').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('data-hero-link')));
       expect(heroOnPage).toEqual(hero.map((link) => link.slug));

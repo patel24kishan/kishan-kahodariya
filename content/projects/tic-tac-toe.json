@@ -21,19 +21,34 @@
     {
       "src": "https://hd.wallpaperswide.com/thumbs/tic_tac_toe_game-t2.jpg",
       "alt": "Tic Tac Toe cover image"
+    },
+    {
+      "src": "/uploads/tttt-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ttt-2.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ttt-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ttt-4.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/ttt-3.webp",
+      "alt": ""
     }
   ],
-  "videoUrl": "",
+  "videoUrl": "https://ghosts24.itch.io/tictactoe",
   "links": [
     {
       "label": "View Code",
       "url": "https://github.com/patel24kishan/tictactoe",
       "kind": "code"
-    },
-    {
-      "label": "Play",
-      "url": "https://ghosts24.itch.io/tictactoe",
-      "kind": "play"
     }
   ],
   "legacyId": 7

@@ -184,12 +184,22 @@ export function linksInPlace(links, page, place) {
   );
 }
 
-/** "Resume for a specific tab" rows as the site reads them: a row without a tab is dropped. */
+/** "Resume and summary for a specific tab" rows as the site reads them: a row without a tab is dropped. */
 export function cleanTabResumes(value) {
   if (!Array.isArray(value)) return [];
   return value
     .filter((row) => row !== null && typeof row === 'object' && !isBlank(row.tab))
-    .map((row) => ({ tab: text(row.tab), url: text(row.url), label: text(row.label) }));
+    .map((row) => ({ tab: text(row.tab), url: text(row.url), label: text(row.label), summary: text(row.summary) }));
+}
+
+/**
+ * The summary of a page while the tab `tabId` is open (getSummary in selectors.ts): the tab's
+ * own row when its summary is not blank, otherwise the page's main summary — whether or not
+ * the row has a resume link. `from` is "tab" or "main".
+ */
+export function summaryForTab(track, tabId) {
+  const own = cleanTabResumes(track?.tabResumes).find((row) => row.tab === tabId && row.summary.trim() !== '');
+  return own ? { text: own.summary, from: 'tab' } : { text: text(track?.summary), from: 'main' };
 }
 
 /**

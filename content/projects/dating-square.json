@@ -1,15 +1,16 @@
 {
   "slug": "dating-square",
   "title": "Dating Square",
-  "shortDescription": "Developd Agora-based chat feature for 65Square, a privacy-focused social media platform with 1,000+ Android/iOS users. ",
+  "shortDescription": "Developd Agora-based chat feature for 65Square, a privacy-focused social media platform with 1,000+ Android/iOS users.",
   "longDescription": "",
   "dateDisplay": "Dec 2024 - Mar 2025",
   "tags": [
-    "Mobile",
     "Unity",
     "C#",
-    "Agora",
-    "Git"
+    "Agora SDK",
+    "Mobile",
+    "Git",
+    "Claude/Gemini"
   ],
   "category": "unity",
   "audience": "game",
@@ -24,17 +25,12 @@
       "alt": "Dating Square cover image"
     }
   ],
-  "videoUrl": "",
+  "videoUrl": "https://helpusdefend.com/?page_id=7341",
   "links": [
     {
-      "label": "View Code",
-      "url": "",
-      "kind": "code"
-    },
-    {
-      "label": "Watch",
-      "url": "https://helpusdefend.com/?page_id=7341",
-      "kind": "video"
+      "label": "Play",
+      "url": "https://play.google.com/store/apps/details?id=com.DefaultCompany.DatingSquare&pcampaignid=web_share",
+      "kind": "other"
     }
   ],
   "legacyId": 2

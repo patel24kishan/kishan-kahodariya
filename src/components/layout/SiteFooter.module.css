@@ -13,60 +13,60 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding-block: var(--space-10) var(--space-6);
+  padding-block: var(--space-10) var(--space-8);
 }
 
-.columns {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-8);
-}
+/* ---- Contact block: big title, the email as one large link, the rest as small buttons ---- */
 
-@media (min-width: 768px) {
-  .columns {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: var(--space-10);
-  }
-}
-
-.column {
+.contact {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
   min-width: 0;
 }
 
-.heading {
+.contactTitle {
   margin: 0;
   color: var(--color-on-accent);
-  font-size: var(--text-caption-upper);
-  font-weight: 700;
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-upper);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
-.navList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.navLink {
+.email {
   display: inline-flex;
   align-items: center;
-  min-width: 44px;
+  align-self: flex-start;
+  gap: var(--space-3);
+  max-width: 100%;
   min-height: 44px;
   color: var(--color-on-accent);
-  font-size: var(--text-body);
-  font-weight: 600;
+  font-size: clamp(1.05rem, 2.6vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   text-decoration: none;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.18em;
+}
+
+.emailText {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.emailIcon {
+  flex: none;
+  transition: transform var(--duration-fast) var(--ease);
 }
 
 @media (hover: hover) {
-  .navLink:hover {
+  .email:hover {
     text-decoration: underline;
+  }
+
+  .email:hover .emailIcon {
+    transform: translate(2px, -2px);
   }
 }
 
@@ -76,9 +76,52 @@
   gap: var(--space-2);
 }
 
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-on-accent);
+  color: var(--color-on-accent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--color-on-accent);
+    color: var(--color-accent);
+  }
+}
+
+.chip:active {
+  background: var(--color-on-accent);
+  color: var(--color-accent);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .empty {
-  color: var(--color-muted);
+  color: var(--color-on-accent);
   font-size: var(--text-body-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emailIcon {
+    transition: none;
+  }
 }
 
 /* ---- Credit strip: near-black with accent text in both themes ------------------------- */

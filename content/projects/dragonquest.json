@@ -1,0 +1,51 @@
+{
+  "slug": "dragonquest",
+  "title": "Dragon Quest",
+  "shortDescription": "It’s a small project, but seeing it come alive was a huge moment in my game dev journey.\nEvery mechanic — from character movement to UI design — taught me something new about balance, flow, and fun.",
+  "longDescription": "",
+  "dateDisplay": "Oct 2025",
+  "tags": [
+    "Unity 6",
+    "C#",
+    "PC Game"
+  ],
+  "category": "unity",
+  "audience": "game",
+  "featured": false,
+  "published": true,
+  "orderGame": 0,
+  "orderSoftdev": 0,
+  "hoverText": "View ScreenShots & Gameplay",
+  "screenshots": [
+    {
+      "src": "/uploads/dq-2.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/dq-3.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/dq-1.webp",
+      "alt": ""
+    },
+    {
+      "src": "/uploads/dq-5.webp",
+      "alt": ""
+    }
+  ],
+  "videoUrl": "https://youtu.be/9WpfydgSY44",
+  "links": [
+    {
+      "label": "Play",
+      "url": "https://ghosts24.itch.io/dragonquest",
+      "kind": "play"
+    },
+    {
+      "label": "View Code",
+      "url": "https://github.com/kishan-gamedev/2D-Platformer",
+      "kind": "code"
+    }
+  ],
+  "legacyId": null
+}

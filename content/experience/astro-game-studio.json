@@ -2,26 +2,34 @@
   "slug": "astro-game-studio",
   "company": "Astro Game Studio",
   "role": "Game Developer",
-  "location": "",
-  "remote": false,
+  "location": "Canada",
+  "remote": true,
   "startDate": "2024-06",
   "endDate": "",
-  "present": true,
-  "dateDisplay": "June 2024 - Present",
+  "present": false,
+  "dateDisplay": "June 2024 - Aug 2025",
   "logo": "https://images.squarespace-cdn.com/content/v1/662d86830e0ed705ae9658fc/4ed9ff16-ca52-4d86-92db-ef38d10053eb/Astro+Games_Logo+Only.png?format=1500w",
   "bullets": [
     "Developing Battleground themed AAA title for Astro Games using Unreal Engine, Blueprint, and C++."
   ],
-  "bulletsGame": [],
-  "bulletsSoftdev": [],
+  "bulletsGame": [
+    "Built physics-driven player movement and character mechanics for Unbreaded (Steam), working directly with the studio founder and lead developer.",
+    "Prototyped combat and enemy behavior for the studio's third-person shooter in Unreal Engine 5.",
+    "Designed a MongoDB data model for player accounts and feature data, and built theAPI layer that integrated it to the studio's existing game engine."
+  ],
+  "bulletsSoftdev": [
+    "Designed a MongoDB data model for player accounts and feature data, and built theAPI layer that integrated it to the studio's existing game engine."
+  ],
   "tags": [
     "Unreal Engine",
-    "Blueprint",
     "C++",
+    "Blueprint",
+    "Unity",
+    "Cloud",
     "MongoDB"
   ],
-  "audience": "game",
-  "orderGame": 10,
-  "orderSoftdev": 10,
+  "audience": "both",
+  "orderGame": 20,
+  "orderSoftdev": 20,
   "published": true
 }

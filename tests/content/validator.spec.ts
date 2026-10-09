@@ -228,7 +228,7 @@ test.describe('content schema — field rules', () => {
     const cases: [string, string, (data: Record<string, unknown>) => void][] = [
       ['tracks/game.json', 'resumeUrl', (data) => { data.resumeUrl = 'drive link'; }],
       ['tracks/game.json', 'photo', (data) => { data.photo = 'images/profile.jpg'; }],
-      ['tracks/game.json', 'tabResumes[0].url', (data) => { data.tabResumes = [{ tab: 'unreal', url: 'drive link', label: '' }]; }],
+      ['tracks/game.json', 'tabResumes[0].url', (data) => { data.tabResumes = [{ tab: 'unreal', url: 'drive link', label: '', summary: '' }]; }],
       ['site.json', 'logo', (data) => { data.logo = 'images/logo.webp'; }],
       ['projects/alpha.json', 'videoUrl', (data) => { data.videoUrl = 'youtu.be/abc'; }],
       ['projects/alpha.json', 'screenshots[0].src', (data) => { (data.screenshots as Record<string, unknown>[])[0]!.src = 'alpha.webp'; }],
@@ -730,24 +730,24 @@ test.describe('content schema — resume per project tab', () => {
 
   test('valid rows: a category id or "all", with or without a link and a label', () => {
     const value = [
-      { tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' },
-      { tab: 'unity', url: '', label: '' },
-      { tab: 'all', url: 'http://example.com/all?x=1#y', label: '' },
+      { tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume', summary: '' },
+      { tab: 'unity', url: '', label: '', summary: '' },
+      { tab: 'all', url: 'http://example.com/all?x=1#y', label: '', summary: '' },
     ];
     const { content, notes } = read(game(value));
     expect(content.tracks[0]?.tabResumes).toEqual(value);
     expect(notes).toEqual([]);
     // The two pages are independent: the same tab may have a row on each.
     expectValid([
-      ...game([{ tab: 'unreal', url: '', label: '' }]).filter((file) => file.path !== 'tracks/softdev.json'),
-      { path: 'tracks/softdev.json', data: makeTrack('softdev', { tabResumes: [{ tab: 'unreal', url: 'https://example.com/r', label: '' }] }) },
+      ...game([{ tab: 'unreal', url: '', label: '', summary: '' }]).filter((file) => file.path !== 'tracks/softdev.json'),
+      { path: 'tracks/softdev.json', data: makeTrack('softdev', { tabResumes: [{ tab: 'unreal', url: 'https://example.com/r', label: '', summary: '' }] }) },
     ]);
   });
 
   test('the tab must be a category id from site.json or "all"', () => {
     for (const bad of ['godot', 'Unreal', 'unreal ', 'All', 'web apps']) {
       expectIssue(
-        game([{ tab: bad, url: '', label: '' }]),
+        game([{ tab: bad, url: '', label: '', summary: '' }]),
         'tracks/game.json',
         'tabResumes[0].tab',
         /must be a category id from site\.json \(known ids: "unreal", "unity", "webapps"\) or "all"/,
@@ -755,13 +755,13 @@ test.describe('content schema — resume per project tab', () => {
     }
     // The second row is the wrong one: the message points at it.
     expectIssue(
-      game([{ tab: 'unity', url: '', label: '' }, { tab: 'godot', url: '', label: '' }]),
+      game([{ tab: 'unity', url: '', label: '', summary: '' }, { tab: 'godot', url: '', label: '', summary: '' }]),
       'tracks/game.json',
       'tabResumes[1].tab',
       /"godot" must be a category id/,
     );
     // A category that the owner removed from Site settings is caught the same way.
-    const withoutUnreal = game([{ tab: 'unreal', url: '', label: '' }]).map((file) =>
+    const withoutUnreal = game([{ tab: 'unreal', url: '', label: '', summary: '' }]).map((file) =>
       file.path === 'site.json'
         ? { path: file.path, data: { ...(file.data as Record<string, unknown>), categories: (file.data as { categories: { id: string }[] }).categories.filter((category) => category.id !== 'unreal') } }
         : file,
@@ -772,17 +772,17 @@ test.describe('content schema — resume per project tab', () => {
   test('a tab can have only one row on a page', () => {
     expectIssue(
       game([
-        { tab: 'unreal', url: 'https://example.com/a', label: '' },
-        { tab: 'unity', url: '', label: '' },
-        { tab: 'unreal', url: 'https://example.com/b', label: '' },
+        { tab: 'unreal', url: 'https://example.com/a', label: '', summary: '' },
+        { tab: 'unity', url: '', label: '', summary: '' },
+        { tab: 'unreal', url: 'https://example.com/b', label: '', summary: '' },
       ]),
       'tracks/game.json',
       'tabResumes[2].tab',
-      /"unreal" has more than one row \(a tab can have only one resume\)/,
+      /"unreal" has more than one row \(a tab can have only one row\)/,
     );
     // Also when the rows have no link yet, and for the "all" tab.
-    expectIssue(game([{ tab: 'unreal', url: '', label: '' }, { tab: 'unreal', url: '', label: '' }]), 'tracks/game.json', 'tabResumes[1].tab', /more than one row/);
-    expectIssue(game([{ tab: 'all', url: '', label: '' }, { tab: 'all', url: '', label: '' }]), 'tracks/game.json', 'tabResumes[1].tab', /"all" has more than one row/);
+    expectIssue(game([{ tab: 'unreal', url: '', label: '', summary: '' }, { tab: 'unreal', url: '', label: '', summary: '' }]), 'tracks/game.json', 'tabResumes[1].tab', /more than one row/);
+    expectIssue(game([{ tab: 'all', url: '', label: '', summary: '' }, { tab: 'all', url: '', label: '', summary: '' }]), 'tracks/game.json', 'tabResumes[1].tab', /"all" has more than one row/);
     // Three rows for one tab: every extra row is reported.
     const fields = issuesOf(game([{ tab: 'unity' }, { tab: 'unity' }, { tab: 'unity' }])).map((issue) => issue.field);
     expect(fields).toEqual(['tabResumes[1].tab', 'tabResumes[2].tab']);
@@ -793,7 +793,7 @@ test.describe('content schema — resume per project tab', () => {
     for (const value of bad) {
       expect(isWebUrl(value), value).toBe(false);
       expectIssue(
-        game([{ tab: 'unreal', url: value, label: '' }]),
+        game([{ tab: 'unreal', url: value, label: '', summary: '' }]),
         'tracks/game.json',
         'tabResumes[0].url',
         /must be empty or an address starting with https:\/\/ or http:\/\//,
@@ -801,21 +801,54 @@ test.describe('content schema — resume per project tab', () => {
     }
     for (const value of ['', 'https://drive.google.com/file/d/1S5b/view?usp=drive_link', 'http://example.com/resume.pdf']) {
       expect(isWebUrl(value), value).toBe(true);
-      expectValid(game([{ tab: 'unreal', url: value, label: '' }]));
+      expectValid(game([{ tab: 'unreal', url: value, label: '', summary: '' }]));
     }
   });
 
   test('an unknown key and a wrong type are reported with the row and the key', () => {
-    expectIssue(game([{ tab: 'unreal', url: '', label: '', note: 'x' }]), 'tracks/game.json', 'tabResumes[0].note', /is not a field of this kind of content/);
+    expectIssue(game([{ tab: 'unreal', url: '', label: '', note: 'x', summary: '' }]), 'tracks/game.json', 'tabResumes[0].note', /is not a field of this kind of content/);
     expectIssue(game([{ tab: 'unreal', link: 'https://example.com/r' }]), 'tracks/game.json', 'tabResumes[0].link', /is not a field of this kind of content/);
     expectIssue(game('unreal'), 'tracks/game.json', 'tabResumes', /expected array/);
     expectIssue(game({ unreal: 'https://example.com/r' }), 'tracks/game.json', 'tabResumes', /expected array/);
-    expectIssue(game([{ tab: 'unreal', url: 7, label: '' }]), 'tracks/game.json', 'tabResumes[0].url', /expected string/);
-    expectIssue(game([{ tab: 'unreal', url: '', label: false }]), 'tracks/game.json', 'tabResumes[0].label', /expected string/);
-    expectIssue(game([{ tab: 3, url: '', label: '' }]), 'tracks/game.json', 'tabResumes[0].tab', /expected string/);
+    expectIssue(game([{ tab: 'unreal', url: 7, label: '', summary: '' }]), 'tracks/game.json', 'tabResumes[0].url', /expected string/);
+    expectIssue(game([{ tab: 'unreal', url: '', label: false, summary: '' }]), 'tracks/game.json', 'tabResumes[0].label', /expected string/);
+    expectIssue(game([{ tab: 3, url: '', label: '', summary: '' }]), 'tracks/game.json', 'tabResumes[0].tab', /expected string/);
+    expectIssue(game([{ tab: 'unreal', url: '', label: '', summary: 7 }]), 'tracks/game.json', 'tabResumes[0].summary', /expected string/);
+    expectIssue(game([{ tab: 'unreal', url: '', label: '', summary: ['Text.'] }]), 'tracks/game.json', 'tabResumes[0].summary', /expected string/);
+    // A near miss of the key is an unknown key, not a summary.
+    expectIssue(game([{ tab: 'unreal', url: '', label: '', sumary: 'Text.' }]), 'tracks/game.json', 'tabResumes[0].sumary', /is not a field of this kind of content/);
   });
 
-  test('forgiving read: no list means no tab resumes; a missing link or label is ""', () => {
+  test('a summary for one tab: any text, with or without a resume link, kept exactly as written', () => {
+    const value = [
+      // Only a summary: the row is not "useless" without a link.
+      { tab: 'unreal', url: '', label: '', summary: 'Unreal summary.\n\nSecond paragraph, with  two spaces and a trailing one. ' },
+      // Only a resume.
+      { tab: 'unity', url: 'https://example.com/unity-resume', label: 'Unity Resume', summary: '' },
+      // Both.
+      { tab: 'all', url: 'https://example.com/all', label: '', summary: 'Everything.' },
+    ];
+    const { content, notes } = read(game(value));
+    expect(content.tracks[0]?.tabResumes).toEqual(value);
+    expect(notes).toEqual([]);
+    // Spaces only is valid too (it reads as "use the main summary"); nothing is rewritten.
+    const blank = read(game([{ tab: 'unreal', url: '', label: '', summary: '   ' }]));
+    expect(blank.content.tracks[0]?.tabResumes).toEqual([{ tab: 'unreal', url: '', label: '', summary: '   ' }]);
+    expect(blank.notes).toEqual([]);
+    // The other rules are unchanged by a summary: a real tab, one row per tab, a tab at all.
+    expectIssue(game([{ tab: 'godot', url: '', label: '', summary: 'Text.' }]), 'tracks/game.json', 'tabResumes[0].tab', /"godot" must be a category id/);
+    expectIssue(
+      game([{ tab: 'unreal', url: '', label: '', summary: 'One.' }, { tab: 'unreal', url: 'https://example.com/r', label: '', summary: '' }]),
+      'tracks/game.json',
+      'tabResumes[1].tab',
+      /"unreal" has more than one row/,
+    );
+    const dropped = read(game([{ tab: '', url: '', label: '', summary: 'A summary without a tab.' }, { summary: 'No tab key.' }]));
+    expect(dropped.content.tracks[0]?.tabResumes).toEqual([]);
+    expect(dropped.notes).toEqual(['tracks/game.json › tabResumes: 2 blank entries were dropped']);
+  });
+
+  test('forgiving read: no list means no tab resumes; a missing link, label or summary is ""', () => {
     const missing = read(withFile('tracks/game.json', (data) => { delete data.tabResumes; }));
     expect(missing.content.tracks[0]?.tabResumes).toEqual([]);
     expect(missing.notes).toEqual(['tracks/game.json › tabResumes: was missing, read as []']);
@@ -824,43 +857,49 @@ test.describe('content schema — resume per project tab', () => {
     expect(empty.content.tracks[0]?.tabResumes).toEqual([]);
     expect(empty.notes).toEqual(['tracks/game.json › tabResumes: was null, read as []']);
 
-    const sparse = read(game([{ tab: 'unreal' }, { tab: 'unity', url: null, label: null }]));
+    const sparse = read(game([{ tab: 'unreal' }, { tab: 'unity', url: null, label: null, summary: null }]));
     expect(sparse.content.tracks[0]?.tabResumes).toEqual([
-      { tab: 'unreal', url: '', label: '' },
-      { tab: 'unity', url: '', label: '' },
+      { tab: 'unreal', url: '', label: '', summary: '' },
+      { tab: 'unity', url: '', label: '', summary: '' },
     ]);
     expect(sparse.notes).toEqual([
       'tracks/game.json › tabResumes[0].url: was missing, read as ""',
       'tracks/game.json › tabResumes[0].label: was missing, read as ""',
+      'tracks/game.json › tabResumes[0].summary: was missing, read as ""',
       'tracks/game.json › tabResumes[1].url: was null, read as ""',
       'tracks/game.json › tabResumes[1].label: was null, read as ""',
+      'tracks/game.json › tabResumes[1].summary: was null, read as ""',
     ]);
+    // A row written before the summary existed (tab, url, label) still reads, with "" for it.
+    const old = read(game([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume' }]));
+    expect(old.content.tracks[0]?.tabResumes).toEqual([{ tab: 'unreal', url: 'https://example.com/unreal-resume', label: 'Unreal Resume', summary: '' }]);
+    expect(old.notes).toEqual(['tracks/game.json › tabResumes[0].summary: was missing, read as ""']);
   });
 
   test('forgiving read: rows without a tab are dropped, whatever else they hold', () => {
     const { content, notes } = read(
       game([
-        { tab: '', url: 'https://example.com/lost', label: 'Lost' },
+        { tab: '', url: 'https://example.com/lost', label: 'Lost', summary: '' },
         { url: 'https://example.com/no-tab-key' },
-        { tab: null, url: '', label: '' },
-        { tab: '   ', url: '', label: '' },
-        { tab: 'unity', url: 'https://example.com/unity', label: '' },
+        { tab: null, url: '', label: '', summary: '' },
+        { tab: '   ', url: '', label: '', summary: '' },
+        { tab: 'unity', url: 'https://example.com/unity', label: '', summary: '' },
         {},
       ]),
     );
-    expect(content.tracks[0]?.tabResumes).toEqual([{ tab: 'unity', url: 'https://example.com/unity', label: '' }]);
+    expect(content.tracks[0]?.tabResumes).toEqual([{ tab: 'unity', url: 'https://example.com/unity', label: '', summary: '' }]);
     expect(notes).toEqual(['tracks/game.json › tabResumes: 5 blank entries were dropped']);
     // A dropped row never counts as a second row for a tab, and is never checked.
-    expectValid(game([{ tab: '', url: 'not a url', label: '' }, { tab: 'unreal', url: '', label: '' }, { tab: ' ', url: '', label: '' }]));
-    expect(gameTrack(game([{ tab: '' }, { tab: 'unreal' }]))?.tabResumes).toEqual([{ tab: 'unreal', url: '', label: '' }]);
+    expectValid(game([{ tab: '', url: 'not a url', label: '', summary: '' }, { tab: 'unreal', url: '', label: '', summary: '' }, { tab: ' ', url: '', label: '', summary: '' }]));
+    expect(gameTrack(game([{ tab: '' }, { tab: 'unreal' }]))?.tabResumes).toEqual([{ tab: 'unreal', url: '', label: '', summary: '' }]);
   });
 
   test('every problem of the list is reported in one run', () => {
     const issues = issuesOf(
       game([
-        { tab: 'godot', url: 'https://example.com/a', label: '' },
-        { tab: 'unreal', url: 'nope', label: '' },
-        { tab: 'unreal', url: '', label: '', extra: 1 },
+        { tab: 'godot', url: 'https://example.com/a', label: '', summary: '' },
+        { tab: 'unreal', url: 'nope', label: '', summary: '' },
+        { tab: 'unreal', url: '', label: '', extra: 1, summary: '' },
       ]),
     );
     const fields = issues.map((issue) => issue.field).sort();

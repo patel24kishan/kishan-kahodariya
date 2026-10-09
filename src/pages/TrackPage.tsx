@@ -9,6 +9,7 @@ import {
   getResume,
   getSite,
   getSkillGroups,
+  getSummary,
   getTabs,
   getTrack,
   type Project,
@@ -53,6 +54,8 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
   const heroLinks = getLinks(track, 'hero');
   // The resume follows the open project tab: a tab can have its own, the others use the page's.
   const resume = getResume(track, tab);
+  // So does the summary: a tab's own text when it has one, otherwise the page's.
+  const summary = getSummary(track, tab);
   const footerLinks = getLinks(track, 'footer');
   const experience = getExperience(track);
   const skillGroups = getSkillGroups(track);
@@ -105,7 +108,7 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
       <SkipLink href={`#${MAIN_ID}`} />
       <SiteNav monogram={site.monogram} siteName={site.name} logo={site.logo} logoAlt={site.logoAlt} />
       <main id={MAIN_ID} tabIndex={-1} className={styles.main}>
-        <Hero track={profile} name={site.name} monogram={site.monogram} resume={resume} links={heroLinks} />
+        <Hero track={profile} name={site.name} monogram={site.monogram} summary={summary} resume={resume} links={heroLinks} />
         <Projects track={profile} tab={tab} tabs={tabs} projects={projects} onOpen={openViewer} />
         <Experience entries={experience} />
         <Skills track={track} groups={skillGroups} />

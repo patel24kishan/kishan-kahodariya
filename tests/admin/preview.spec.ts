@@ -18,11 +18,12 @@ import { contentDir, contentTree } from './support/env';
 
 const PAGE_IDS: readonly TrackId[] = ['game', 'softdev'];
 
-/** One page's links in each place (short names, in order) and its resume for every tab. */
+/** One page's links in each place (short names, in order) and its resume and summary for every tab. */
 interface LinksAndResumes {
   hero: string[];
   footer: string[];
   resumes: Array<{ url: string; label: string }>;
+  summaries: string[];
 }
 
 function content() {
@@ -161,6 +162,7 @@ test.describe('preview rules equal the site rules', () => {
               const resume = call('resumeForTab', track, tab) as { url: string; label: string };
               return { url: resume.url, label: resume.label };
             }),
+            summaries: tabIds.map((tab) => (call('summaryForTab', track, tab) as { text: string }).text),
           };
         });
       },
@@ -175,6 +177,7 @@ test.describe('preview rules equal the site rules', () => {
       hero: api.getLinks(id, 'hero').map((link) => link.slug),
       footer: api.getLinks(id, 'footer').map((link) => link.slug),
       resumes: api.getTabs().map((tab) => api.getResume(id, tab.id)),
+      summaries: api.getTabs().map((tab) => api.getSummary(id, tab.id)),
     }));
   }
 
@@ -232,11 +235,12 @@ test.describe('preview rules equal the site rules', () => {
         tabResumes:
           track.id === 'game'
             ? [
-                { tab: first.id, url: 'https://example.com/first', label: '' },
-                { tab: second.id, url: '   ', label: 'Never Used' },
-                { tab: 'all', url: 'https://example.com/everything', label: 'Full Resume' },
+                // A resume and a summary; a summary without a resume; a resume with a summary of spaces only.
+                { tab: first.id, url: 'https://example.com/first', label: '', summary: 'Test summary of the first tab.\n\nSecond paragraph.' },
+                { tab: second.id, url: '   ', label: 'Never Used', summary: ' Test summary without a resume. ' },
+                { tab: 'all', url: 'https://example.com/everything', label: 'Full Resume', summary: ' \n ' },
               ]
-            : [{ tab: first.id, url: 'https://example.com/software-first', label: '   ' }],
+            : [{ tab: first.id, url: 'https://example.com/software-first', label: '   ', summary: '' }],
       })),
     };
     const fromSite = siteLinksAndResumes(awkward);
@@ -246,6 +250,14 @@ test.describe('preview rules equal the site rules', () => {
     expect(fromSite[0]?.footer).not.toEqual(fromSite[1]?.footer);
     expect(fromSite[0]?.resumes.map((resume) => resume.url)).toContain('https://example.com/everything');
     expect(fromSite[1]?.resumes[0]).toEqual({ url: 'https://example.com/software-first', label: awkward.tracks[1]?.resumeLabel });
+    // The summaries: two tabs of the game page have their own, every other answer is the page's.
+    const gameSummary = awkward.tracks.find((track) => track.id === 'game')?.summary;
+    const softdevSummary = awkward.tracks.find((track) => track.id === 'softdev')?.summary;
+    const own = ['Test summary of the first tab.\n\nSecond paragraph.', ' Test summary without a resume. '];
+    expect(fromSite[0]?.summaries.filter((text) => own.includes(text)).sort()).toEqual([...own].sort());
+    expect(fromSite[0]?.summaries.filter((text) => !own.includes(text)).every((text) => text === gameSummary)).toBe(true);
+    expect(fromSite[0]?.summaries.at(-1), 'the "all" tab: spaces only is not a summary').toBe(gameSummary);
+    expect(fromSite[1]?.summaries.every((text) => text === softdevSummary)).toBe(true);
   });
 
   test('links and resumes of half-filled items', async ({ page }) => {
@@ -264,24 +276,39 @@ test.describe('preview rules equal the site rules', () => {
           logic.linkPosition?.(undefined, 'footer'),
         ],
         noLinks: [logic.linksInPlace?.(undefined, 'game', 'footer'), logic.linksInPlace?.([null, {}, { published: true }], 'game', 'hero')],
-        rows: logic.cleanTabResumes?.([{ tab: 'unity' }, { tab: '', url: 'https://x.y' }, { url: 'https://x.y' }, null, { tab: null }, { tab: 'unreal', url: 'https://x.y/u', label: 'U' }]),
+        rows: logic.cleanTabResumes?.([{ tab: 'unity' }, { tab: '', url: 'https://x.y' }, { url: 'https://x.y' }, null, { tab: null }, { tab: 'unreal', url: 'https://x.y/u', label: 'U', summary: '' }]),
         notAList: logic.cleanTabResumes?.(undefined),
         noRows: logic.resumeForTab?.(page2, 'unity'),
         emptyPage: logic.resumeForTab?.({}, 'unity'),
         noPage: logic.resumeForTab?.(undefined, 'unity'),
         // A row whose tab is still unselected (the form holds null) is not a row yet.
-        unselected: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: null, url: 'https://x.y/never', label: '' }] }, 'unity'),
-        noLinkYet: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: '', label: 'Unity Resume' }] }, 'unity'),
-        own: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: 'https://x.y/unity', label: 'Unity Resume' }] }, 'unity'),
+        unselected: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: null, url: 'https://x.y/never', label: '', summary: '' }] }, 'unity'),
+        noLinkYet: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: '', label: 'Unity Resume', summary: '' }] }, 'unity'),
+        own: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: 'https://x.y/unity', label: 'Unity Resume', summary: '' }] }, 'unity'),
         ownNoLabel: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: 'https://x.y/unity' }] }, 'unity'),
-        otherTab: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: 'https://x.y/unity', label: 'Unity Resume' }] }, 'unreal'),
+        otherTab: logic.resumeForTab?.({ ...page2, tabResumes: [{ tab: 'unity', url: 'https://x.y/unity', label: 'Unity Resume', summary: '' }] }, 'unreal'),
+        summaries: {
+          noRows: logic.summaryForTab?.({ summary: 'Main.' }, 'unity'),
+          emptyPage: logic.summaryForTab?.({}, 'unity'),
+          noPage: logic.summaryForTab?.(undefined, 'unity'),
+          unselected: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: null, summary: 'Never.' }] }, 'unity'),
+          // A row from before the field existed, a null and spaces only all mean "the main one".
+          noKey: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: 'unity', url: 'https://x.y/unity' }] }, 'unity'),
+          nothing: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: 'unity', summary: null }] }, 'unity'),
+          spaces: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: 'unity', summary: ' \n ' }] }, 'unity'),
+          // Its own text, with or without a resume link, exactly as typed.
+          own: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: 'unity', summary: ' Own.\n\nMore. ' }] }, 'unity'),
+          ownWithResume: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: 'unity', url: 'https://x.y/unity', summary: 'Own.' }] }, 'unity'),
+          otherTab: logic.summaryForTab?.({ summary: 'Main.', tabResumes: [{ tab: 'unity', summary: 'Own.' }] }, 'unreal'),
+          ownOnEmptyPage: logic.summaryForTab?.({ tabResumes: [{ tab: 'unity', summary: 'Own.' }] }, 'unity'),
+        },
       };
     });
     expect(result.positions).toEqual([0, 0, 30, 30, 0, 30, 0]);
     expect(result.noLinks).toEqual([[], []]);
     expect(result.rows).toEqual([
-      { tab: 'unity', url: '', label: '' },
-      { tab: 'unreal', url: 'https://x.y/u', label: 'U' },
+      { tab: 'unity', url: '', label: '', summary: '' },
+      { tab: 'unreal', url: 'https://x.y/u', label: 'U', summary: '' },
     ]);
     expect(result.notAList).toEqual([]);
     const main = { url: 'https://example.com/main', label: 'Main Resume', from: 'main' };
@@ -293,6 +320,21 @@ test.describe('preview rules equal the site rules', () => {
     expect(result.own).toEqual({ url: 'https://x.y/unity', label: 'Unity Resume', from: 'tab' });
     expect(result.ownNoLabel).toEqual({ url: 'https://x.y/unity', label: 'Main Resume', from: 'tab' });
     expect(result.otherTab).toEqual(main);
+
+    const mainSummary = { text: 'Main.', from: 'main' };
+    expect(result.summaries).toEqual({
+      noRows: mainSummary,
+      emptyPage: { text: '', from: 'main' },
+      noPage: { text: '', from: 'main' },
+      unselected: mainSummary,
+      noKey: mainSummary,
+      nothing: mainSummary,
+      spaces: mainSummary,
+      own: { text: ' Own.\n\nMore. ', from: 'tab' },
+      ownWithResume: { text: 'Own.', from: 'tab' },
+      otherTab: mainSummary,
+      ownOnEmptyPage: { text: 'Own.', from: 'tab' },
+    });
   });
 });
 
@@ -434,30 +476,35 @@ test.describe('the preview pane of the dashboard', () => {
     await expect(fact(panel, 'Position in the footer')).toHaveText(String(link.orderFooter + 7));
   });
 
-  test('a page: which resume each prepared tab opens, following the form', async ({ page }) => {
+  test('a page: which resume each prepared tab opens and which summary it shows, following the form', async ({ page }) => {
+    test.setTimeout(120_000);
     const bundle = content();
     const game = bundle.tracks.find((track) => track.id === 'game');
     const [first] = createContentApi(bundle).getTabs().filter((tab) => tab.id !== 'all');
     test.skip(!game || !first || game.resumeUrl === '', 'the game page has no resume or the site has no project tab');
     if (!game || !first) return;
 
-    const files = treeWith('content/tracks/game.json', { tabResumes: [{ tab: first.id, url: '', label: '' }] });
+    const files = treeWith('content/tracks/game.json', { tabResumes: [{ tab: first.id, url: '', label: '', summary: '' }] });
     files['content/tracks/softdev.json'] = treeWith('content/tracks/softdev.json', { tabResumes: [] })['content/tracks/softdev.json'] ?? '';
     const dashboard = await Dashboard.start(page, files);
 
     // A page without rows says so.
     await dashboard.openEntry('pages', 'softdev');
     await expect(fact(dashboard.preview.locator('.kk-page'), 'Resume per tab')).toHaveText('None — every tab uses the resume button above.');
+    await expect(fact(dashboard.preview.locator('.kk-page'), 'Summary per tab')).toHaveText('None — every tab uses the summary above.');
 
-    // A prepared row without a link changes nothing yet.
+    // A prepared row without a link and without a text changes nothing yet.
     await dashboard.openEntry('pages', 'game');
     const panel = dashboard.preview.locator('.kk-page[data-track="game"]');
     const answer = fact(panel, `Resume on the ${first.label} tab`);
+    const summaryAnswer = fact(panel, `Summary on the ${first.label} tab`);
     await expect(answer).toHaveText('No link yet — this tab uses the resume button above.');
+    await expect(summaryAnswer).toHaveText('No text yet — this tab uses the summary above.');
     await expect(fact(panel, 'Resume per tab')).toHaveCount(0);
+    await expect(fact(panel, 'Summary per tab')).toHaveCount(0);
 
     // Typing the link, then a button text: the preview follows.
-    const list = await dashboard.shown('Resume for a specific tab');
+    const list = await dashboard.shown('Resume and summary for a specific tab');
     const linkBox = list.getByRole('textbox', { name: 'Resume link for this tab', exact: true });
     const unfold = list.getByRole('button', { name: 'Expand', exact: true });
     for (let attempt = 0; attempt < 10 && (await linkBox.count()) === 0; attempt += 1) {
@@ -470,13 +517,34 @@ test.describe('the preview pane of the dashboard', () => {
     await expect(answer).toHaveText('Opens https://example.com/own-resume — button text “Own Resume”.');
     // The main resume button of the page is still the main one.
     await expect(fact(panel, 'Resume button')).toHaveText(`Opens ${game.resumeUrl}`);
+    // Nothing was typed in the summary: that half of the row still uses the main one.
+    await expect(summaryAnswer).toHaveText('No text yet — this tab uses the summary above.');
+
+    // Typing a summary for the tab: the preview shows that text for the tab; spaces only is no
+    // summary; and the summary at the top of the page preview is still the main one.
+    const summaryBox = list.getByRole('textbox', { name: 'Summary on this tab', exact: true });
+    await expect(list).toContainText('Leave empty to use the main summary above.');
+    await summaryBox.fill('Test-only summary for this tab.');
+    await expect(summaryAnswer).toHaveText('Test-only summary for this tab.');
+    await expect(answer, 'the resume of the row is untouched').toHaveText('Opens https://example.com/own-resume — button text “Own Resume”.');
+    if (game.summary.trim() !== '') await expect(panel.locator('.kk-hero [data-key-path="summary"]')).toHaveText(game.summary);
+    await summaryBox.fill('   ');
+    await expect(summaryAnswer).toHaveText('No text yet — this tab uses the summary above.');
+    await summaryBox.fill('Test-only summary for this tab.');
+    await expect(summaryAnswer).toHaveText('Test-only summary for this tab.');
+    // A summary without a resume link is used all the same.
+    await linkBox.fill('');
+    await expect(answer).toHaveText('No link yet — this tab uses the resume button above.');
+    await expect(summaryAnswer).toHaveText('Test-only summary for this tab.');
 
     // A second row for the same tab is called out before it can stop a deploy.
-    await list.getByRole('button', { name: /Add.*Resume for one tab/ }).click();
-    await expect(list.getByRole('radiogroup', { name: 'Tab with its own resume', exact: true })).toHaveCount(2);
-    await list.getByRole('radiogroup', { name: 'Tab with its own resume', exact: true }).last().getByRole('radio', { name: first.label, exact: true }).check();
+    await list.getByRole('button', { name: /Add.*Resume and summary for one tab/ }).click();
+    await expect(list.getByRole('radiogroup', { name: 'Tab this row is for', exact: true })).toHaveCount(2);
+    await list.getByRole('radiogroup', { name: 'Tab this row is for', exact: true }).last().getByRole('radio', { name: first.label, exact: true }).check();
     await expect(answer).toHaveCount(2);
     await expect(answer.last()).toContainText('This tab already has a row above');
+    await expect(summaryAnswer).toHaveCount(2);
+    await expect(summaryAnswer.last()).toContainText('This tab already has a row above');
   });
 
   test('site settings: the logo picture when there is one, the logo letters when there is none', async ({ page }) => {

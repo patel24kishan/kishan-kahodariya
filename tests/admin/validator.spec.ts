@@ -674,19 +674,65 @@ const CASES: Case[] = [
   {
     name: 'a resume-per-tab row misses a key',
     config: (config) => removeField(field(pageFile(config, 'game'), 'tabResumes'), 'label'),
-    expect: [/Game page › Resume for a specific tab \(tabResumes\)/, /"label" is in the schema but not in the config/],
+    expect: [/Game page › Resume and summary for a specific tab \(tabResumes\)/, /"label" is in the schema but not in the config/],
   },
   {
     name: 'a resume-per-tab row has a key the schema does not know',
     config: (config) => fields(field(pageFile(config, 'game'), 'tabResumes')).push({ name: 'note', widget: 'string', required: false, default: '' }),
-    expect: [/Resume for a specific tab \(tabResumes\)/, /"note" is not in the schema/, /the deploy would stop/],
+    expect: [/Resume and summary for a specific tab \(tabResumes\)/, /"note" is not in the schema/, /the deploy would stop/],
   },
   {
     name: 'the resume-per-tab rows in another order than the schema',
     config: (config) => {
       (field(pageFile(config, 'game'), 'tabResumes').fields as Dict[]).reverse();
     },
-    expect: [/Resume for a specific tab \(tabResumes\)/, /different order than the schema/, /Schema order: tab, url, label/],
+    expect: [/Resume and summary for a specific tab \(tabResumes\)/, /different order than the schema/, /Schema order: tab, url, label, summary/],
+  },
+  {
+    name: 'the summary of a tab missing from the rows of one page',
+    config: (config) => removeField(field(pageFile(config, 'softdev'), 'tabResumes'), 'summary'),
+    expect: [/Software page › Resume and summary for a specific tab \(tabResumes\)/, /"summary" is in the schema but not in the config/, /lost on the next save/],
+  },
+  {
+    name: 'the summary of a tab placed before the button text',
+    config: (config) => {
+      const rows = fields(field(pageFile(config, 'game'), 'tabResumes'));
+      const at = rows.findIndex((entry) => entry.name === 'label');
+      const [label, summary] = [rows[at], rows[at + 1]];
+      if (at < 0 || !label || !summary || summary.name !== 'summary') throw new Error('summary is expected right after label');
+      rows.splice(at, 2, summary, label);
+    },
+    expect: [/Resume and summary for a specific tab \(tabResumes\)/, /different order than the schema/, /Schema order: tab, url, label, summary/],
+  },
+  {
+    name: 'the summary of a tab made required',
+    config: (config) => {
+      delete field(field(pageFile(config, 'game'), 'tabResumes'), 'summary').required;
+    },
+    expect: [/Summary on this tab \(summary\)/, /optional in the schema: add `required: false`/],
+  },
+  {
+    name: 'the summary of a tab without a default',
+    config: (config) => {
+      delete field(field(pageFile(config, 'softdev'), 'tabResumes'), 'summary').default;
+    },
+    expect: [/Software page › Resume and summary for a specific tab \(tabResumes\) › Summary on this tab \(summary\)/, /needs an explicit `default: ''`/],
+  },
+  {
+    name: 'the summary of a tab with a length limit of the form\'s own',
+    config: (config) => {
+      field(field(pageFile(config, 'game'), 'tabResumes'), 'summary').maxlength = 200;
+    },
+    expect: [/Summary on this tab \(summary\)/, /`maxlength` adds a rule/],
+  },
+  {
+    name: 'the summary of a tab as a list instead of a text',
+    config: (config) => {
+      const summary = field(field(pageFile(config, 'game'), 'tabResumes'), 'summary');
+      summary.widget = 'list';
+      summary.default = [];
+    },
+    expect: [/Summary on this tab \(summary\)/],
   },
   {
     name: 'the tab of a resume row as free text',
@@ -694,21 +740,21 @@ const CASES: Case[] = [
       const tab = field(field(pageFile(config, 'game'), 'tabResumes'), 'tab');
       tab.widget = 'string';
     },
-    expect: [/Tab with its own resume \(tab\)/, /must be a choice driven by Site settings/, /could name a tab that does not exist/],
+    expect: [/Tab this row is for \(tab\)/, /must be a choice driven by Site settings/, /could name a tab that does not exist/],
   },
   {
     name: 'the tab of a resume row pointing at the wrong list',
     config: (config) => {
       field(field(pageFile(config, 'softdev'), 'tabResumes'), 'tab').value_field = 'categories.*.label';
     },
-    expect: [/Software page › Resume for a specific tab \(tabResumes\) › Tab with its own resume \(tab\)/, /must list the project tabs of Site settings/],
+    expect: [/Software page › Resume and summary for a specific tab \(tabResumes\) › Tab this row is for \(tab\)/, /must list the project tabs of Site settings/],
   },
   {
     name: 'the tab of a resume row made optional',
     config: (config) => {
       field(field(pageFile(config, 'game'), 'tabResumes'), 'tab').required = false;
     },
-    expect: [/Tab with its own resume \(tab\)/, /must be required: Sveltia writes null for an unselected relation/],
+    expect: [/Tab this row is for \(tab\)/, /must be required: Sveltia writes null for an unselected relation/],
   },
   {
     name: 'the link of a resume row without a pattern',
@@ -738,7 +784,7 @@ const CASES: Case[] = [
     config: (config) => {
       delete field(pageFile(config, 'game'), 'tabResumes').fields;
     },
-    expect: [/Resume for a specific tab \(tabResumes\)/, /is a list of rows in the schema and needs `fields:`/],
+    expect: [/Resume and summary for a specific tab \(tabResumes\)/, /is a list of rows in the schema and needs `fields:`/],
   },
 ];
 
@@ -976,7 +1022,7 @@ test.describe('form patterns behave like the schema rules', () => {
     expect(String(footer.raw.hint)).toMatch(/separate from the order at the top of the\s+page/);
   });
 
-  test('pages: "Resume for a specific tab" is the same list on both pages — a tab choice from Site settings, a link, an optional label', () => {
+  test('pages: "Resume and summary for a specific tab" is the same list on both pages — a tab choice from Site settings, an optional link, label and summary', () => {
     const projectTab = find('Projects', 'category');
     const shapes = ['Pages › Game page', 'Pages › Software page'].map((label) => {
       const names = (model.targets.find((candidate) => candidate.label === label)?.fields ?? []).map((entry) => entry.name);
@@ -986,8 +1032,9 @@ test.describe('form patterns behave like the schema rules', () => {
       expect(list2.widget).toBe('list');
       expect(list2.raw.required).toBe(false);
       expect(list2.raw.default).toEqual([]);
-      expect(String(list2.raw.hint)).toContain('Leave empty to use the main resume on every tab.');
-      expect((list2.fields ?? []).map((entry) => entry.name)).toEqual(['tab', 'url', 'label']);
+      expect(list2.raw.label).toBe('Resume and summary for a specific tab');
+      expect(String(list2.raw.hint)).toContain('Leave empty to use the main resume and the main summary on every tab.');
+      expect((list2.fields ?? []).map((entry) => entry.name)).toEqual(['tab', 'url', 'label', 'summary']);
 
       // The tab choice is generated from Site settings exactly like the project's "Tab" choice.
       const tab = find(label, 'tabResumes', 'tab');
@@ -1004,6 +1051,22 @@ test.describe('form patterns behave like the schema rules', () => {
       const text = find(label, 'tabResumes', 'label');
       expect(text.raw.required).toBe(false);
       expect(text.raw.default).toBe('');
+      expect(String(url.raw.hint), 'the link says it is optional').toMatch(/^Optional\./);
+
+      // The summary of the tab: a multi-line text like the page's own "Summary", optional, no rule of its own.
+      const summary = find(label, 'tabResumes', 'summary');
+      const mainSummary = find(label, 'summary');
+      expect(summary.widget).toBe('text');
+      expect(summary.widget, 'the same kind of box as the main summary').toBe(mainSummary.widget);
+      expect(summary.raw.label).toBe('Summary on this tab');
+      expect(summary.raw.hint).toBe('Leave empty to use the main summary above.');
+      expect(summary.raw.required).toBe(false);
+      expect(summary.raw.default).toBe('');
+      expect(summary.raw.pattern).toBeUndefined();
+      // The form takes any text, several paragraphs included — and so does the schema.
+      for (const value of ['', 'One line.', 'First paragraph.\n\nSecond paragraph,\nsecond line.', '  spaces around  ']) {
+        expect(formAcceptsText(summary, value), JSON.stringify(value)).toBe(true);
+      }
       return JSON.stringify(list2.raw);
     });
     expect(shapes[0], 'the two pages offer the same list').toBe(shapes[1]);

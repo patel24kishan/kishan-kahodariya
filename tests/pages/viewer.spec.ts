@@ -32,9 +32,14 @@ const track = content.getTrack('game');
 const route = routeOf(track, 'all');
 const projects = content.getProjects('game', 'all');
 
-const withShot = projects.find((project) => project.screenshots.length > 0);
+// A card with one screenshot opens the viewer on that screenshot. A card with several slides
+// through them and opens on the one on show (covered by card-fixture.spec.ts), so these tests
+// prefer a single-screenshot project and fall back to any project with a screenshot.
+const withShot = projects.find((project) => project.screenshots.length === 1) ?? projects.find((project) => project.screenshots.length > 0);
 const withVideo = projects.find(hasParseableVideo);
-const withBoth = projects.find((project) => hasParseableVideo(project) && project.screenshots.length > 0);
+const withBoth =
+  projects.find((project) => hasParseableVideo(project) && project.screenshots.length === 1) ??
+  projects.find((project) => hasParseableVideo(project) && project.screenshots.length > 0);
 const nonStandard = projects.find(hasNonStandardVideoAddress);
 
 /** The strip of a project as data-viewer-item values: "video" first, then "1", "2", … */

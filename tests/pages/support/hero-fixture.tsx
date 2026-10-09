@@ -3,7 +3,8 @@
  * bundle — see hero-fixture.html. Test-only: nothing in src/ imports this file.
  *
  * The page below is wired the way src/pages/TrackPage.tsx is: the open tab comes from the
- * address (resolveTab), the resume from getResume(track, tab), both through the real
+ * address (resolveTab), the resume from getResume(track, tab) and the summary from
+ * getSummary(track, tab), all through the real
  * selectors (createContentApi) over FIXTURE_CONTENT (hero-fixture.content.ts, which the spec
  * imports too, to compute what it expects).
  */
@@ -30,7 +31,7 @@ function Page({ trackId, logo }: { trackId: TrackId; logo: LogoCase }) {
     <div id="top" data-testid="hero-fixture" data-track={trackId} data-tab={tab}>
       <SiteNav monogram={site.monogram} siteName={site.name} logo={LOGO_SOURCES[logo]} logoAlt={site.logoAlt} />
       <main>
-        <Hero track={profile} name={site.name} monogram={site.monogram} resume={api.getResume(trackId, tab)} links={api.getLinks(trackId, 'hero')} />
+        <Hero track={profile} name={site.name} monogram={site.monogram} summary={api.getSummary(trackId, tab)} resume={api.getResume(trackId, tab)} links={api.getLinks(trackId, 'hero')} />
         <Projects track={profile} tab={tab} tabs={api.getTabs()} projects={[]} onOpen={() => undefined} />
       </main>
     </div>

@@ -9,7 +9,7 @@
     "C++",
     "Blueprint",
     "AnimGraph/BlendSpace",
-    "AI"
+    "Lumen"
   ],
   "category": "unreal",
   "audience": "game",
@@ -22,6 +22,10 @@
     {
       "src": "https://miro.medium.com/v2/resize:fit:1200/0*CME_fwKZ7g75TRuj.jpg",
       "alt": "Quest Raider cover image"
+    },
+    {
+      "src": "/uploads/qr-2.webp",
+      "alt": ""
     }
   ],
   "videoUrl": "https://youtu.be/QlD0JzGOHkk",

@@ -30,7 +30,7 @@ for (const trackId of TRACK_IDS) {
       await expect(page.getByRole('main')).toHaveCount(1);
       await expect(page.getByRole('contentinfo')).toHaveCount(1);
       await expect(sectionsNav(page)).toHaveCount(1);
-      await expect(page.getByRole('navigation', { name: 'Footer' })).toHaveCount(1);
+      await expect(page.getByRole('navigation', { name: 'Footer' })).toHaveCount(0);
       await expect(tabsNav(page)).toHaveCount(1);
 
       const ids = await page.locator('main > section').evaluateAll((sections) => sections.map((section) => section.id));
@@ -157,7 +157,10 @@ for (const trackId of TRACK_IDS) {
           if (external && image.getAttribute('referrerpolicy') !== 'no-referrer') problems.push(`${src}: no referrerpolicy`);
           // The hero photo and the logo in the bar are on screen at once: those load eagerly.
           const aboveTheFold = image.closest('#about') !== null || image.closest('header') !== null;
-          if (!aboveTheFold && image.getAttribute('loading') !== 'lazy') problems.push(`${src}: not lazy`);
+          // A card slideshow fetches the slide that comes next ahead of time, so that one is eager.
+          const slide = image.closest('[data-media-slide]');
+          const upcomingSlide = slide !== null && slide.getAttribute('data-media-slide') !== '0';
+          if (!aboveTheFold && !upcomingSlide && image.getAttribute('loading') !== 'lazy') problems.push(`${src}: not lazy`);
           return problems;
         }),
       );
@@ -197,7 +200,8 @@ for (const trackId of TRACK_IDS) {
         [...document.querySelectorAll<HTMLElement>('body *')]
           .filter((element) => {
             const rect = element.getBoundingClientRect();
-            return rect.width > 0 && rect.right > 320.5 && !element.closest('[class*="scroller"], [class*="thumbs"]');
+            // Waiting slides of a card slideshow sit beside the one on show, clipped by the media box.
+            return rect.width > 0 && rect.right > 320.5 && !element.closest('[class*="scroller"], [class*="thumbs"], [data-media-track]');
           })
           .slice(0, 5)
           .map((element) => `${element.tagName.toLowerCase()}.${element.className}`),

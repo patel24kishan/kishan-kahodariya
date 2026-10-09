@@ -232,7 +232,8 @@ test.describe('card media states', () => {
   });
 
   test('a screenshot that fails to load is replaced by the placeholder, and the button still works', async ({ page }) => {
-    const external = projects.find((project) => project.screenshots.length > 0 && isExternal(project.screenshots[0]!.src));
+    // One screenshot only: a card with several skips a broken one and shows the next instead.
+    const external = projects.find((project) => project.screenshots.length === 1 && isExternal(project.screenshots[0]!.src));
     test.skip(!external, 'no project with a hot-linked screenshot');
     // Other origins are blocked, so the image fails at once.
     await openRoute(page, routeOf(track, 'all'));
