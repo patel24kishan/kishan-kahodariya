@@ -49,10 +49,15 @@ test.describe('direct requests', () => {
         if (explicit) expect(descriptions).toEqual([explicit]);
         // An image for link previews must be an absolute URL.
         for (const image of meta(html, 'og:image')) expect(image).toMatch(/^https?:\/\//);
-        // ...and it is the logo, never the profile photo.
+        // ...and never the profile photo: the software page shows a still of its hero video, the
+        // game page the logo.
         expect(meta(html, 'og:image'), 'one preview image').toHaveLength(1);
-        expect(meta(html, 'og:image')[0]).toMatch(/\/icon-512\.png$/);
+        const softdev = expected.track.id === 'softdev';
+        expect(meta(html, 'og:image')[0]).toMatch(softdev ? /\/share\/softdev\.jpg$/ : /\/icon-512\.png$/);
         expect(meta(html, 'og:image')[0]).not.toContain('profile');
+        expect(meta(html, 'og:image:width')).toEqual([softdev ? '1200' : '512']);
+        expect(meta(html, 'og:image:height')).toEqual([softdev ? '630' : '512']);
+        expect(meta(html, 'twitter:card')).toEqual([softdev ? 'summary_large_image' : 'summary']);
 
         // The markers the prerenderer fills in must be gone.
         expect(html).not.toContain('<!--kk:');
