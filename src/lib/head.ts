@@ -44,13 +44,19 @@ export function trackDescription(track: TrackProfile): string {
   return collapseWhitespace(track.metaDescription) || collapseWhitespace(track.summary);
 }
 
+/**
+ * The picture a shared link shows (WhatsApp, LinkedIn, …): the logo, a 512 px square, not the
+ * profile photo. A fixed file under public/ so that it is always large enough for a preview card.
+ */
+export const SHARE_IMAGE = '/icon-512.png';
+
 /** Head for a public page. `canonicalPath` is a router path ("/", "/softdev", "/gamedev/unreal"). */
 export function trackHead(track: TrackProfile, canonicalPath: string): DocumentHead {
   const site = getSite();
   const title = trackTitle(track);
   const description = trackDescription(track);
   const url = absoluteUrl(canonicalPath);
-  const image = absoluteAssetUrl(track.photo);
+  const image = absoluteAssetUrl(SHARE_IMAGE);
 
   const tags: HeadTag[] = [];
   if (description) tags.push({ tag: 'meta', attrs: { name: 'description', content: description } });
@@ -62,7 +68,8 @@ export function trackHead(track: TrackProfile, canonicalPath: string): DocumentH
   tags.push({ tag: 'meta', attrs: { property: 'og:url', content: url } });
   if (image) {
     tags.push({ tag: 'meta', attrs: { property: 'og:image', content: image } });
-    if (track.photoAlt) tags.push({ tag: 'meta', attrs: { property: 'og:image:alt', content: track.photoAlt } });
+    const imageAlt = collapseWhitespace(site.logoAlt) || collapseWhitespace(site.name);
+    if (imageAlt) tags.push({ tag: 'meta', attrs: { property: 'og:image:alt', content: imageAlt } });
   }
   tags.push({ tag: 'meta', attrs: { name: 'twitter:card', content: 'summary' } });
   return { title, tags };
