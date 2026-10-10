@@ -113,8 +113,8 @@ test.describe('background video', () => {
     expect(onTop).toBe(true);
   });
 
-  for (const [track, phone] of [['game', '60% 50%'], ['softdev', '76% 50%']] as const) {
-    test(`the ${track} video is slid on a phone so its character is in the crop, and centred on a larger screen`, async ({ page, isMobile }) => {
+  for (const [track, phone] of [['game', '50% 50%'], ['softdev', '76% 50%']] as const) {
+    test(`the ${track} video is ${track === 'softdev' ? 'slid on a phone so its character is in the crop' : 'centred on a phone'}, and centred on a larger screen`, async ({ page, isMobile }) => {
       await openFixture(page, { track });
       const position = await video(page).evaluate((element) => getComputedStyle(element).objectPosition);
       expect(position).toBe(isMobile ? phone : '50% 50%');

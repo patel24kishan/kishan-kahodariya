@@ -67,14 +67,11 @@
   object-fit: cover;
 }
 
-/* On a phone the picture is cropped to a narrow slice of the wide video. Slide the slice so the
-   character is in it (the desktop crop stays centred). Tuned to each page's own video: swap a
-   video and these two numbers need a fresh look. */
+/* On a phone the picture is cropped to a narrow slice of the wide video. The software page's
+   video has its character right of centre, so its slice is slid to the right (the desktop crop
+   stays centred). The game page keeps the centred crop. Tuned to the page's own video: swap the
+   video and this number needs a fresh look. */
 @media (max-width: 767px) {
-  :global([data-track='game']) .mediaFill {
-    object-position: 60% 50%;
-  }
-
   :global([data-track='softdev']) .mediaFill {
     object-position: 76% 50%;
   }
