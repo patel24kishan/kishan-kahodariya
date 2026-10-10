@@ -67,6 +67,19 @@
   object-fit: cover;
 }
 
+/* On a phone the picture is cropped to a narrow slice of the wide video. Slide the slice so the
+   character is in it (the desktop crop stays centred). Tuned to each page's own video: swap a
+   video and these two numbers need a fresh look. */
+@media (max-width: 767px) {
+  :global([data-track='game']) .mediaFill {
+    object-position: 68% 50%;
+  }
+
+  :global([data-track='softdev']) .mediaFill {
+    object-position: 76% 50%;
+  }
+}
+
 .scrim {
   position: absolute;
   inset: 0;

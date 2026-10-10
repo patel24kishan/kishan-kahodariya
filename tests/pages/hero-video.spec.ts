@@ -23,6 +23,7 @@ import { blockOtherOrigins, cssVar, hexToRgb, presetTheme, scrollTo, THEMES, typ
 const FIXTURE_PATH = 'tests/pages/support/hero-fixture.html';
 
 interface FixtureOptions {
+  track?: 'game' | 'softdev';
   hero?: HeroCase;
   theme?: Theme;
   /** Sections under the hero, so the page can scroll. */
@@ -32,7 +33,7 @@ interface FixtureOptions {
 async function openFixture(page: Page, options: FixtureOptions = {}): Promise<Locator> {
   if (options.theme) await presetTheme(page, options.theme);
   await blockOtherOrigins(page);
-  const query = new URLSearchParams({ track: 'game', hero: options.hero ?? 'full' });
+  const query = new URLSearchParams({ track: options.track ?? 'game', hero: options.hero ?? 'full' });
   if (options.filler) query.set('filler', '1');
   await page.goto(`${FIXTURE_PATH}?${query.toString()}`);
   await page.locator('[data-testid="hero-fixture"]').waitFor();
@@ -111,6 +112,16 @@ test.describe('background video', () => {
     });
     expect(onTop).toBe(true);
   });
+
+  for (const [track, phone] of [['game', '68% 50%'], ['softdev', '76% 50%']] as const) {
+    test(`the ${track} video is slid on a phone so its character is in the crop, and centred on a larger screen`, async ({ page, isMobile }) => {
+      await openFixture(page, { track });
+      const position = await video(page).evaluate((element) => getComputedStyle(element).objectPosition);
+      expect(position).toBe(isMobile ? phone : '50% 50%');
+      // Still a cover crop that fills the hero, whatever the position.
+      await expect(video(page)).toHaveCSS('object-fit', 'cover');
+    });
+  }
 
   test('the pause button is a 44px toggle at the bottom right; it pauses and plays, by pointer and by keyboard', async ({ page }) => {
     const hero = await openFixture(page);
