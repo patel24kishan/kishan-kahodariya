@@ -414,17 +414,20 @@ test.describe('build month in the plugin', () => {
 test.describe('the real content', () => {
   const loaded = loadContent(realContentDir);
 
-  test('site.json holds the two button labels and the three stats', () => {
+  // The owner edits these in the dashboard (labels, which numbers, typed values), so the tests
+  // check the shape and that the content resolves, never the particular words or numbers.
+  test('site.json holds the two button labels and a list of well-formed stats', () => {
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
     const { site } = loaded.content;
-    expect(site.workLabel).toBe('See my work');
-    expect(site.contactLabel).toBe('Get in touch');
-    expect(site.stats).toEqual([
-      { source: 'projects', value: '', label: 'Projects built' },
-      { source: 'companies', value: '', label: 'Companies' },
-      { source: 'years', value: '', label: 'Years building' },
-    ]);
+    expect(typeof site.workLabel).toBe('string');
+    expect(typeof site.contactLabel).toBe('string');
+    expect(site.stats.length).toBeGreaterThan(0);
+    for (const stat of site.stats) {
+      expect(['projects', 'companies', 'years', 'certificates', 'custom']).toContain(stat.source);
+      expect(typeof stat.value).toBe('string');
+      expect(typeof stat.label).toBe('string');
+    }
   });
 
   test('both tracks have the video, no poster and the badge', () => {
@@ -441,21 +444,38 @@ test.describe('the real content', () => {
     }
   });
 
-  test('getHeroStats on both pages gives three sensible numbers', () => {
+  test('getHeroStats on both pages resolves each configured stat the documented way', () => {
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
     const content = publishedOnly(loaded.content);
     const api = createContentApi(content, { buildMonth: '2026-10' });
     for (const track of ['game', 'softdev'] as TrackId[]) {
-      const stats = api.getHeroStats(track);
-      expect(stats.map((s) => s.label)).toEqual(['Projects built', 'Companies', 'Years building']);
-      expect(stats[0]!.value).toBe(String(api.getProjects(track, 'all').length));
-      expect(stats[1]!.value).toBe(String(api.getExperience(track).length));
-      expect(stats[2]!.value).toMatch(/^\d+\+$/);
-      expect(Number.parseInt(stats[0]!.value, 10)).toBeGreaterThan(0);
-      expect(Number.parseInt(stats[1]!.value, 10)).toBeGreaterThan(0);
-      // Earliest start date in the real content is 2019-06.
-      expect(stats[2]!.value).toBe('7+');
+      const resolved = api.getHeroStats(track);
+      // What each configured stat should come to; a stat that comes to nothing (or 0), or that
+      // has no words under it, is dropped. "Years" depends on the dates, so only its shape is
+      // checked.
+      let next = 0;
+      for (const stat of content.site.stats) {
+        const label = stat.label.trim();
+        let value: string | null = null;
+        if (stat.source === 'projects') value = String(api.getProjects(track, 'all').length);
+        else if (stat.source === 'companies') value = String(api.getExperience(track).length);
+        else if (stat.source === 'certificates') value = String(api.getCertificates(track).length);
+        else if (stat.source === 'custom') value = stat.value.trim();
+        if (stat.source === 'years') {
+          if (label === '') continue;
+          const years = resolved[next];
+          if (years === undefined) continue; // no start dates: dropped
+          expect(years.label).toBe(label);
+          expect(years.value).toMatch(/^\d+\+$/);
+          next += 1;
+          continue;
+        }
+        if (value === null || value === '' || value === '0' || label === '') continue;
+        expect(resolved[next], `${stat.source} "${label}"`).toEqual({ value, label });
+        next += 1;
+      }
+      expect(resolved).toHaveLength(next);
     }
   });
 });
