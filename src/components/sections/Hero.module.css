@@ -72,7 +72,7 @@
    video and these two numbers need a fresh look. */
 @media (max-width: 767px) {
   :global([data-track='game']) .mediaFill {
-    object-position: 68% 50%;
+    object-position: 60% 50%;
   }
 
   :global([data-track='softdev']) .mediaFill {
