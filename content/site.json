@@ -18,12 +18,12 @@
   "contactLabel": "Get in touch",
   "stats": [
     {
-      "source": "projects",
-      "value": "",
+      "source": "custom",
+      "value": "25",
       "label": "Projects built"
     },
     {
-      "source": "companies",
+      "source": "custom",
       "value": "",
       "label": "Companies"
     },
