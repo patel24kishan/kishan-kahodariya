@@ -44,23 +44,12 @@ export function trackDescription(track: TrackProfile): string {
   return collapseWhitespace(track.metaDescription) || collapseWhitespace(track.summary);
 }
 
-/** A picture for shared links (WhatsApp, LinkedIn, …), a file under public/. */
-interface ShareImage {
-  path: string;
-  /** Pixel size, when it is known: lets a chat app lay out the card before the picture loads. */
-  width?: number;
-  height?: number;
-  /** "summary" (small square) or "summary_large_image" (wide card). */
-  card: 'summary' | 'summary_large_image';
-}
-
-/** The logo, a 512 px square: what a shared link shows unless the page has a picture of its own. */
-export const SHARE_IMAGE: ShareImage = { path: '/icon-512.png', width: 512, height: 512, card: 'summary' };
-
-/** Pages with a picture of their own: a still from the page's hero video, 1200 × 630. */
-const SHARE_IMAGE_BY_TRACK: Partial<Record<TrackProfile['id'], ShareImage>> = {
-  softdev: { path: '/share/softdev.jpg', width: 1200, height: 630, card: 'summary_large_image' },
-};
+/**
+ * The picture every shared link shows (WhatsApp, LinkedIn, …), on every page: a still from the
+ * software page's hero video, 1200 × 630, a file under public/share/. Never the profile photo.
+ * The size lets a chat app lay out the card before the picture loads.
+ */
+export const SHARE_IMAGE = { path: '/share/preview.jpg', width: 1200, height: 630, card: 'summary_large_image' } as const;
 
 /** Head for a public page. `canonicalPath` is a router path ("/", "/softdev", "/gamedev/unreal"). */
 export function trackHead(track: TrackProfile, canonicalPath: string): DocumentHead {
@@ -68,8 +57,7 @@ export function trackHead(track: TrackProfile, canonicalPath: string): DocumentH
   const title = trackTitle(track);
   const description = trackDescription(track);
   const url = absoluteUrl(canonicalPath);
-  const shareImage = SHARE_IMAGE_BY_TRACK[track.id] ?? SHARE_IMAGE;
-  const image = absoluteAssetUrl(shareImage.path);
+  const image = absoluteAssetUrl(SHARE_IMAGE.path);
 
   const tags: HeadTag[] = [];
   if (description) tags.push({ tag: 'meta', attrs: { name: 'description', content: description } });
@@ -81,12 +69,12 @@ export function trackHead(track: TrackProfile, canonicalPath: string): DocumentH
   tags.push({ tag: 'meta', attrs: { property: 'og:url', content: url } });
   if (image) {
     tags.push({ tag: 'meta', attrs: { property: 'og:image', content: image } });
-    if (shareImage.width) tags.push({ tag: 'meta', attrs: { property: 'og:image:width', content: String(shareImage.width) } });
-    if (shareImage.height) tags.push({ tag: 'meta', attrs: { property: 'og:image:height', content: String(shareImage.height) } });
+    tags.push({ tag: 'meta', attrs: { property: 'og:image:width', content: String(SHARE_IMAGE.width) } });
+    tags.push({ tag: 'meta', attrs: { property: 'og:image:height', content: String(SHARE_IMAGE.height) } });
     const imageAlt = collapseWhitespace(site.logoAlt) || collapseWhitespace(site.name);
     if (imageAlt) tags.push({ tag: 'meta', attrs: { property: 'og:image:alt', content: imageAlt } });
   }
-  tags.push({ tag: 'meta', attrs: { name: 'twitter:card', content: shareImage.card } });
+  tags.push({ tag: 'meta', attrs: { name: 'twitter:card', content: SHARE_IMAGE.card } });
   return { title, tags };
 }
 
