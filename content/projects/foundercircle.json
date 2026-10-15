@@ -24,19 +24,10 @@
     {
       "src": "/uploads/screenshot-2026-10-15-151019.webp",
       "alt": ""
-    },
-    {
-      "src": "",
-      "alt": ""
     }
   ],
-  "videoUrl": "",
+  "videoUrl": "https://youtu.be/z3FapLQJs94",
   "links": [
-    {
-      "label": "Product Demo",
-      "url": "https://youtu.be/SB0WC1db2zw",
-      "kind": "video"
-    },
     {
       "label": "Tech Demo",
       "url": "https://youtu.be/pIF0dO_-o-M",
