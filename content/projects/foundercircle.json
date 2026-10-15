@@ -1,0 +1,47 @@
+{
+  "slug": "foundercircle",
+  "title": "Founders-Circle",
+  "shortDescription": "Founders Circle is a community-driven product that helps startup founders support each other, so engagement grows from the community instead of being pushed by the organizers. Founders can browse and offer to help with.",
+  "longDescription": "",
+  "dateDisplay": "Oct 2026",
+  "tags": [
+    "vercel",
+    "nextJS",
+    "claude",
+    "Git",
+    "Gmail SMTP",
+    "Supabase",
+    "OAuth"
+  ],
+  "category": "webapps",
+  "audience": "softdev",
+  "featured": true,
+  "published": true,
+  "orderGame": 0,
+  "orderSoftdev": 0,
+  "hoverText": "View Screenshots",
+  "screenshots": [
+    {
+      "src": "/uploads/screenshot-2026-10-15-151019.webp",
+      "alt": ""
+    },
+    {
+      "src": "",
+      "alt": ""
+    }
+  ],
+  "videoUrl": "",
+  "links": [
+    {
+      "label": "Product Demo",
+      "url": "https://youtu.be/SB0WC1db2zw",
+      "kind": "video"
+    },
+    {
+      "label": "Tech Demo",
+      "url": "https://youtu.be/pIF0dO_-o-M",
+      "kind": "video"
+    }
+  ],
+  "legacyId": null
+}
