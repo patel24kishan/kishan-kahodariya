@@ -11,7 +11,8 @@
     "Git",
     "Gmail SMTP",
     "Supabase",
-    "OAuth"
+    "OAuth",
+    "TypeScript"
   ],
   "category": "webapps",
   "audience": "softdev",
