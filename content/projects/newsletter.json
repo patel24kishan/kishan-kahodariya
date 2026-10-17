@@ -15,7 +15,7 @@
   "category": "webapps",
   "audience": "both",
   "featured": true,
-  "published": false,
+  "published": true,
   "orderGame": 0,
   "orderSoftdev": 0,
   "hoverText": "",
