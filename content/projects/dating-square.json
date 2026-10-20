@@ -13,7 +13,7 @@
     "Claude/Gemini"
   ],
   "category": "unity",
-  "audience": "game",
+  "audience": "both",
   "featured": false,
   "published": true,
   "orderGame": 70,
