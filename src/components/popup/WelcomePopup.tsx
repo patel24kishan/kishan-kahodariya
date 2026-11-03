@@ -6,6 +6,9 @@ const PopupDialog = lazy(() => import('./PopupDialog'));
 /** localStorage key that remembers a visitor already saw the popup. */
 export const POPUP_SEEN_KEY = 'kk-welcome-seen';
 
+/** For now the popup is for phones only (the QR code is scanned on a phone): below the tablet width. */
+export const POPUP_MEDIA = '(max-width: 767px)';
+
 export interface WelcomePopupProps {
   popup: PopupSettings;
   /** The resume for the page that is open (getResume): an empty url hides the button. */
@@ -20,6 +23,7 @@ export interface WelcomePopupProps {
  * Nothing is rendered on the server and the first client render matches it: the visitor's
  * history is read in an effect, so the prerendered HTML is the same for everyone. The popup
  * code (and the two display fonts it uses) is loaded only when it is about to be shown.
+ * Phones only (POPUP_MEDIA): on a wider screen it is never shown and nothing is remembered.
  * The "seen" flag is set when the popup opens, so a reload does not show it again. Adding
  * ?popup=1 to the address shows it regardless, for the owner to look at it.
  */
@@ -27,7 +31,7 @@ export function WelcomePopup({ popup, resume, email }: WelcomePopupProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!popup.enabled) return;
+    if (!popup.enabled || !window.matchMedia(POPUP_MEDIA).matches) return;
     let forced = false;
     let seen = false;
     try {

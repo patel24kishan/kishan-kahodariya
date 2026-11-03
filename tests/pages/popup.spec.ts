@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { content } from './support/content';
 
 /**
- * The welcome popup: shown once to a first-time visitor (the rest of the suite starts as a
+ * The welcome popup (phones only for now): shown once to a first-time visitor (the rest of the suite starts as a
  * returning visitor, see playwright.config.ts), closable by Esc / the X / the backdrop, the
  * two buttons lead to the two pages, and the name tag starts behind the card and drops out.
  */
@@ -17,7 +17,20 @@ function dialog(page: Page) {
   return page.getByTestId('welcome-popup');
 }
 
+test('on a desktop screen the popup is never shown, even with ?popup=1, and nothing is remembered', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'desktop only');
+  await page.goto('./?popup=1');
+  await expect(page.getByTestId('track-page')).toBeVisible();
+  await page.waitForTimeout(500);
+  await expect(dialog(page)).toHaveCount(0);
+  expect(await page.evaluate((key) => window.localStorage.getItem(key), SEEN)).toBeNull();
+});
+
 test.describe('welcome popup', () => {
+  test.beforeEach(({ page }, info) => {
+    test.skip(page.isClosed() || info.project.name !== 'mobile', 'the popup is shown on phones only');
+  });
+
   test('the owner has it switched on, with the wording from the canvas', () => {
     expect(popup.enabled).toBe(true);
     expect(popup.heading).not.toBe('');
