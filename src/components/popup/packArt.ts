@@ -8,7 +8,7 @@ export const PACK_WIDTH = 230;
 export const PACK_HEIGHT = 360;
 
 export interface PackArtText {
-  /** "BOOSTER PACK": the first word is big, the rest sits small under it. */
+  /** "FRIENDS PACK": the first word is big, the rest sits small under it. */
   title: string;
   /** The yellow band. */
   edition: string;

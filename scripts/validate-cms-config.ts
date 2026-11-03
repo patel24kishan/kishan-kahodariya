@@ -196,7 +196,7 @@ const SAMPLE_SITE = {
     packEnabled: true,
     packHeading: 'A pack for you',
     packHint: 'Slide to tear',
-    packTitle: 'BOOSTER PACK',
+    packTitle: 'FRIENDS PACK',
     packEdition: 'HALCON EDITION',
     packFooter: '6-8 NOV',
   },

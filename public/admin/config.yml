@@ -364,10 +364,10 @@ singletons:
             label: 'Pack: title'
             widget: string
             required: false
-            default: 'BOOSTER PACK'
+            default: 'FRIENDS PACK'
             hint: >-
               Printed at the top of the pack. The first word is big, the rest is small under
-              it, for example BOOSTER PACK.
+              it, for example FRIENDS PACK.
           - name: packEdition
             label: 'Pack: yellow band'
             widget: string

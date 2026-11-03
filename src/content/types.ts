@@ -93,7 +93,7 @@ export interface PopupSettings {
   packHeading: string;
   /** The instruction above the pack: "Slide to tear". */
   packHint: string;
-  /** The title printed on the pack: "BOOSTER PACK" (the first word is big, the rest small). */
+  /** The title printed on the pack: "FRIENDS PACK" (the first word is big, the rest small). */
   packTitle: string;
   /** The band on the pack: "HALCON EDITION". */
   packEdition: string;
