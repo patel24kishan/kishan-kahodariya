@@ -200,7 +200,8 @@ export function drawPackArt(text: PackArtText, logo: HTMLCanvasElement | null): 
     g.fillStyle = '#c9d6ff';
     g.font = '700 12px "Barlow Condensed", sans-serif';
     spacing('3px');
-    g.fillText(text.footer.toUpperCase(), cx, 332);
+    // Option F spaces the separator out: "6-8 NOV  ·  HALIFAX, CA".
+    g.fillText(text.footer.toUpperCase().replace(/\s*·\s*/g, '  ·  '), cx, 332);
   }
   return canvas;
 }

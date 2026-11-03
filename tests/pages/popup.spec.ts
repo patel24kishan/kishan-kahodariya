@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect as baseExpect, test, type Locator, type Page } from '@playwright/test';
 import { content } from './support/content';
 
 /**
@@ -8,11 +8,16 @@ import { content } from './support/content';
  * is torn open (drag, tap or keyboard); the card back rises out, flips, and the buttons and
  * the name tag follow. Closable by Esc / the X / the backdrop at any moment.
  */
+// The first visit loads the popup's code, the shader and the fonts on demand; on a cold dev server that
+// can take a few seconds, so give the assertions more room than the default 5s.
+const expect = baseExpect.configure({ timeout: 15_000 });
+
 const popup = content.getSite().popup;
 const SEEN = 'kk-welcome-seen';
 
 // A first-time visitor: no stored flag.
-test.use({ storageState: { cookies: [], origins: [] } });
+// The test browser draws WebGL in software: render the pack at 1x so parallel workers do not starve each other.
+test.use({ storageState: { cookies: [], origins: [] }, deviceScaleFactor: 1 });
 
 function dialog(page: Page) {
   return page.getByTestId('welcome-popup');
@@ -175,20 +180,25 @@ test.describe('welcome popup', () => {
     await expect(dialog(page).locator('[data-popup-card]')).toHaveCSS('opacity', '1');
   });
 
-  test('Esc, the X and a click on the backdrop close it, even on the pack', async ({ page }) => {
+  test('Esc and a click on the black around it close it, even on the pack; the X appears with the card', async ({ page }) => {
     await page.goto('./?popup=1');
     await expect(dialog(page)).toBeVisible();
+    // As in option F the X is not there while the pack is closed.
+    await expectStage(page, 'pack');
+    await expect(dialog(page).getByRole('button', { name: 'Close the popup' })).toBeHidden();
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);
     await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
 
     await page.goto('./?popup=1');
-    await dialog(page).getByRole('button', { name: 'Close the popup' }).click();
+    await expect(dialog(page)).toBeVisible();
+    await dialog(page).click({ position: { x: 2, y: 2 } });
     await expect(dialog(page)).toHaveCount(0);
 
     await page.goto('./?popup=1');
-    await expect(dialog(page)).toBeVisible();
-    await dialog(page).click({ position: { x: 2, y: 2 } });
+    await tearOpen(page);
+    await expect(dialog(page).getByRole('button', { name: 'Close the popup' })).toBeVisible();
+    await dialog(page).getByRole('button', { name: 'Close the popup' }).click();
     await expect(dialog(page)).toHaveCount(0);
   });
 

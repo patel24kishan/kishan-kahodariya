@@ -29,7 +29,7 @@ const STAGE_NAMES = ['pack', 'torn', 'rise', 'out', 'flip', 'done'] as const;
 const FOCUSABLE = 'a[href], button:not([disabled])';
 
 function focusable(root: HTMLElement): HTMLElement[] {
-  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => element.getClientRects().length > 0 && element.closest('[inert]') === null);
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => element.getClientRects().length > 0 && element.closest('[inert]') === null && getComputedStyle(element).visibility !== 'hidden');
 }
 
 function prefersReducedMotion(): boolean {
