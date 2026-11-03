@@ -77,6 +77,8 @@ export interface PopupSettings {
   tapHint: string;
   /** Label of the mail button. "" hides it (it is also hidden when there is no email address). */
   sayHiLabel: string;
+  /** Discord username, copied when the button is tapped (there is no link from a username alone). "" hides the button. */
+  discordHandle: string;
   /** The coloured band of the name tag: "Open to work". */
   tagBand: string;
   /** The small line on the tag: "Hello, my name is". */
@@ -85,6 +87,18 @@ export interface PopupSettings {
   tagName: string;
   /** The line under the name: "Game dev · Software dev". */
   tagRole: string;
+  /** On = the popup starts with a sealed booster pack the visitor tears open. Off = it opens straight on the card. */
+  packEnabled: boolean;
+  /** The line above the pack: "A pack for you". */
+  packHeading: string;
+  /** The instruction above the pack: "Slide to tear". */
+  packHint: string;
+  /** The title printed on the pack: "BOOSTER PACK" (the first word is big, the rest small). */
+  packTitle: string;
+  /** The band on the pack: "HALCON EDITION". */
+  packEdition: string;
+  /** The line at the bottom of the pack: "6-8 NOV · HALIFAX, CA". */
+  packFooter: string;
 }
 
 /** Where a hero number comes from: counted from the content, or typed by the owner. */

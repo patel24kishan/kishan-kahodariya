@@ -11,8 +11,6 @@ export const POPUP_MEDIA = '(max-width: 767px)';
 
 export interface WelcomePopupProps {
   popup: PopupSettings;
-  /** The resume for the page that is open (getResume): an empty url hides the button. */
-  resume: { url: string; label: string };
   /** The site's email address; empty hides the mail button. */
   email: string;
 }
@@ -27,7 +25,7 @@ export interface WelcomePopupProps {
  * The "seen" flag is set when the popup opens, so a reload does not show it again. Adding
  * ?popup=1 to the address shows it regardless, for the owner to look at it.
  */
-export function WelcomePopup({ popup, resume, email }: WelcomePopupProps) {
+export function WelcomePopup({ popup, email }: WelcomePopupProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -51,5 +49,5 @@ export function WelcomePopup({ popup, resume, email }: WelcomePopupProps) {
 
   const close = useCallback(() => setOpen(false), []);
 
-  return <Suspense fallback={null}>{open && popup.enabled && <PopupDialog popup={popup} resume={resume} email={email} onClose={close} />}</Suspense>;
+  return <Suspense fallback={null}>{open && popup.enabled && <PopupDialog popup={popup} email={email} onClose={close} />}</Suspense>;
 }

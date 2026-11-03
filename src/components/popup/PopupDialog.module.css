@@ -1,13 +1,15 @@
 /*
- * Welcome popup (Design canvas, option D). A self-contained dark artwork: the colours are
- * its own (yellow #faff69, blue #7cb2ff, near-black), the same in the light and dark theme.
+ * Welcome popup (Design canvas, option F: the pack, then option D's card). A self-contained
+ * dark artwork: the colours are its own (yellow #faff69, blue #7cb2ff, near-black), the same
+ * in the light and dark theme.
  *
- * Motion is transform and opacity only, and every resting state equals the final visible
- * state, so with reduced motion (animations off) the popup is simply shown:
- *   card      flips in (0 - .8s), the shine sweeps across it (.7 - 1.8s);
- *   name tag  waits behind the card, drops out of it at 1s, bounces and settles (1.85s),
- *             then swings from its slot; the name is written in by a sliding cover and the
- *             band gleams now and then; the dot blinks.
+ * The dialog gets one class per stage reached (see PopupDialog.tsx): .torn, .rise, .out,
+ * .flip, .done. Motion is transform and opacity only, and every resting state equals the
+ * final visible state, so with reduced motion (.still: animations and transitions off) the
+ * popup is simply shown.
+ *   card      waits small behind the pack, rises out of it, grows, flips to its front;
+ *   pack      its canvas drops away once the card is out;
+ *   name tag  waits behind the card until the end, then drops, bounces and swings.
  */
 
 .popup {
@@ -21,7 +23,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  background: rgba(0, 0, 0, 0.78);
+  background: #000000;
   color: #ffffff;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -30,6 +32,10 @@
 
 .popup[open] {
   display: flex;
+}
+
+.popup:focus {
+  outline: none;
 }
 
 .popup::backdrop {
@@ -54,7 +60,10 @@
 }
 
 .heading {
+  position: relative;
+  flex: 1;
   margin: 0;
+  min-height: 1.2em;
   font-family: 'Barlow Condensed', var(--font-sans);
   font-size: 17px;
   font-weight: 700;
@@ -62,6 +71,19 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #faff69;
+}
+
+/* The line above the pack hands over to the card's heading when the card flips. */
+.headPack,
+.headMain {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.headOn {
+  opacity: 1;
 }
 
 .close {
@@ -85,25 +107,70 @@
 
 .close:focus-visible,
 .action:focus-visible,
-.utilityLink:focus-visible {
+.utilityLink:focus-visible,
+button[data-popup-tear]:focus-visible {
   outline: 3px solid #ffffff;
   outline-offset: 2px;
 }
 
-/* ---- Card ------------------------------------------------------------------------------ */
+/* ---- The card ------------------------------------------------------------------------- */
 
+.cardWrap {
+  position: relative;
+}
+
+/* Small and low (behind the pack) until the pack is torn; origin at the top so the numbers do
+   not depend on the card's height. */
 .card {
   position: relative;
-  z-index: 2;
-  animation: flip 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  z-index: 1;
+  perspective: 900px;
+  transform: translateY(230px) scale(0.59);
+  transform-origin: 50% 0;
+  transition: transform 0.95s cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+
+.rise .card {
+  transform: translateY(20.5%) scale(0.59);
+}
+
+.out .card {
+  z-index: 3;
+  transform: none;
+  transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flipper {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flip .flipper {
+  transform: rotateY(180deg);
+}
+
+.face {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(250, 255, 105, 0.45);
+  background: #101010;
 }
 
 .frame {
   position: relative;
-  overflow: hidden;
   padding: 3px;
-  border-radius: 16px;
   background: #faff69;
+  transform: rotateY(180deg);
 }
 
 .inner {
@@ -166,16 +233,147 @@
   background: #ffffff;
   opacity: 0;
   pointer-events: none;
+}
+
+.flip .shine {
   animation: shine 1.1s ease-out 0.7s both;
 }
 
-/* ---- Buttons --------------------------------------------------------------------------- */
+/* ---- The pack ------------------------------------------------------------------------- */
+
+/* Everything of the pack is placed against the card's box (.cardWrap). The canvas is 300 x 560
+   and sits 4px below the card's top, so the pack (230 x 360 inside it) is centred below the card. */
+.pack {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  z-index: 2;
+  width: 300px;
+  height: 560px;
+  margin-left: -150px;
+  pointer-events: none;
+}
+
+.packCanvas {
+  display: block;
+  width: 300px;
+  height: 560px;
+  opacity: 0;
+}
+
+.packCanvas[data-ready='true'] {
+  opacity: 1;
+}
+
+.out .pack {
+  transform: translateY(560px) rotate(-10deg);
+  opacity: 0;
+  transition:
+    transform 0.8s cubic-bezier(0.5, 0, 0.9, 0.4),
+    opacity 0.55s ease 0.25s;
+}
+
+.guide {
+  position: absolute;
+  top: 200px;
+  left: calc(50% - 115px);
+  z-index: 4;
+  width: 230px;
+  height: 2px;
+  border-top: 2px dashed #ffffff;
+  opacity: 0.95;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}
+
+.hint {
+  position: absolute;
+  top: 90px;
+  left: 0;
+  z-index: 4;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.hint b {
+  font-family: 'Barlow Condensed', var(--font-sans);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.arrows {
+  display: flex;
+  gap: 2px;
+  color: #faff69;
+  animation: nudge 1.4s ease-in-out infinite;
+}
+
+.torn .guide,
+.torn .hint,
+.torn button[data-popup-tear] {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+button[data-popup-tear] {
+  position: absolute;
+  top: 176px;
+  left: calc(50% - 139px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #ffffff;
+  cursor: grab;
+  touch-action: none;
+}
+
+button[data-popup-tear]:active {
+  cursor: grabbing;
+}
+
+button[data-popup-tear] svg {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
+}
+
+/* ---- Buttons ---------------------------------------------------------------------------- */
+
+.extras {
+  position: relative;
+  z-index: 3;
+  margin-top: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(18px);
+}
+
+.done .extras {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
 
 .actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 16px;
 }
 
 .action {
@@ -224,6 +422,11 @@
 }
 
 .utilityLink {
+  margin: 0;
+  padding: 0 8px;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -236,6 +439,14 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   text-decoration: none;
+}
+
+/* The Discord username keeps its own letter case. */
+.handle {
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .utilityLink:hover {
@@ -259,11 +470,16 @@
   width: 250px;
   max-width: 100%;
   margin: 22px auto 0;
+  opacity: 0;
   transform: rotate(-2deg);
   transform-origin: 50% 0;
+}
+
+.done .tag {
+  opacity: 1;
   animation:
-    drop 0.85s linear 1s backwards,
-    sway 6s ease-in-out 1.85s infinite;
+    drop 0.85s linear 0.35s backwards,
+    sway 6s ease-in-out 1.2s infinite;
 }
 
 .tagBody {
@@ -320,7 +536,10 @@
   background: #ffffff;
   opacity: 0;
   pointer-events: none;
-  animation: gleam 5s ease-in-out 3s infinite;
+}
+
+.done .gleam {
+  animation: gleam 5s ease-in-out 2.4s infinite;
 }
 
 .tagText {
@@ -358,7 +577,10 @@
   height: 100%;
   background: #ffffff;
   transform: translateX(101%);
-  animation: ink 0.9s ease-out 1.95s backwards;
+}
+
+.done .ink {
+  animation: ink 0.9s ease-out 1.3s backwards;
 }
 
 .role {
@@ -380,18 +602,6 @@
   }
 }
 
-@keyframes flip {
-  from {
-    transform: perspective(900px) rotateY(-80deg) scale(0.9);
-    opacity: 0;
-  }
-
-  to {
-    transform: none;
-    opacity: 1;
-  }
-}
-
 @keyframes shine {
   from {
     transform: translateX(-140%) skewX(-18deg);
@@ -408,8 +618,19 @@
   }
 }
 
-/* The tag starts hidden behind the picture card (opacity 0 until its delay is over) and
-   falls out below it. -340px puts it behind the card's picture area. */
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateX(-8px);
+  }
+
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+/* The tag starts hidden behind the card (opacity 0 until its delay is over) and falls out of
+   it. -340px puts it behind the card's picture area. */
 @keyframes drop {
   0% {
     transform: translateY(-340px) rotate(-2deg);
@@ -508,14 +729,17 @@
   }
 }
 
+/* Reduced motion: nothing moves, everything is shown. */
+.still,
+.still * {
+  animation: none !important;
+  transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .popup,
-  .card,
-  .shine,
-  .tag,
-  .dot,
-  .gleam,
-  .ink {
-    animation: none;
+  .popup * {
+    animation: none !important;
+    transition: none !important;
   }
 }

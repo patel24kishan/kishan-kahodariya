@@ -301,10 +301,17 @@ export const popupSchema = z.strictObject({
   softLabel: text,
   tapHint: text,
   sayHiLabel: text,
+  discordHandle: text,
   tagBand: text,
   tagGreeting: text,
   tagName: text,
   tagRole: text,
+  packEnabled: flag,
+  packHeading: text,
+  packHint: text,
+  packTitle: text,
+  packEdition: text,
+  packFooter: text,
 });
 
 export const siteSchema = z
