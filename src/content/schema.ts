@@ -292,6 +292,21 @@ export const heroStatSchema = z.strictObject({
   label: text,
 });
 
+export const popupSchema = z.strictObject({
+  enabled: flag,
+  heading: text,
+  bubble: text,
+  message: text,
+  gameLabel: text,
+  softLabel: text,
+  tapHint: text,
+  sayHiLabel: text,
+  tagBand: text,
+  tagGreeting: text,
+  tagName: text,
+  tagRole: text,
+});
+
 export const siteSchema = z
   .strictObject({
     name: requiredText,
@@ -310,6 +325,7 @@ export const siteSchema = z
     workLabel: text,
     contactLabel: text,
     stats: listOf(heroStatSchema, isBlankStatRow),
+    popup: z.preprocess((value) => (value === undefined || value === null ? {} : value), popupSchema),
     categories: orDefault(z.array(categorySchema), () => []),
   })
   .superRefine((site, ctx) => {

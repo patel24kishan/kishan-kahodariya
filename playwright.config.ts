@@ -31,6 +31,12 @@ export default defineConfig({
   use: {
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
+    // Every test starts as a returning visitor: the welcome popup (src/components/popup) shows only
+    // to a first-time visitor and would cover the page. tests/pages/popup.spec.ts clears this.
+    storageState: {
+      cookies: [],
+      origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'kk-welcome-seen', value: '1' }] }],
+    },
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },

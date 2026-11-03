@@ -717,6 +717,20 @@ export function migrateLegacy(input: unknown): MigrationResult {
     workLabel: '',
     contactLabel: '',
     stats: [],
+    popup: {
+      enabled: false,
+      heading: '',
+      bubble: '',
+      message: '',
+      gameLabel: '',
+      softLabel: '',
+      tapHint: '',
+      sayHiLabel: '',
+      tagBand: '',
+      tagGreeting: '',
+      tagName: '',
+      tagRole: '',
+    },
     categories: CATEGORIES.map((category) => ({ ...category })),
   };
 

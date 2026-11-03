@@ -238,6 +238,98 @@ singletons:
             required: false
             default: ''
             hint: For example Projects built. If this is empty, the number is not shown.
+      - name: popup
+        label: Welcome popup
+        widget: object
+        collapsed: true
+        hint: >-
+          The popup a visitor sees ONCE, the first time they open the site (the browser
+          remembers it). Every line can be changed here. Leave a text empty to hide that
+          part of the popup. To see it again on your own device, add ?popup=1 to the address.
+        fields:
+          - name: enabled
+            label: Show the popup
+            widget: boolean
+            required: false
+            default: false
+            hint: Turn this off to stop showing the popup to anyone, for example after an event.
+          - name: heading
+            label: Line above the card
+            widget: string
+            required: false
+            default: 'Whoa, you found me!'
+            hint: >-
+              The small yellow line at the top, for example Whoa, you found me!
+          - name: bubble
+            label: Speech bubble on the picture
+            widget: string
+            required: false
+            default: 'Psst! Need a Developer? Tap me!'
+            hint: >-
+              Keep it short; it sits on the picture.
+          - name: message
+            label: Text under the picture
+            widget: string
+            required: false
+            default: ''
+            hint: >-
+              The friendly line. Two sentences work best.
+          - name: gameLabel
+            label: 'Yellow button (game page)'
+            widget: string
+            required: false
+            default: 'Game developer?'
+            hint: >-
+              Opens the game developer page. Leave empty to hide this button.
+          - name: softLabel
+            label: 'Blue button (software page)'
+            widget: string
+            required: false
+            default: 'Software developer?'
+            hint: >-
+              Opens the software developer page. Leave empty to hide this button.
+          - name: tapHint
+            label: Small line on both buttons
+            widget: string
+            required: false
+            default: 'Tap me!'
+            hint: >-
+              For example Tap me!
+          - name: sayHiLabel
+            label: Mail button
+            widget: string
+            required: false
+            default: 'Say hi'
+            hint: >-
+              Opens an email to your address from Site settings. Leave empty to hide it.
+          - name: tagBand
+            label: 'Name tag: coloured band'
+            widget: string
+            required: false
+            default: 'Open to work'
+            hint: >-
+              For example Open to work.
+          - name: tagGreeting
+            label: 'Name tag: small line'
+            widget: string
+            required: false
+            default: 'Hello, my name is'
+            hint: >-
+              For example Hello, my name is.
+          - name: tagName
+            label: 'Name tag: handwritten name'
+            widget: string
+            required: false
+            default: 'Kishan'
+            hint: >-
+              Your first name, written big on the tag.
+          - name: tagRole
+            label: 'Name tag: line under the name'
+            widget: string
+            required: false
+            default: 'Game dev · Software dev'
+            hint: >-
+              For example Game dev · Software dev.
       - name: categories
         label: Project tabs
         label_singular: Project tab

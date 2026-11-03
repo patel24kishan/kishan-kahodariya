@@ -19,6 +19,7 @@ import {
 import { SkipLink } from '@/components/ui';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteNav } from '@/components/layout/SiteNav';
+import { WelcomePopup } from '@/components/popup/WelcomePopup';
 import { MAIN_ID, PAGE_TOP_ID } from '@/components/layout/sections';
 import { Education } from '@/components/sections/Education';
 import { Experience } from '@/components/sections/Experience';
@@ -116,6 +117,7 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
         <Education education={education} certificates={certificates} certificatesFirst={profile.certificatesFirst} />
       </main>
       <SiteFooter links={footerLinks} credit={site.credit} contactLabel={site.contactLabel} />
+      <WelcomePopup popup={site.popup} resume={resume} email={site.email} />
       {viewed && request && <MediaViewer project={viewed} item={request.item} opener={openerRef.current} onItemChange={moveViewer} onClose={closeViewer} />}
     </div>
   );

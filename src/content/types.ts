@@ -55,6 +55,36 @@ export interface SiteSettings {
   contactLabel: string;
   /** The numbers shown in the hero, in this order; read them through getHeroStats(). */
   stats: HeroStat[];
+  /** The welcome popup shown once to a first-time visitor. */
+  popup: PopupSettings;
+}
+
+/** content/site.json › popup. A blank text hides that part of the popup. */
+export interface PopupSettings {
+  /** Off = the popup is never shown. */
+  enabled: boolean;
+  /** The line above the card: "Whoa, you found me!". */
+  heading: string;
+  /** The speech bubble on the picture. */
+  bubble: string;
+  /** The text under the picture. */
+  message: string;
+  /** Yellow button to the game page: "Game developer?". "" hides the button. */
+  gameLabel: string;
+  /** Blue button to the software page: "Software developer?". "" hides the button. */
+  softLabel: string;
+  /** The small second line on both buttons: "Tap me!". */
+  tapHint: string;
+  /** Label of the mail button. "" hides it (it is also hidden when there is no email address). */
+  sayHiLabel: string;
+  /** The coloured band of the name tag: "Open to work". */
+  tagBand: string;
+  /** The small line on the tag: "Hello, my name is". */
+  tagGreeting: string;
+  /** The handwritten name on the tag: "Kishan". */
+  tagName: string;
+  /** The line under the name: "Game dev · Software dev". */
+  tagRole: string;
 }
 
 /** Where a hero number comes from: counted from the content, or typed by the owner. */
