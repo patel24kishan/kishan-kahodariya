@@ -52,7 +52,10 @@ export function render(routePath: string): RenderedPage {
   }
   return {
     html: renderToString(shell(routePath, <App />)),
-    head: renderHead(route.head),
+    // The marker lets the inline script in index.html cover the page for a first-time phone
+    // visitor before the first paint (see src/components/popup/popupCover.ts). Outside the
+    // managed head tags, so a client navigation never touches it.
+    head: renderHead(route.head) + (getSite().popup.enabled ? '\n    <meta name="kk-popup" content="on" />' : ''),
   };
 }
 

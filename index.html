@@ -34,9 +34,46 @@
         } catch (ignored) {}
       })();
     </script>
+    <style>
+      /* Black cover for a first-time phone visitor, so the page never shows before the welcome popup. */
+      html.kk-popup-pending::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 2147483646;
+        background: #000000;
+      }
+    </style>
     <!--kk:head-->
     <title>Kishan Kahodariya</title>
     <!--/kk:head-->
+    <script>
+      /*
+       * Welcome-popup cover. Runs before first paint, after the managed head (which carries the
+       * kk-popup marker when the popup is switched on in the dashboard). Mirrors the rules in
+       * src/components/popup/WelcomePopup.tsx: a phone, the popup not seen yet (or ?popup=1).
+       * The app lifts the cover (popupCover.ts); the timer lifts it if the app never starts.
+       */
+      (function () {
+        try {
+          if (!document.querySelector('meta[name="kk-popup"]')) return;
+          if (!window.matchMedia('(max-width: 767px)').matches) return;
+          var forced = /(^|[?&])popup=1(&|$)/.test(window.location.search);
+          var seen = true;
+          try {
+            seen = window.localStorage.getItem('kk-welcome-seen') !== null;
+          } catch (storageBlocked) {
+            seen = false;
+          }
+          if (seen && !forced) return;
+          var root = document.documentElement;
+          root.classList.add('kk-popup-pending');
+          window.setTimeout(function () {
+            root.classList.remove('kk-popup-pending');
+          }, 8000);
+        } catch (ignored) {}
+      })();
+    </script>
     <link rel="icon" type="image/png" sizes="64x64" href="%BASE_URL%favicon-64.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%icon-192.png" />
     <link rel="manifest" href="%BASE_URL%manifest.json" />

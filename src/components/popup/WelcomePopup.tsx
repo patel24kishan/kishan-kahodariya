@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import type { PopupSettings } from '@/content';
+import { liftPopupCover } from './popupCover';
 
 const PopupDialog = lazy(() => import('./PopupDialog'));
 
@@ -24,12 +25,19 @@ export interface WelcomePopupProps {
  * Phones only (POPUP_MEDIA): on a wider screen it is never shown and nothing is remembered.
  * The "seen" flag is set when the popup opens, so a reload does not show it again. Adding
  * ?popup=1 to the address shows it regardless, for the owner to look at it.
+ *
+ * A first-time phone visitor must not see the page first: index.html covers the page before
+ * the first paint (popupCover.ts) and the cover is lifted here when no popup is coming, or by
+ * the dialog once it is open.
  */
 export function WelcomePopup({ popup, email }: WelcomePopupProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!popup.enabled || !window.matchMedia(POPUP_MEDIA).matches) return;
+    if (!popup.enabled || !window.matchMedia(POPUP_MEDIA).matches) {
+      liftPopupCover();
+      return;
+    }
     let forced = false;
     let seen = false;
     try {
@@ -38,7 +46,10 @@ export function WelcomePopup({ popup, email }: WelcomePopupProps) {
     } catch {
       // Storage blocked (private window): show it once per page load.
     }
-    if (!forced && seen) return;
+    if (!forced && seen) {
+      liftPopupCover();
+      return;
+    }
     try {
       window.localStorage.setItem(POPUP_SEEN_KEY, '1');
     } catch {

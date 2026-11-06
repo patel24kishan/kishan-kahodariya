@@ -7,6 +7,7 @@ import { getTrack, type PopupSettings } from '@/content';
 import { Icon, cx } from '@/components/ui';
 import { assetUrl, trackPath } from '@/lib/paths';
 import { PackStage } from './PackStage';
+import { liftPopupCover } from './popupCover';
 import styles from './PopupDialog.module.css';
 
 export interface PopupDialogProps {
@@ -102,7 +103,16 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
     // Focus the popup itself (no focus ring); Tab moves on to the scissors and the buttons.
     dialog.focus();
     const pending = timers.current;
+    // The page was covered until now (popupCover.ts). The dialog fades in, so lift the cover
+    // only when the fade is over: otherwise the page would show through it for an instant.
+    const lift = (event?: Event) => {
+      if (event && event.target !== dialog) return;
+      liftPopupCover();
+    };
+    dialog.addEventListener('animationend', lift, { once: true });
+    pending.push(window.setTimeout(lift, 600));
     return () => {
+      dialog.removeEventListener('animationend', lift);
       pending.forEach((id) => window.clearTimeout(id));
       if (dialog.open) dialog.close();
       html.style.overflow = previous.overflow;
