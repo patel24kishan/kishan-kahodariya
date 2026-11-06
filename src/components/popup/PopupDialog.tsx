@@ -100,7 +100,7 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
     html.style.overflow = 'hidden';
     if (scrollbar > 0) html.style.paddingRight = `${scrollbar}px`;
     if (!dialog.open) dialog.showModal();
-    // Focus the popup itself (no focus ring); Tab moves on to the scissors and the buttons.
+    // Focus the popup itself (no focus ring); Tab moves on to the finger and the buttons.
     dialog.focus();
     const pending = timers.current;
     // The page was covered until now (popupCover.ts). The dialog fades in, so lift the cover
@@ -120,7 +120,7 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
     };
   }, []);
 
-  // The scissors are gone once the pack is torn: keep focus inside the popup (on the dialog
+  // The finger are gone once the pack is torn: keep focus inside the popup (on the dialog
   // itself, which shows no focus ring) instead of dropping it on the page behind.
   useEffect(() => {
     if (stage === 5 && !dialogRef.current?.contains(document.activeElement)) dialogRef.current?.focus();

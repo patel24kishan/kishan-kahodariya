@@ -355,11 +355,11 @@ singletons:
             default: 'A pack for you'
             hint: Shown at the top while the pack is closed, for example A pack for you.
           - name: packHint
-            label: 'Pack: instruction'
+            label: 'Pack: screen-reader hint'
             widget: string
             required: false
             default: 'Slide to tear'
-            hint: Shown above the pack, for example Slide to tear.
+            hint: Read aloud by screen readers on the pack, for example Slide to tear. It is not shown on screen; a finger slides along the dotted line to show how.
           - name: packTitle
             label: 'Pack: title'
             widget: string

@@ -301,37 +301,7 @@ button[data-popup-tear]:focus-visible {
   pointer-events: none;
 }
 
-.hint {
-  position: absolute;
-  top: 90px;
-  left: 0;
-  z-index: 4;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-}
-
-.hint b {
-  font-family: 'Barlow Condensed', var(--font-sans);
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: #ffffff;
-}
-
-.arrows {
-  display: flex;
-  gap: 2px;
-  color: #faff69;
-  animation: nudge 1.4s ease-in-out infinite;
-}
-
 .torn .guide,
-.torn .hint,
 .torn button[data-popup-tear] {
   opacity: 0;
   transition: opacity 0.25s ease;
@@ -361,8 +331,26 @@ button[data-popup-tear]:active {
   cursor: grabbing;
 }
 
-button[data-popup-tear] svg {
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
+/* The handle is a fingertip pressing on the guide: the touch glow sits on the line, the finger below it. */
+.finger {
+  position: absolute;
+  top: 20px;
+  left: 9px;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+.touch {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0, rgba(255, 255, 255, 0.35) 55%, rgba(255, 255, 255, 0) 72%);
+  pointer-events: none;
 }
 
 /* ---- Buttons ---------------------------------------------------------------------------- */
@@ -630,17 +618,6 @@ button[data-popup-tear] svg {
   to {
     transform: translateX(260%) skewX(-18deg);
     opacity: 0;
-  }
-}
-
-@keyframes nudge {
-  0%,
-  100% {
-    transform: translateX(-8px);
-  }
-
-  50% {
-    transform: translateX(8px);
   }
 }
 

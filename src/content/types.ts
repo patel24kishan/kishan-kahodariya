@@ -91,7 +91,7 @@ export interface PopupSettings {
   packEnabled: boolean;
   /** The line above the pack: "A pack for you". */
   packHeading: string;
-  /** The instruction above the pack: "Slide to tear". */
+  /** What a screen reader says about the pack: "Slide to tear". Not shown on screen (a finger shows how). */
   packHint: string;
   /** The title printed on the pack: "FRIENDS PACK" (the first word is big, the rest small). */
   packTitle: string;

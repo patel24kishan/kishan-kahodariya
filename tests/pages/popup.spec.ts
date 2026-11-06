@@ -97,7 +97,34 @@ test.describe('welcome popup', () => {
     await expect(dialog(page).getByRole('heading', { name: popup.heading })).toBeVisible();
   });
 
-  test('tapping the scissors tears the pack: the stages follow in order and the pack goes', async ({ page }) => {
+  test('a finger slides along the dotted line on its own, the pack stays shut, and no instruction text is shown', async ({ page }) => {
+    await page.goto('./?popup=1');
+    await expectStage(page, 'pack');
+    const offset = () => tear(page).evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41);
+    // The finger moves by itself, a good way along the line...
+    await expect.poll(offset, { timeout: 8_000 }).toBeGreaterThan(80);
+    // ...but nothing is torn, and no instruction is written on screen (a screen reader still gets it).
+    await expectStage(page, 'pack');
+    await expect(dialog(page).getByText(popup.packHint, { exact: true })).toHaveCount(0);
+    await expect(tear(page)).toHaveAttribute('aria-label', new RegExp(popup.packHint));
+  });
+
+  test('touching the finger stops the idle demo', async ({ page }) => {
+    await page.goto('./?popup=1');
+    await expectStage(page, 'pack');
+    await expect(tear(page)).toBeVisible();
+    const offset = () => tear(page).evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41);
+    const box = await tear(page).boundingBox();
+    if (!box) throw new Error('the handle has no box');
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    const held = await offset();
+    await page.waitForTimeout(700);
+    expect(await offset()).toBeCloseTo(held, 0);
+    await page.mouse.up();
+  });
+
+  test('tapping the finger tears the pack: the stages follow in order and the pack goes', async ({ page }) => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
     await expect(dialog(page).locator('[data-popup-pack]')).toHaveAttribute('data-ready', 'true');
@@ -116,7 +143,7 @@ test.describe('welcome popup', () => {
     await expect(tear(page)).toHaveCount(0);
   });
 
-  test('dragging the scissors along the line tears the pack', async ({ page }) => {
+  test('dragging the finger along the line tears the pack', async ({ page }) => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
     await expect(dialog(page).locator('[data-popup-pack]')).toHaveAttribute('data-ready', 'true');
@@ -146,7 +173,7 @@ test.describe('welcome popup', () => {
     await tearOpen(page);
   });
 
-  test('the scissors work from the keyboard', async ({ page }) => {
+  test('the finger works from the keyboard', async ({ page }) => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
     await expect(dialog(page)).toBeFocused();
