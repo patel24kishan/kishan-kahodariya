@@ -35,13 +35,77 @@
       })();
     </script>
     <style>
-      /* Black cover for a first-time phone visitor, so the page never shows before the welcome popup. */
-      html.kk-popup-pending::before {
-        content: '';
+      /*
+       * Load screen for a first-time phone visitor: a black screen with a ring and a 0 to 100
+       * count, shown before the first paint until the welcome popup is ready (see the script
+       * after #kk-load and src/components/popup/popupCover.ts). Plain system fonts: this shows
+       * before any font has loaded.
+       */
+      #kk-load {
+        display: none;
         position: fixed;
         inset: 0;
         z-index: 2147483646;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
         background: #000000;
+        color: #ffffff;
+        font-family: 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+      }
+      html.kk-popup-pending #kk-load {
+        display: flex;
+      }
+      #kk-load .kk-ring {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+      #kk-load .kk-ring svg {
+        display: block;
+        width: 200px;
+        height: 200px;
+        transform: rotate(-90deg);
+      }
+      #kk-load .kk-num {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        padding-top: 62px;
+        font-size: 84px;
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      #kk-load .kk-num small {
+        margin-left: 2px;
+        font-size: 30px;
+        font-weight: 700;
+        color: #faff69;
+      }
+      #kk-load .kk-label {
+        padding-left: 0.32em;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: #faff69;
+      }
+      #kk-load.kk-full .kk-ring {
+        animation: kk-pop 0.4s ease;
+      }
+      @keyframes kk-pop {
+        50% {
+          transform: scale(1.1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #kk-load.kk-full .kk-ring {
+          animation: none;
+        }
       }
     </style>
     <!--kk:head-->
@@ -52,7 +116,8 @@
        * Welcome-popup cover. Runs before first paint, after the managed head (which carries the
        * kk-popup marker when the popup is switched on in the dashboard). Mirrors the rules in
        * src/components/popup/WelcomePopup.tsx: a phone, the popup not seen yet (or ?popup=1).
-       * The app lifts the cover (popupCover.ts); the timer lifts it if the app never starts.
+       * Only the decision is made here (it must be before first paint); the loader below the
+       * body tag shows the count, and the app hands over to it (popupCover.ts).
        */
       (function () {
         try {
@@ -66,11 +131,7 @@
             seen = false;
           }
           if (seen && !forced) return;
-          var root = document.documentElement;
-          root.classList.add('kk-popup-pending');
-          window.setTimeout(function () {
-            root.classList.remove('kk-popup-pending');
-          }, 8000);
+          document.documentElement.classList.add('kk-popup-pending');
         } catch (ignored) {}
       })();
     </script>
@@ -79,6 +140,92 @@
     <link rel="manifest" href="%BASE_URL%manifest.json" />
   </head>
   <body>
+    <div id="kk-load" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="kk-ring">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="8" />
+          <circle id="kk-arc" cx="100" cy="100" r="88" fill="none" stroke="#faff69" stroke-width="8" stroke-linecap="round" stroke-dasharray="552.92" stroke-dashoffset="552.92" />
+        </svg>
+        <div class="kk-num"><span id="kk-n">0</span><small>%</small></div>
+      </div>
+      <div class="kk-label">Loading</div>
+    </div>
+    <script>
+      /*
+       * The load screen's count. It climbs towards 92% by itself (quick at first, then slower),
+       * because nothing real can be measured before the app starts. When the popup is ready the
+       * app calls __kkLoad.finish(reveal): the count runs on to 100, the ring pulses, then the
+       * popup fades in over it (reveal()) and the load screen is removed once it has. abort() removes it at once
+       * (no popup is coming). After 12 seconds it gives up, so a broken script cannot leave the
+       * page black.
+       */
+      (function () {
+        var root = document.documentElement;
+        var screen = document.getElementById('kk-load');
+        var arc = document.getElementById('kk-arc');
+        var num = document.getElementById('kk-n');
+        if (!screen || !arc || !num || !root.classList.contains('kk-popup-pending')) return;
+        var C = 552.92;
+        var started = performance.now();
+        var shown = 0;
+        var finishing = null;
+        var over = false;
+        function paint(value) {
+          var whole = Math.min(100, Math.floor(value));
+          if (whole === shown) return;
+          shown = whole;
+          num.textContent = String(whole);
+          screen.setAttribute('aria-valuenow', String(whole));
+          arc.setAttribute('stroke-dashoffset', (C * (1 - whole / 100)).toFixed(2));
+        }
+        function remove() {
+          over = true;
+          root.classList.remove('kk-popup-pending');
+        }
+        // The popup fades in on top of the load screen (it is in the top layer), whose ring shows
+        // through less and less. The load screen stays black underneath until the popup is fully
+        // in, so the page behind it never shows; then it is removed unseen.
+        function fadeOut() {
+          window.setTimeout(remove, 900);
+        }
+        function frame(now) {
+          if (over) return;
+          var value;
+          if (finishing) {
+            var k = Math.min(1, (now - finishing.at) / 450);
+            value = finishing.from + (100 - finishing.from) * (k * k * (3 - 2 * k));
+            paint(value);
+            if (k >= 1) {
+              screen.classList.add('kk-full');
+              window.setTimeout(function () {
+                finishing.reveal();
+                fadeOut();
+              }, 300);
+              return;
+            }
+          } else {
+            var t = (now - started) / 1000;
+            value = 92 * (1 - Math.exp(-t / 2));
+            paint(value);
+            if (t > 12) {
+              remove();
+              return;
+            }
+          }
+          window.requestAnimationFrame(frame);
+        }
+        window.requestAnimationFrame(frame);
+        window.__kkLoad = {
+          finish: function (reveal) {
+            if (over || finishing) return;
+            finishing = { at: performance.now(), from: shown, reveal: reveal };
+          },
+          abort: function () {
+            if (!over) remove();
+          },
+        };
+      })();
+    </script>
     <div id="root"><!--kk:app--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

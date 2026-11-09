@@ -7,7 +7,7 @@ import { getTrack, type PopupSettings } from '@/content';
 import { Icon, cx } from '@/components/ui';
 import { assetUrl, trackPath } from '@/lib/paths';
 import { PackStage } from './PackStage';
-import { liftPopupCover } from './popupCover';
+import { finishPopupCover, popupCoverActive } from './popupCover';
 import styles from './PopupDialog.module.css';
 
 export interface PopupDialogProps {
@@ -52,21 +52,36 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
   const [copied, setCopied] = useState(false);
   const [reduced] = useState(prefersReducedMotion);
   const [packActive, setPackActive] = useState(() => popup.packEnabled && !prefersReducedMotion());
+  // While the load screen is up (index.html) the popup waits, invisible, until the pack is drawn.
+  const [fromLoad] = useState(popupCoverActive);
+  const [revealed, setRevealed] = useState(!fromLoad);
+  const readyRef = useRef(false);
   const [stage, setStage] = useState(() => (popup.packEnabled && !prefersReducedMotion() ? 0 : prefersReducedMotion() ? 5 : 3));
 
   const at = (delay: number, next: number) => {
     timers.current.push(window.setTimeout(() => setStage(next), delay));
   };
 
-  // Without a pack the card still arrives gently: the back shows for a moment, then it flips.
+  // The popup is ready to be seen (the pack is drawn, or there is no pack): the load screen finishes
+  // its count and fades away while the popup fades in.
+  const ready = () => {
+    if (readyRef.current) return;
+    readyRef.current = true;
+    finishPopupCover(() => setRevealed(true));
+  };
+
+  // Without a pack the card still arrives gently once the popup is seen: the back shows for a
+  // moment, then it flips.
+  const flipScheduled = useRef(false);
   useEffect(() => {
-    if (!packActive && stage === 3) {
+    if (revealed && !packActive && stage === 3 && !flipScheduled.current) {
+      flipScheduled.current = true;
       at(450, 4);
       at(1350, 5);
     }
-    // Only for the case where the popup starts without a pack; later stages are scheduled by the handlers.
+    // Later stages are scheduled by the handlers.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [revealed, packActive, stage]);
 
   const torn = () => {
     setStage(1);
@@ -79,9 +94,8 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
   // WebGL is not available (or the shader failed): skip the pack and show the card.
   const packUnsupported = () => {
     setPackActive(false);
-    at(0, 3);
-    at(450, 4);
-    at(1350, 5);
+    setStage(3);
+    ready();
   };
 
   const requestClose = () => {
@@ -103,16 +117,9 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
     // Focus the popup itself (no focus ring); Tab moves on to the finger and the buttons.
     dialog.focus();
     const pending = timers.current;
-    // The page was covered until now (popupCover.ts). The dialog fades in, so lift the cover
-    // only when the fade is over: otherwise the page would show through it for an instant.
-    const lift = (event?: Event) => {
-      if (event && event.target !== dialog) return;
-      liftPopupCover();
-    };
-    dialog.addEventListener('animationend', lift, { once: true });
-    pending.push(window.setTimeout(lift, 600));
+    // No pack to wait for: the popup is ready as soon as it is open.
+    if (!packActive) ready();
     return () => {
-      dialog.removeEventListener('animationend', lift);
       pending.forEach((id) => window.clearTimeout(id));
       if (dialog.open) dialog.close();
       html.style.overflow = previous.overflow;
@@ -209,6 +216,8 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
         stage >= 4 && styles.flip,
         stage >= 5 && styles.done,
         reduced && styles.still,
+        fromLoad && styles.fromLoad,
+        !revealed && styles.waiting,
       )}
       aria-label={cardOpen || !packActive ? heading || 'Welcome' : packHeading || 'Welcome'}
       onCancel={(event) => {
@@ -273,6 +282,7 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
               edition={popup.packEdition}
               footer={popup.packFooter}
               hint={popup.packHint}
+              onReady={ready}
               onTorn={torn}
               onUnsupported={packUnsupported}
             />

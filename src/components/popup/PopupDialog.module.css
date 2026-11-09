@@ -34,6 +34,18 @@
   display: flex;
 }
 
+/* Open but not yet seen: the load screen (index.html) is still up. No fade yet; it plays when the
+   class goes, as the load screen fades away. */
+.waiting {
+  opacity: 0;
+  animation: none;
+}
+
+/* After the load screen the popup takes a little longer to fade in. */
+.fromLoad {
+  animation-duration: 0.55s;
+}
+
 .popup:focus {
   outline: none;
 }

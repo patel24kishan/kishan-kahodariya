@@ -29,8 +29,15 @@ async function parsed(page: import('@playwright/test').Page): Promise<void> {
 function coverState(page: import('@playwright/test').Page) {
   return page.evaluate((name) => {
     const root = document.documentElement;
-    const before = getComputedStyle(root, '::before');
-    return { pending: root.classList.contains(name), position: before.position, background: before.backgroundColor };
+    const screen = document.getElementById('kk-load');
+    const style = screen ? getComputedStyle(screen) : null;
+    return {
+      pending: root.classList.contains(name),
+      display: style?.display ?? 'missing',
+      position: style?.position ?? 'missing',
+      background: style?.backgroundColor ?? 'missing',
+      count: Number(screen?.getAttribute('aria-valuenow') ?? '-1'),
+    };
   }, COVER);
 }
 
@@ -44,10 +51,16 @@ test.describe('first-time phone visitor', () => {
     await parsed(page);
     // The prerendered page is there, but covered: nothing of it can be seen before the popup.
     await expect(page.getByTestId('track-page')).toBeAttached();
-    expect(await coverState(page)).toEqual({ pending: true, position: 'fixed', background: 'rgb(0, 0, 0)' });
+    expect(await coverState(page)).toMatchObject({ pending: true, display: 'flex', position: 'fixed', background: 'rgb(0, 0, 0)' });
+    // The load screen counts up on its own while the app is still loading, and never reaches 100 by itself.
+    await expect.poll(() => coverState(page).then((state) => state.count), { timeout: 5_000 }).toBeGreaterThan(20);
+    expect((await coverState(page)).count).toBeLessThan(93);
     release();
+    // The popup is ready: the count runs to 100, the load screen fades away and the popup is shown.
     await expect(page.getByTestId('welcome-popup')).toBeVisible({ timeout: 15_000 });
-    await expect.poll(() => coverState(page).then((state) => state.pending), { timeout: 5_000 }).toBe(false);
+    await expect.poll(() => coverState(page).then((state) => state.display), { timeout: 8_000 }).toBe('none');
+    await expect(page.getByTestId('welcome-popup')).toHaveCSS('opacity', '1');
+    await expect(page.getByTestId('welcome-popup')).toHaveAttribute('data-popup-stage', 'pack');
   });
 
   test('?popup=1 covers the page too for a returning visitor', async ({ page }, info) => {

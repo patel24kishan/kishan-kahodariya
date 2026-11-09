@@ -10,6 +10,8 @@ export interface PackStageProps {
   footer: string;
   /** Read aloud by screen readers (not shown): how to open the pack. Empty uses a plain default. */
   hint: string;
+  /** The pack is drawn and can be shown (its fonts and logo are in). */
+  onReady: () => void;
   /** The visitor tore the pack open (drag, tap or keyboard). */
   onTorn: () => void;
   /** WebGL is not available (or the shader failed): the popup skips the pack. */
@@ -49,12 +51,12 @@ interface TearState {
  * guide; a tap, a click or Enter / the right arrow tears the pack by itself.
  * It reports onTorn() once, then keeps drawing the flying strip until the parent removes it.
  */
-export function PackStage({ title, edition, footer, hint, onTorn, onUnsupported }: PackStageProps) {
+export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUnsupported }: PackStageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const handleRef = useRef<HTMLButtonElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
-  const callbacks = useRef({ onTorn, onUnsupported });
-  callbacks.current = { onTorn, onUnsupported };
+  const callbacks = useRef({ onReady, onTorn, onUnsupported });
+  callbacks.current = { onReady, onTorn, onUnsupported };
   const state = useRef<TearState>({
     p: 0,
     fly: 0,
@@ -150,6 +152,7 @@ export function PackStage({ title, edition, footer, hint, onTorn, onUnsupported 
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, art);
       ready = true;
       canvas.setAttribute('data-ready', 'true');
+      callbacks.current.onReady();
     });
 
     const draw = (now: number) => {
