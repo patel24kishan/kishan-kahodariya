@@ -1,7 +1,7 @@
 import { useEffect, useRef, type KeyboardEvent, type PointerEvent } from 'react';
 import { assetUrl } from '@/lib/paths';
 import { drawPackArt, loadLogo, loadPackFonts, PACK_HEIGHT, PACK_WIDTH } from './packArt';
-import { FRAGMENT_SHADER, VERTEX_SHADER } from './packShader';
+import { FRAGMENT_SHADER, SNOW_FRAGMENT_SHADER, SNOW_VERTEX_SHADER, VERTEX_SHADER } from './packShader';
 import styles from './PopupDialog.module.css';
 
 export interface PackStageProps {
@@ -108,6 +108,45 @@ export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUns
     }
     gl.useProgram(program);
 
+    // Snow: a second, tiny program drawing one point per flake over the pack. Optional: without it
+    // the pack is simply shown without snow.
+    const snowVertex = compile(gl.VERTEX_SHADER, SNOW_VERTEX_SHADER);
+    const snowFragment = compile(gl.FRAGMENT_SHADER, SNOW_FRAGMENT_SHADER);
+    let snowProgram: WebGLProgram | null = gl.createProgram();
+    if (snowProgram && snowVertex && snowFragment) {
+      gl.attachShader(snowProgram, snowVertex);
+      gl.attachShader(snowProgram, snowFragment);
+      gl.linkProgram(snowProgram);
+      if (!gl.getProgramParameter(snowProgram, gl.LINK_STATUS)) snowProgram = null;
+    } else {
+      snowProgram = null;
+    }
+    const snowBuffer = snowProgram ? gl.createBuffer() : null;
+    const snowAttr = snowProgram ? gl.getAttribLocation(snowProgram, 'a') : -1;
+    const snowU = snowProgram
+      ? {
+          res: gl.getUniformLocation(snowProgram, 'uRes'),
+          dpr: gl.getUniformLocation(snowProgram, 'uDpr'),
+          fade: gl.getUniformLocation(snowProgram, 'uFade'),
+          time: gl.getUniformLocation(snowProgram, 'uTime'),
+        }
+      : null;
+    // The printed area between the foil crimps, where the snow falls.
+    const snowTop = PACK_Y + 22;
+    const snowHeight = PACK_HEIGHT - 44;
+    const flakes = Array.from({ length: 26 }, (_, index) => ({
+      x: Math.random() * PACK_WIDTH,
+      y: Math.random() * snowHeight,
+      size: index % 7 === 0 ? 8 : 3.6 + Math.random() * 3.2,
+      kind: (index % 7 === 0 ? -1 : 1) * (0.65 + Math.random() * 0.35),
+      speed: 10 + Math.random() * 16,
+      sway: 4 + Math.random() * 6,
+      phase: Math.random() * Math.PI * 2,
+    }));
+    const snowData = new Float32Array(flakes.length * 4);
+    if (snowProgram) canvas.setAttribute('data-popup-snow', 'on');
+    gl.useProgram(program);
+
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = CANVAS_WIDTH * dpr;
     canvas.height = CANVAS_HEIGHT * dpr;
@@ -143,9 +182,10 @@ export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUns
     let ready = false;
     let frameId = 0;
     const started = performance.now();
+    let lastFrame = started;
 
     // The artwork needs the fonts and the logo: the pack is drawn (and shown) once they are in.
-    void Promise.all([loadPackFonts(), loadLogo(assetUrl('/images/popup-pack-logo.png'))]).then(([, logo]) => {
+    void Promise.all([loadPackFonts(), loadLogo(assetUrl('/images/popup-pack-santa.png'), false)]).then(([, logo]) => {
       if (!alive) return;
       const art = drawPackArt({ title, edition, footer }, logo);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -163,7 +203,13 @@ export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUns
       s.light[1] += (s.lightTarget[1] - s.light[1]) * 0.12;
       const cut = PACK_X + s.p * PACK_WIDTH;
       const theta = s.p <= 0 ? 0 : 0.1 + 0.9 * Math.pow(s.p, 0.8);
+      const dt = Math.min(0.1, (now - lastFrame) / 1000);
+      lastFrame = now;
       if (ready) {
+        gl.useProgram(program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -180,6 +226,40 @@ export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUns
         gl.uniform2f(U.light, s.light[0], s.light[1]);
         gl.uniform1f(U.time, t);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        // The snow: it falls and sways inside the printed area, and fades out as the strip flies off.
+        const fade = s.done ? Math.max(0, 1 - s.fly * 3) : 1;
+        if (snowProgram && snowU && fade > 0) {
+          flakes.forEach((flake, index) => {
+            flake.y += flake.speed * dt;
+            flake.phase += dt * 1.3;
+            if (flake.y > snowHeight + 6) {
+              flake.y = -6;
+              flake.x = Math.random() * PACK_WIDTH;
+            }
+            snowData[index * 4] = PACK_X + flake.x + Math.sin(flake.phase) * flake.sway;
+            snowData[index * 4 + 1] = snowTop + flake.y;
+            snowData[index * 4 + 2] = flake.size;
+            snowData[index * 4 + 3] = flake.kind;
+          });
+          gl.disableVertexAttribArray(position);
+          gl.useProgram(snowProgram);
+          gl.bindBuffer(gl.ARRAY_BUFFER, snowBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, snowData, gl.DYNAMIC_DRAW);
+          gl.enableVertexAttribArray(snowAttr);
+          gl.vertexAttribPointer(snowAttr, 4, gl.FLOAT, false, 0, 0);
+          gl.uniform2f(snowU.res, canvas.width, canvas.height);
+          gl.uniform1f(snowU.dpr, dpr);
+          gl.uniform1f(snowU.fade, fade);
+          gl.uniform1f(snowU.time, t);
+          gl.enable(gl.SCISSOR_TEST);
+          gl.scissor(PACK_X * dpr, (CANVAS_HEIGHT - snowTop - snowHeight) * dpr, PACK_WIDTH * dpr, snowHeight * dpr);
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+          gl.drawArrays(gl.POINTS, 0, flakes.length);
+          gl.disable(gl.BLEND);
+          gl.disable(gl.SCISSOR_TEST);
+          gl.disableVertexAttribArray(snowAttr);
+        }
       }
       // Idle demo: only the finger moves, along the guide and back; the pack stays shut. It stops
       // while the handle is held and starts again 2.5s after a release.
@@ -248,6 +328,8 @@ export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUns
       gl.deleteTexture(texture);
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
+      if (snowProgram) gl.deleteProgram(snowProgram);
+      if (snowBuffer) gl.deleteBuffer(snowBuffer);
     };
   }, [title, edition, footer]);
 

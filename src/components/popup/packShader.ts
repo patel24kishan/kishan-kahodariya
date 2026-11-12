@@ -69,3 +69,21 @@ export const FRAGMENT_SHADER = [
     '  if(st>0.){vec3 rgb=shade(s);float rim=1.-smoothstep(0.,1.6,edgeY(s.x)-s.y);rgb=mix(rgb,vec3(.92,.94,1.),rim*.85);rgb*=1.+.15*uTheta;col=vec4(rgb,1.)*st+col*(1.-st);}',
     '  gl_FragColor=col;}'
 ].join('\n');
+
+/**
+ * Snow falling over the pack, drawn in the same canvas after the pack (one point per flake, so it
+ * costs next to nothing). Each point carries x, y (CSS px), size (CSS px) and a kind: a positive
+ * value is a round dot of that opacity, a negative one a tiny six-armed flake of that opacity.
+ */
+export const SNOW_VERTEX_SHADER = [
+  'attribute vec4 a;uniform vec2 uRes;uniform float uDpr;varying float vK;',
+  'void main(){vec2 c=a.xy*uDpr/uRes*2.-1.;gl_Position=vec4(c.x,-c.y,0.,1.);gl_PointSize=a.z*uDpr;vK=a.w;}',
+].join('\n');
+
+export const SNOW_FRAGMENT_SHADER = [
+  'precision mediump float;varying float vK;uniform float uFade;uniform float uTime;',
+  'void main(){vec2 q=gl_PointCoord*2.-1.;float r=length(q);float m;',
+  '  if(vK>0.){m=smoothstep(1.,.6,r);}',
+  '  else{float an=atan(q.y,q.x)+uTime*.8;m=smoothstep(.2,.06,r*abs(sin(3.*an)))*smoothstep(1.,.8,r);}',
+  '  float al=abs(vK)*m*uFade;gl_FragColor=vec4(al,al,al,al);}',
+].join('\n');

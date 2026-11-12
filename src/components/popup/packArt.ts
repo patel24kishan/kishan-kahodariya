@@ -8,7 +8,7 @@ export const PACK_WIDTH = 230;
 export const PACK_HEIGHT = 360;
 
 export interface PackArtText {
-  /** "FRIENDS PACK": the first word is big, the rest sits small under it. */
+  /** "ASSET PACK": the first word is big, the rest sits small under it. */
   title: string;
   /** The yellow band. */
   edition: string;
@@ -25,13 +25,17 @@ export function loadPackFonts(): Promise<void> {
   );
 }
 
-/** Load the logo and cut the white background out of it (flood fill from the edges). */
-export function loadLogo(src: string): Promise<HTMLCanvasElement | null> {
+/**
+ * Load the logo. A picture on a white background has the white cut out of it (flood fill from
+ * the edges); one that is already transparent (cutOut false) is used as it is, so white parts
+ * inside it (a hat's fur) are kept.
+ */
+export function loadLogo(src: string, cutOutWhite = true): Promise<CanvasImageSource & { width: number; height: number } | null> {
   return new Promise((resolve) => {
     const image = new Image();
     image.onload = () => {
       try {
-        resolve(cutOut(image));
+        resolve(cutOutWhite ? cutOut(image) : image);
       } catch {
         resolve(null);
       }
@@ -87,7 +91,7 @@ function cutOut(image: HTMLImageElement): HTMLCanvasElement {
   return canvas;
 }
 
-export function drawPackArt(text: PackArtText, logo: HTMLCanvasElement | null): HTMLCanvasElement {
+export function drawPackArt(text: PackArtText, logo: (CanvasImageSource & { width: number; height: number }) | null): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = PACK_WIDTH * 2;
   canvas.height = PACK_HEIGHT * 2;
@@ -169,15 +173,16 @@ export function drawPackArt(text: PackArtText, logo: HTMLCanvasElement | null): 
     g.fillText(small, cx + 3, 106);
   }
 
-  // The logo, with a thin white sticker edge.
+  // The logo (the character in a Santa hat), with a thin white sticker edge. It sits a little
+  // right of centre: the hat's tip droops to the right.
   if (logo) {
-    const lh = 152;
+    const lh = 160;
     const lw = (lh * logo.width) / logo.height;
     g.save();
     g.shadowColor = 'rgba(255,255,255,.95)';
     g.shadowBlur = 5;
-    g.drawImage(logo, cx - lw / 2, 112, lw, lh);
-    g.drawImage(logo, cx - lw / 2, 112, lw, lh);
+    g.drawImage(logo, cx - lw / 2 + 4, 108, lw, lh);
+    g.drawImage(logo, cx - lw / 2 + 4, 108, lw, lh);
     g.restore();
   }
 

@@ -93,11 +93,11 @@ export interface PopupSettings {
   packHeading: string;
   /** What a screen reader says about the pack: "Slide to tear". Not shown on screen (a finger shows how). */
   packHint: string;
-  /** The title printed on the pack: "FRIENDS PACK" (the first word is big, the rest small). */
+  /** The title printed on the pack: "ASSET PACK" (the first word is big, the rest small). */
   packTitle: string;
-  /** The band on the pack: "HALCON EDITION". */
+  /** The band on the pack: "OPEN TO WORK". */
   packEdition: string;
-  /** The line at the bottom of the pack: "6-8 NOV · HALIFAX, CA". */
+  /** The line at the bottom of the pack, for example "HALIFAX, CA"; empty prints nothing. */
   packFooter: string;
 }
 

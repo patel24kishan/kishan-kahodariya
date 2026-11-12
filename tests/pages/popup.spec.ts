@@ -32,8 +32,20 @@ async function expectStage(page: Page, stage: string, timeout = 10_000): Promise
 }
 
 /** Tear the pack open with a tap and wait until the card, buttons and tag are all in. */
+/**
+ * While nobody touches it, the finger slides along the line and back on its own (an idle demo).
+ * Wait for it to be back at the start of the line, so a tap or a drag aims at where it really is.
+ */
+async function fingerAtRest(page: Page): Promise<void> {
+  await expect(tear(page)).toBeVisible();
+  await expect
+    .poll(() => tear(page).evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41), { timeout: 10_000, intervals: [50] })
+    .toBeLessThan(0.5);
+}
+
 async function tearOpen(page: Page): Promise<void> {
   await expect(tear(page)).toBeVisible();
+  await fingerAtRest(page);
   await tear(page).click();
   await expectStage(page, 'done');
 }
@@ -109,11 +121,21 @@ test.describe('welcome popup', () => {
     await expect(tear(page)).toHaveAttribute('aria-label', new RegExp(popup.packHint));
   });
 
+  test('snow falls over the pack and is gone once the pack is torn', async ({ page }) => {
+    await page.goto('./?popup=1');
+    await expectStage(page, 'pack');
+    // The snow is drawn in the pack's own canvas (a second, tiny shader), so it drops away with it.
+    await expect(dialog(page).locator('[data-popup-pack][data-ready="true"]')).toHaveAttribute('data-popup-snow', 'on');
+    await tearOpen(page);
+    await expect(dialog(page).locator('[data-popup-pack]')).toHaveCount(0);
+  });
+
   test('touching the finger stops the idle demo', async ({ page }) => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
     await expect(tear(page)).toBeVisible();
     const offset = () => tear(page).evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41);
+    await fingerAtRest(page);
     const box = await tear(page).boundingBox();
     if (!box) throw new Error('the handle has no box');
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -135,6 +157,7 @@ test.describe('welcome popup', () => {
       (window as unknown as { __stages: string[] }).__stages = log;
       new MutationObserver(() => log.push(target.getAttribute('data-popup-stage') ?? '')).observe(target, { attributes: true, attributeFilter: ['data-popup-stage'] });
     });
+    await fingerAtRest(page);
     await tear(page).click();
     await expectStage(page, 'done');
     const seen = await page.evaluate(() => (window as unknown as { __stages: string[] }).__stages);
@@ -147,6 +170,7 @@ test.describe('welcome popup', () => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
     await expect(dialog(page).locator('[data-popup-pack]')).toHaveAttribute('data-ready', 'true');
+    await fingerAtRest(page);
     const box = (await tear(page).boundingBox())!;
     const y = box.y + box.height / 2;
     await page.mouse.move(box.x + box.width / 2, y);
@@ -160,6 +184,7 @@ test.describe('welcome popup', () => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
     await expect(dialog(page).locator('[data-popup-pack]')).toHaveAttribute('data-ready', 'true');
+    await fingerAtRest(page);
     const box = (await tear(page).boundingBox())!;
     const y = box.y + box.height / 2;
     await page.mouse.move(box.x + box.width / 2, y);
@@ -295,6 +320,7 @@ test.describe('welcome popup', () => {
   test('only transform and opacity are animated', async ({ page }) => {
     await page.goto('./?popup=1');
     await expectStage(page, 'pack');
+    await fingerAtRest(page);
     await tear(page).click();
     const props = new Set<string>();
     for (let i = 0; i < 40; i++) {
