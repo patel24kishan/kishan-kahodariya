@@ -36,7 +36,7 @@
     </script>
     <style>
       /*
-       * Load screen for a first-time phone visitor: a black screen with a ring and a 0 to 100
+       * Load screen for a first-time visitor: a black screen with a ring and a 0 to 100
        * count, shown before the first paint until the welcome popup is ready (see the script
        * after #kk-load and src/components/popup/popupCover.ts). Plain system fonts: this shows
        * before any font has loaded.
@@ -115,14 +115,13 @@
       /*
        * Welcome-popup cover. Runs before first paint, after the managed head (which carries the
        * kk-popup marker when the popup is switched on in the dashboard). Mirrors the rules in
-       * src/components/popup/WelcomePopup.tsx: a phone, the popup not seen yet (or ?popup=1).
+       * src/components/popup/WelcomePopup.tsx: the popup not seen yet (or ?popup=1).
        * Only the decision is made here (it must be before first paint); the loader below the
        * body tag shows the count, and the app hands over to it (popupCover.ts).
        */
       (function () {
         try {
           if (!document.querySelector('meta[name="kk-popup"]')) return;
-          if (!window.matchMedia('(max-width: 767px)').matches) return;
           var forced = /(^|[?&])popup=1(&|$)/.test(window.location.search);
           var seen = true;
           try {

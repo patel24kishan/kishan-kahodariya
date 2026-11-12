@@ -23,11 +23,29 @@
   margin: 0;
   padding: 0;
   border: 0;
-  background: #000000;
+  background: transparent;
   color: #ffffff;
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: fade var(--duration-base) var(--ease);
+}
+
+/* The black screen behind the popup: solid while the pack is sealed, so nothing distracts from
+   it. Once the pack is torn it fades, in step with the card coming out, to 75% see-through, so
+   the portfolio shows behind the card. Opacity only, so it stays smooth. */
+.popup::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: #000000;
+  opacity: 1;
+  transition: opacity 1.8s ease;
+  pointer-events: none;
+}
+
+.torn::before {
+  opacity: 0.25;
 }
 
 .popup[open] {
@@ -60,6 +78,9 @@
   width: min(21rem, calc(100% - 2 * var(--space-5)));
   margin: auto;
   padding-block: var(--space-4) var(--space-6);
+  /* Set by PopupDialog (popupScale): 1 on a phone, sized to the window on a wider screen.
+     zoom scales the layout itself, so the popup stays centred and its pack is drawn sharp. */
+  zoom: var(--popup-scale, 1);
 }
 
 .top {
@@ -103,33 +124,32 @@
   opacity: 1;
 }
 
+/* The X is there from the start and easy to spot (a yellow ring), nudged out to the top right
+   corner, so a visitor who does not want to open the pack can leave at once. Esc and a click on
+   the black around the popup close it too. */
 .close {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  min-width: 44px;
+  align-self: flex-start;
+  width: 44px;
   height: 44px;
-  margin-right: -12px;
+  margin: -10px -22px 0 0;
   padding: 0;
-  border: 0;
-  background: transparent;
-  color: #d4d4d4;
+  border: 2px solid #faff69;
+  border-radius: 999px;
+  background: rgba(250, 255, 105, 0.12);
+  color: #faff69;
   cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-}
-
-/* As in option F, the X appears with the card's heading, after the flip. Esc and a tap on the
-   black around the popup close it at any moment. */
-.flip .close {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.4s ease 0.5s;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .close:hover {
-  color: #ffffff;
+  background: #faff69;
+  color: #000000;
 }
 
 .close:focus-visible,
@@ -439,7 +459,8 @@ button[data-popup-tear]:active {
 .utilityLink {
   margin: 0;
   padding: 0 8px;
-  background: transparent;
+  /* Solid: once the black screen fades, the page shows behind these two buttons. */
+  background: #0b0b0b;
   font-family: inherit;
   cursor: pointer;
   display: flex;

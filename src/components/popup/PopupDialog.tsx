@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import '@fontsource/barlow-condensed/latin-700.css';
 import '@fontsource/barlow-condensed/latin-800.css';
@@ -33,6 +33,16 @@ function focusable(root: HTMLElement): HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => element.getClientRects().length > 0 && element.closest('[inert]') === null && getComputedStyle(element).visibility !== 'hidden');
 }
 
+/**
+ * The popup is designed for a phone. On a wider screen (768px and up) the whole popup is
+ * scaled with the window's height, so it is neither lost on a big monitor nor cut off on a
+ * short laptop: window height / 860, kept between 0.85 and 1.35. Phones keep it at 1.
+ */
+export function popupScale(width: number, height: number): number {
+  if (width < 768) return 1;
+  return Math.round(Math.min(1.35, Math.max(0.85, height / 860)) * 1000) / 1000;
+}
+
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -50,6 +60,7 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
   const closingRef = useRef(false);
   const timers = useRef<number[]>([]);
   const [copied, setCopied] = useState(false);
+  const [scale, setScale] = useState(() => popupScale(window.innerWidth, window.innerHeight));
   const [reduced] = useState(prefersReducedMotion);
   const [packActive, setPackActive] = useState(() => popup.packEnabled && !prefersReducedMotion());
   // While the load screen is up (index.html) the popup waits, invisible, until the pack is drawn.
@@ -127,7 +138,14 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
     };
   }, []);
 
-  // The finger are gone once the pack is torn: keep focus inside the popup (on the dialog
+  // Follow the window: a resized window resizes the popup.
+  useEffect(() => {
+    const onResize = () => setScale(popupScale(window.innerWidth, window.innerHeight));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // The finger is gone once the pack is torn: keep focus inside the popup (on the dialog
   // itself, which shows no focus ring) instead of dropping it on the page behind.
   useEffect(() => {
     if (stage === 5 && !dialogRef.current?.contains(document.activeElement)) dialogRef.current?.focus();
@@ -233,7 +251,7 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
       data-testid="welcome-popup"
       data-popup-stage={STAGE_NAMES[stage]}
     >
-      <div className={styles.column} data-popup-content data-on-dark>
+      <div className={styles.column} style={{ '--popup-scale': scale } as CSSProperties} data-popup-content data-popup-scale={scale} data-on-dark>
         <div className={styles.top}>
           <h2 className={styles.heading}>
             <span className={cx(styles.headPack, showPackHeading && styles.headOn)} aria-hidden={!showPackHeading}>
@@ -282,6 +300,7 @@ export default function PopupDialog({ popup, email, onClose }: PopupDialogProps)
               edition={popup.packEdition}
               footer={popup.packFooter}
               hint={popup.packHint}
+              scale={scale}
               onReady={ready}
               onTorn={torn}
               onUnsupported={packUnsupported}

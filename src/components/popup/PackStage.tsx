@@ -10,6 +10,8 @@ export interface PackStageProps {
   footer: string;
   /** Read aloud by screen readers (not shown): how to open the pack. Empty uses a plain default. */
   hint: string;
+  /** How much the popup is scaled (PopupDialog's popupScale): the pack is drawn at that size, so it stays sharp. */
+  scale: number;
   /** The pack is drawn and can be shown (its fonts and logo are in). */
   onReady: () => void;
   /** The visitor tore the pack open (drag, tap or keyboard). */
@@ -51,7 +53,9 @@ interface TearState {
  * guide; a tap, a click or Enter / the right arrow tears the pack by itself.
  * It reports onTorn() once, then keeps drawing the flying strip until the parent removes it.
  */
-export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUnsupported }: PackStageProps) {
+export function PackStage({ title, edition, footer, hint, scale, onReady, onTorn, onUnsupported }: PackStageProps) {
+  // The size it is first drawn at; a later window resize only rescales the picture.
+  const drawScale = useRef(scale);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const handleRef = useRef<HTMLButtonElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
@@ -147,7 +151,8 @@ export function PackStage({ title, edition, footer, hint, onReady, onTorn, onUns
     if (snowProgram) canvas.setAttribute('data-popup-snow', 'on');
     gl.useProgram(program);
 
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    // Drawn at the size it is shown: the popup may be scaled up on a wide screen (popupScale).
+    const dpr = Math.min(3, (window.devicePixelRatio || 1) * drawScale.current);
     canvas.width = CANVAS_WIDTH * dpr;
     canvas.height = CANVAS_HEIGHT * dpr;
 

@@ -86,18 +86,19 @@ test.describe('nobody else is covered', () => {
     await expect(page.getByTestId('track-page')).toBeVisible();
     await expect(page.getByTestId('welcome-popup')).toHaveCount(0);
   });
+});
 
-  test.describe('on a desktop screen', () => {
-    test.use({ storageState: { cookies: [], origins: [] } });
+test.describe('on a desktop screen', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
 
-    test('a first-time desktop visitor never gets the cover', async ({ page }, info) => {
-      test.skip(info.project.name !== 'desktop', 'desktop only');
-      const release = await holdScripts(page);
-      await page.goto('./', { waitUntil: 'commit' });
-      await parsed(page);
-      expect((await coverState(page)).pending).toBe(false);
-      release();
-      await expect(page.getByTestId('track-page')).toBeVisible();
-    });
+  test('a first-time desktop visitor gets the load screen too, then the popup', async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop', 'desktop only');
+    const release = await holdScripts(page);
+    await page.goto('./', { waitUntil: 'commit' });
+    await parsed(page);
+    expect(await coverState(page)).toMatchObject({ pending: true, display: 'flex' });
+    release();
+    await expect(page.getByTestId('welcome-popup')).toBeVisible({ timeout: 15_000 });
+    await expect.poll(() => coverState(page).then((state) => state.display), { timeout: 8_000 }).toBe('none');
   });
 });

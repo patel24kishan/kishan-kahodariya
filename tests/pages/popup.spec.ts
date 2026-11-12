@@ -50,13 +50,54 @@ async function tearOpen(page: Page): Promise<void> {
   await expectStage(page, 'done');
 }
 
-test('on a desktop screen the popup is never shown, even with ?popup=1, and nothing is remembered', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop', 'desktop only');
-  await page.goto('./?popup=1');
-  await expect(page.getByTestId('track-page')).toBeVisible();
-  await page.waitForTimeout(500);
-  await expect(dialog(page)).toHaveCount(0);
-  expect(await page.evaluate((key) => window.localStorage.getItem(key), SEEN)).toBeNull();
+test.describe('on a desktop screen', () => {
+  test.beforeEach(({ page }, info) => {
+    test.skip(page.isClosed() || info.project.name !== 'desktop', 'desktop only');
+  });
+
+  test('shows to a first-time visitor too, once, sized to the window', async ({ page }) => {
+    await page.goto('./');
+    await expect(dialog(page)).toBeVisible();
+    await expectStage(page, 'pack');
+    // 1280 x 800: 800 / 860.
+    await expect(dialog(page).locator('[data-popup-content]')).toHaveAttribute('data-popup-scale', '0.93');
+    expect(await page.evaluate((key) => window.localStorage.getItem(key), SEEN)).toBe('1');
+    await page.reload();
+    await expect(page.getByTestId('track-page')).toBeVisible();
+    await expect(dialog(page)).toHaveCount(0);
+  });
+
+  test('on a big monitor it is bigger, drawn sharp, and the finger can still be dragged to tear it', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('./?popup=1');
+    await expectStage(page, 'pack');
+    await expect(dialog(page).locator('[data-popup-content]')).toHaveAttribute('data-popup-scale', '1.256');
+    const pack = dialog(page).locator('[data-popup-pack]');
+    await expect(pack).toHaveAttribute('data-ready', 'true');
+    // The pack is drawn at the size it is shown, not stretched.
+    const size = await pack.evaluate((canvas: HTMLCanvasElement) => ({ shown: canvas.getBoundingClientRect().width, drawn: canvas.width }));
+    expect(size.shown).toBeGreaterThan(300 * 1.2);
+    expect(size.drawn).toBeGreaterThanOrEqual(Math.floor(size.shown) - 1);
+    await fingerAtRest(page);
+    const box = (await tear(page).boundingBox())!;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(box.x + box.width / 2, y);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) await page.mouse.move(box.x + box.width / 2 + i * 30, y);
+    await page.mouse.up();
+    await expectStage(page, 'done');
+  });
+
+  test('resizing the window resizes the popup, within its limits', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('./?popup=1');
+    const content = dialog(page).locator('[data-popup-content]');
+    await expect(content).toHaveAttribute('data-popup-scale', '1.047');
+    await page.setViewportSize({ width: 1366, height: 600 });
+    await expect(content).toHaveAttribute('data-popup-scale', '0.85');
+    await page.setViewportSize({ width: 2560, height: 1440 });
+    await expect(content).toHaveAttribute('data-popup-scale', '1.35');
+  });
 });
 
 test.describe('welcome popup', () => {
@@ -232,12 +273,19 @@ test.describe('welcome popup', () => {
     await expect(dialog(page).locator('[data-popup-card]')).toHaveCSS('opacity', '1');
   });
 
-  test('Esc and a click on the black around it close it, even on the pack; the X appears with the card', async ({ page }) => {
+  test('the X, Esc and a click on the black around it all close it, even on the pack', async ({ page }) => {
     await page.goto('./?popup=1');
     await expect(dialog(page)).toBeVisible();
-    // As in option F the X is not there while the pack is closed.
+    // The X is there from the start: no need to open the pack to leave.
     await expectStage(page, 'pack');
-    await expect(dialog(page).getByRole('button', { name: 'Close the popup' })).toBeHidden();
+    await expect(dialog(page).getByRole('button', { name: 'Close the popup' })).toBeVisible();
+    await dialog(page).getByRole('button', { name: 'Close the popup' }).click();
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
+
+    await page.goto('./?popup=1');
+    await expect(dialog(page)).toBeVisible();
+    await expectStage(page, 'pack');
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);
     await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
