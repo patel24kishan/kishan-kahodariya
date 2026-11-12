@@ -85,7 +85,7 @@ test('accepts the config and lists every content file', async ({ page }) => {
     const count = Object.keys(tree).filter((name) => name.startsWith(`${target.path}/`)).length;
     await expect(list.getByRole('treeitem', { name: target.label, exact: true }), target.label).toContainText(String(count));
   }
-  await expect(list.getByRole('treeitem', { name: 'Pages', exact: true })).toContainText('2');
+  await expect(list.getByRole('treeitem', { name: 'Pages', exact: true })).toContainText('3');
   await expect(list.getByRole('treeitem', { name: 'Site settings', exact: true })).toBeVisible();
   expect(dashboard.logs.find((line) => /Parsed \d+ entries/.test(line))).toContain(`Parsed ${Object.keys(tree).length} entries (0 errors)`);
   expect(dashboard.configComplaints()).toEqual([]);

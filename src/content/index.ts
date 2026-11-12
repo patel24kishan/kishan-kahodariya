@@ -26,6 +26,7 @@ import type {
   Project,
   ResolvedExperience,
   ResolvedHeroStat,
+  PopupSettings,
   SiteSettings,
   SkillGroup,
   SocialLink,
@@ -45,6 +46,11 @@ const api = createContentApi(content, { buildMonth: content.buildMonth });
 /** content/site.json */
 export function getSite(): SiteSettings {
   return api.getSite();
+}
+
+/** content/popup.json */
+export function getPopup(): PopupSettings {
+  return api.getPopup();
 }
 
 /** Both track profiles, game first. */

@@ -31,8 +31,8 @@
 }
 
 /* The black screen behind the popup: solid while the pack is sealed, so nothing distracts from
-   it. Once the pack is torn it fades, in step with the card coming out, to 75% see-through, so
-   the portfolio shows behind the card. Opacity only, so it stays smooth. */
+   it. Once the pack is torn it fades, in step with the card coming out, to 25% see-through, so
+   the portfolio shows faintly behind the card. Opacity only, so it stays smooth. */
 .popup::before {
   content: '';
   position: fixed;
@@ -45,7 +45,7 @@
 }
 
 .torn::before {
-  opacity: 0.25;
+  opacity: 0.75;
 }
 
 .popup[open] {

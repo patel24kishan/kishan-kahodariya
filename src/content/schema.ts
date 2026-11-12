@@ -41,6 +41,7 @@ import type {
   Education,
   Experience,
   Project,
+  PopupSettings,
   SiteSettings,
   SkillGroup,
   SocialLink,
@@ -215,6 +216,8 @@ const slug = z.string().refine(isSlug, {
 // Everything else: a missing or null value is read as the default.
 const text = orDefault(z.string(), () => '');
 const flag = orDefault(z.boolean(), () => false);
+/** A switch that is on unless it is turned off. */
+const flagOn = orDefault(z.boolean(), () => true);
 const order = orDefault(z.number(), () => 0);
 
 /** Text entries; blank ones are dropped, the others are kept exactly as written. */
@@ -294,6 +297,10 @@ export const heroStatSchema = z.strictObject({
 
 export const popupSchema = z.strictObject({
   enabled: flag,
+  onGamePage: flagOn,
+  onSoftwarePage: flagOn,
+  onPhones: flagOn,
+  onDesktops: flagOn,
   heading: text,
   bubble: text,
   message: text,
@@ -332,7 +339,6 @@ export const siteSchema = z
     workLabel: text,
     contactLabel: text,
     stats: listOf(heroStatSchema, isBlankStatRow),
-    popup: z.preprocess((value) => (value === undefined || value === null ? {} : value), popupSchema),
     categories: orDefault(z.array(categorySchema), () => []),
   })
   .superRefine((site, ctx) => {
@@ -573,7 +579,7 @@ export interface ValidateContentOptions {
 const FILE_FIELD = '(file)';
 const REQUIRED_FIELD_MESSAGE = 'is required — it is missing or empty';
 const LAYOUT_MESSAGE =
-  'unexpected file — content files are site.json, tracks/game.json, tracks/softdev.json and ' +
+  'unexpected file — content files are site.json, popup.json, tracks/game.json, tracks/softdev.json and ' +
   `<${COLLECTION_FOLDERS.join(' | ')}>/<slug>.json`;
 
 function fieldPath(path: readonly PropertyKey[]): string {
@@ -704,7 +710,7 @@ interface Reference {
 
 /**
  * Validates every file of a content folder and the rules that connect them:
- * - the folder layout (site.json, both track files, known collection folders only);
+ * - the folder layout (site.json, the optional popup.json, both track files, known collection folders only);
  * - each file against its schema (identity fields present, right types, URL / date / word
  *   rules, no unknown fields); other missing values and blank rows are tidied, not rejected;
  * - slug equals the file name; a track's id equals its file name;
@@ -727,6 +733,8 @@ export function validateContent(
   const sorted = [...files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 
   let site: SiteSettings | undefined;
+  let popup: PopupSettings | undefined;
+  let popupFileBroken = false;
   let siteData: unknown;
   let siteFileSeen = unreadable.has('site.json');
   const trackFilesSeen = new Set<string>();
@@ -767,6 +775,11 @@ export function validateContent(
       siteFileSeen = true;
       siteData = file.data;
       site = parseFile(siteSchema, file, issues, notes);
+      continue;
+    }
+    if (file.path === 'popup.json') {
+      popup = parseFile(popupSchema, file, issues, notes);
+      if (!popup) popupFileBroken = true;
       continue;
     }
 
@@ -914,7 +927,7 @@ export function validateContent(
     }
   }
 
-  if (issues.length > 0 || !site) return { ok: false, issues, notes };
+  if (issues.length > 0 || !site || popupFileBroken) return { ok: false, issues, notes };
 
   return {
     ok: true,
@@ -922,6 +935,8 @@ export function validateContent(
     notes,
     content: {
       site,
+      // popup.json is optional: without it the popup is off.
+      popup: popup ?? popupSchema.parse({}),
       tracks: TRACK_IDS.flatMap((id) => tracks.filter((track) => track.id === id)),
       projects,
       experience,

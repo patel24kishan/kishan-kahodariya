@@ -18,6 +18,7 @@ import type {
   Certificate,
   Education,
   Experience,
+  PopupSettings,
   Project,
   SiteSettings,
   SkillGroup,
@@ -259,27 +260,6 @@ export function makeSite(overrides: Partial<SiteSettings> = {}): SiteSettings {
     workLabel: '',
     contactLabel: '',
     stats: [],
-    popup: {
-      enabled: false,
-      heading: '',
-      bubble: '',
-      message: '',
-      gameLabel: '',
-      softLabel: '',
-      tapHint: '',
-      sayHiLabel: '',
-      discordHandle: '',
-      tagBand: '',
-      tagGreeting: '',
-      tagName: '',
-      tagRole: '',
-      packEnabled: false,
-      packHeading: '',
-      packHint: '',
-      packTitle: '',
-      packEdition: '',
-      packFooter: '',
-    },
     categories: [
       { id: 'unreal', label: 'Unreal', order: 10, hoverWithVideo: 'View Gameplay & Screenshots', hoverWithoutVideo: 'View Screenshots' },
       { id: 'unity', label: 'Unity3D', order: 20, hoverWithVideo: 'View Gameplay & Screenshots', hoverWithoutVideo: 'View Screenshots' },
@@ -314,10 +294,41 @@ export function makeTrack(id: 'game' | 'softdev', overrides: Partial<TrackProfil
   };
 }
 
+/** The popup as content/popup.json holds it: off, every text empty. */
+export function makePopup(overrides: Partial<PopupSettings> = {}): PopupSettings {
+  return {
+    enabled: false,
+    onGamePage: true,
+    onSoftwarePage: true,
+    onPhones: true,
+    onDesktops: true,
+    heading: '',
+    bubble: '',
+    message: '',
+    gameLabel: '',
+    softLabel: '',
+    tapHint: '',
+    sayHiLabel: '',
+    discordHandle: '',
+    tagBand: '',
+    tagGreeting: '',
+    tagName: '',
+    tagRole: '',
+    packEnabled: false,
+    packHeading: '',
+    packHint: '',
+    packTitle: '',
+    packEdition: '',
+    packFooter: '',
+    ...overrides,
+  };
+}
+
 /** Valid content: published items plus one unpublished item (carrying the marker) per collection. */
 export function fixtureBundle(): ContentBundle {
   return {
     site: makeSite(),
+    popup: makePopup(),
     tracks: [
       // One tab with a resume of its own (and the page's summary), one row without a link
       // that holds only a summary of its own.
@@ -361,6 +372,7 @@ export function fixtureBundle(): ContentBundle {
 export function bundleToFiles(bundle: ContentBundle): RawContentFile[] {
   return [
     { path: 'site.json', data: bundle.site },
+    { path: 'popup.json', data: bundle.popup },
     ...bundle.tracks.map((item) => ({ path: `tracks/${item.id}.json`, data: item })),
     ...bundle.projects.map((item) => ({ path: `projects/${item.slug}.json`, data: item })),
     ...bundle.experience.map((item) => ({ path: `experience/${item.slug}.json`, data: item })),

@@ -33,27 +33,6 @@
       "label": "Years building"
     }
   ],
-  "popup": {
-    "enabled": true,
-    "heading": "Whoa, you found me!",
-    "bubble": "Psst! Need a Developer? Tap me!",
-    "message": "Most people hand out business cards. I wear mine. I’m looking for my next role.",
-    "gameLabel": "Game developer?",
-    "softLabel": "Software developer?",
-    "tapHint": "Tap me!",
-    "sayHiLabel": "Say hi",
-    "discordHandle": "ghosts24",
-    "tagBand": "Open to work",
-    "tagGreeting": "Hello, my name is",
-    "tagName": "Kishan",
-    "tagRole": "Game dev · Software dev",
-    "packEnabled": true,
-    "packHeading": "Limited edition: your next hire",
-    "packHint": "Slide to tear",
-    "packTitle": "ASSET PACK",
-    "packEdition": "OPEN TO WORK",
-    "packFooter": ""
-  },
   "categories": [
     {
       "id": "unreal",

@@ -72,7 +72,7 @@ async function siteApi(dashboard: Dashboard, label: string): Promise<ReturnType<
 test.describe('config.yml: the fields of the top section', () => {
   test('Site settings lists the two button texts and the numbers, where the schema has them', () => {
     const siteFields = names(configFields('site'));
-    expect(siteFields.slice(siteFields.indexOf('allTabLabel'))).toEqual(['allTabLabel', 'workLabel', 'contactLabel', 'stats', 'popup', 'categories']);
+    expect(siteFields.slice(siteFields.indexOf('allTabLabel'))).toEqual(['allTabLabel', 'workLabel', 'contactLabel', 'stats', 'categories']);
     expect(siteFields).toEqual(Object.keys(siteSchema.shape));
   });
 

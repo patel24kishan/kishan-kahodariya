@@ -238,148 +238,6 @@ singletons:
             required: false
             default: ''
             hint: For example Projects built. If this is empty, the number is not shown.
-      - name: popup
-        label: Welcome popup
-        widget: object
-        collapsed: true
-        hint: >-
-          The popup a visitor sees ONCE, the first time they open the site (the browser
-          remembers it). Every line can be changed here. Leave a text empty to hide that
-          part of the popup. To see it again on your own device, add ?popup=1 to the address.
-        fields:
-          - name: enabled
-            label: Show the popup
-            widget: boolean
-            required: false
-            default: false
-            hint: Turn this off to stop showing the popup to anyone, for example after an event.
-          - name: heading
-            label: Line above the card
-            widget: string
-            required: false
-            default: 'Whoa, you found me!'
-            hint: >-
-              The small yellow line at the top, for example Whoa, you found me!
-          - name: bubble
-            label: Speech bubble on the picture
-            widget: string
-            required: false
-            default: 'Psst! Need a Developer? Tap me!'
-            hint: >-
-              Keep it short; it sits on the picture.
-          - name: message
-            label: Text under the picture
-            widget: string
-            required: false
-            default: ''
-            hint: >-
-              The friendly line. Two sentences work best.
-          - name: gameLabel
-            label: 'Yellow button (game page)'
-            widget: string
-            required: false
-            default: 'Game developer?'
-            hint: >-
-              Opens the game developer page. Leave empty to hide this button.
-          - name: softLabel
-            label: 'Blue button (software page)'
-            widget: string
-            required: false
-            default: 'Software developer?'
-            hint: >-
-              Opens the software developer page. Leave empty to hide this button.
-          - name: tapHint
-            label: Small line on both buttons
-            widget: string
-            required: false
-            default: 'Tap me!'
-            hint: >-
-              For example Tap me!
-          - name: sayHiLabel
-            label: Mail button
-            widget: string
-            required: false
-            default: 'Say hi'
-            hint: >-
-              Opens an email to your address from Site settings. Leave empty to hide it.
-          - name: discordHandle
-            label: Discord username
-            widget: string
-            required: false
-            default: 'ghosts24'
-            hint: >-
-              Your Discord username, written without the @, for example ghosts24. The button
-              copies it when a visitor taps it (Discord cannot open a profile from a username
-              alone). Leave empty to hide the button.
-          - name: tagBand
-            label: 'Name tag: coloured band'
-            widget: string
-            required: false
-            default: 'Open to work'
-            hint: >-
-              For example Open to work.
-          - name: tagGreeting
-            label: 'Name tag: small line'
-            widget: string
-            required: false
-            default: 'Hello, my name is'
-            hint: >-
-              For example Hello, my name is.
-          - name: tagName
-            label: 'Name tag: handwritten name'
-            widget: string
-            required: false
-            default: 'Kishan'
-            hint: >-
-              Your first name, written big on the tag.
-          - name: tagRole
-            label: 'Name tag: line under the name'
-            widget: string
-            required: false
-            default: 'Game dev · Software dev'
-            hint: >-
-              For example Game dev · Software dev.
-          - name: packEnabled
-            label: Start with a booster pack
-            widget: boolean
-            required: false
-            default: false
-            hint: >-
-              On = the popup opens with a sealed pack the visitor slides open to reveal the
-              card. Off = the popup opens straight on the card. The pack needs a phone that
-              supports WebGL; if it does not, the card is shown straight away.
-          - name: packHeading
-            label: 'Pack: line above it'
-            widget: string
-            required: false
-            default: 'A pack for you'
-            hint: Shown at the top while the pack is closed, for example A pack for you.
-          - name: packHint
-            label: 'Pack: screen-reader hint'
-            widget: string
-            required: false
-            default: 'Slide to tear'
-            hint: Read aloud by screen readers on the pack, for example Slide to tear. It is not shown on screen; a finger slides along the dotted line to show how.
-          - name: packTitle
-            label: 'Pack: title'
-            widget: string
-            required: false
-            default: 'FRIENDS PACK'
-            hint: >-
-              Printed at the top of the pack. The first word is big, the rest is small under
-              it, for example FRIENDS PACK.
-          - name: packEdition
-            label: 'Pack: yellow band'
-            widget: string
-            required: false
-            default: 'HALCON EDITION'
-            hint: The yellow band across the pack.
-          - name: packFooter
-            label: 'Pack: bottom line'
-            widget: string
-            required: false
-            default: ''
-            hint: The small line at the bottom of the pack, for example 6-8 NOV · HALIFAX, CA.
       - name: categories
         label: Project tabs
         label_singular: Project tab
@@ -443,7 +301,7 @@ collections:
     label: Pages
     label_singular: Page
     icon: web
-    description: The two public pages. Headline, summary, resume button, the tab that opens first, your photo, and the title shown in search results.
+    description: The two public pages and the welcome popup. Headline, summary, resume button, the tab that opens first, your photo, and the title shown in search results.
     format: json
     files:
       - name: game
@@ -767,6 +625,168 @@ collections:
             default: ''
             hint: One or two sentences that search engines and link previews show under the title.
 
+      - name: popup
+        label: Welcome popup
+        icon: celebration
+        file: content/popup.json
+        fields:
+          - name: enabled
+            label: Show the popup
+            widget: boolean
+            required: false
+            default: false
+            hint: Turn this off to stop showing the popup to anyone, for example after an event.
+          - name: onGamePage
+            label: Show on the game page
+            widget: boolean
+            required: false
+            default: true
+            hint: Off = a visitor who arrives on the game page does not see the popup.
+          - name: onSoftwarePage
+            label: Show on the software page
+            widget: boolean
+            required: false
+            default: true
+            hint: Off = a visitor who arrives on the software page does not see the popup.
+          - name: onPhones
+            label: Show on phones
+            widget: boolean
+            required: false
+            default: true
+            hint: Screens narrower than 768 pixels.
+          - name: onDesktops
+            label: Show on laptops and desktops
+            widget: boolean
+            required: false
+            default: true
+            hint: Screens 768 pixels wide and up. The popup is sized to the window.
+          - name: heading
+            label: Line above the card
+            widget: string
+            required: false
+            default: 'Whoa, you found me!'
+            hint: >-
+              The small yellow line at the top, for example Whoa, you found me!
+          - name: bubble
+            label: Speech bubble on the picture
+            widget: string
+            required: false
+            default: 'Psst! Need a Developer? Tap me!'
+            hint: >-
+              Keep it short; it sits on the picture.
+          - name: message
+            label: Text under the picture
+            widget: string
+            required: false
+            default: ''
+            hint: >-
+              The friendly line. Two sentences work best.
+          - name: gameLabel
+            label: 'Yellow button (game page)'
+            widget: string
+            required: false
+            default: 'Game developer?'
+            hint: >-
+              Opens the game developer page. Leave empty to hide this button.
+          - name: softLabel
+            label: 'Blue button (software page)'
+            widget: string
+            required: false
+            default: 'Software developer?'
+            hint: >-
+              Opens the software developer page. Leave empty to hide this button.
+          - name: tapHint
+            label: Small line on both buttons
+            widget: string
+            required: false
+            default: 'Tap me!'
+            hint: >-
+              For example Tap me!
+          - name: sayHiLabel
+            label: Mail button
+            widget: string
+            required: false
+            default: 'Say hi'
+            hint: >-
+              Opens an email to your address from Site settings. Leave empty to hide it.
+          - name: discordHandle
+            label: Discord username
+            widget: string
+            required: false
+            default: 'ghosts24'
+            hint: >-
+              Your Discord username, written without the @, for example ghosts24. The button
+              copies it when a visitor taps it (Discord cannot open a profile from a username
+              alone). Leave empty to hide the button.
+          - name: tagBand
+            label: 'Name tag: coloured band'
+            widget: string
+            required: false
+            default: 'Open to work'
+            hint: >-
+              For example Open to work.
+          - name: tagGreeting
+            label: 'Name tag: small line'
+            widget: string
+            required: false
+            default: 'Hello, my name is'
+            hint: >-
+              For example Hello, my name is.
+          - name: tagName
+            label: 'Name tag: handwritten name'
+            widget: string
+            required: false
+            default: 'Kishan'
+            hint: >-
+              Your first name, written big on the tag.
+          - name: tagRole
+            label: 'Name tag: line under the name'
+            widget: string
+            required: false
+            default: 'Game dev · Software dev'
+            hint: >-
+              For example Game dev · Software dev.
+          - name: packEnabled
+            label: Start with a booster pack
+            widget: boolean
+            required: false
+            default: false
+            hint: >-
+              On = the popup opens with a sealed pack the visitor slides open to reveal the
+              card. Off = the popup opens straight on the card. The pack needs a phone that
+              supports WebGL; if it does not, the card is shown straight away.
+          - name: packHeading
+            label: 'Pack: line above it'
+            widget: string
+            required: false
+            default: 'A pack for you'
+            hint: Shown at the top while the pack is closed, for example A pack for you.
+          - name: packHint
+            label: 'Pack: screen-reader hint'
+            widget: string
+            required: false
+            default: 'Slide to tear'
+            hint: Read aloud by screen readers on the pack, for example Slide to tear. It is not shown on screen; a finger slides along the dotted line to show how.
+          - name: packTitle
+            label: 'Pack: title'
+            widget: string
+            required: false
+            default: 'FRIENDS PACK'
+            hint: >-
+              Printed at the top of the pack. The first word is big, the rest is small under
+              it, for example FRIENDS PACK.
+          - name: packEdition
+            label: 'Pack: yellow band'
+            widget: string
+            required: false
+            default: 'HALCON EDITION'
+            hint: The yellow band across the pack.
+          - name: packFooter
+            label: 'Pack: bottom line'
+            widget: string
+            required: false
+            default: ''
+            hint: The small line at the bottom of the pack, for example 6-8 NOV · HALIFAX, CA.
   - divider: true
 
   # =======================================================================================

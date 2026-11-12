@@ -55,14 +55,20 @@ export interface SiteSettings {
   contactLabel: string;
   /** The numbers shown in the hero, in this order; read them through getHeroStats(). */
   stats: HeroStat[];
-  /** The welcome popup shown once to a first-time visitor. */
-  popup: PopupSettings;
 }
 
-/** content/site.json › popup. A blank text hides that part of the popup. */
+/** content/popup.json: the welcome popup shown once to a first-time visitor. A blank text hides that part of the popup. */
 export interface PopupSettings {
   /** Off = the popup is never shown. */
   enabled: boolean;
+  /** Shown to visitors who arrive on the game page. */
+  onGamePage: boolean;
+  /** Shown to visitors who arrive on the software page. */
+  onSoftwarePage: boolean;
+  /** Shown on phones (screens narrower than 768px). */
+  onPhones: boolean;
+  /** Shown on laptops and desktops (768px and wider). */
+  onDesktops: boolean;
   /** The line above the card: "Whoa, you found me!". */
   heading: string;
   /** The speech bubble on the picture. */

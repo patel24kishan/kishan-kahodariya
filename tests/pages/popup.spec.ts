@@ -12,7 +12,7 @@ import { content } from './support/content';
 // can take a few seconds, so give the assertions more room than the default 5s.
 const expect = baseExpect.configure({ timeout: 15_000 });
 
-const popup = content.getSite().popup;
+const popup = content.getPopup();
 const SEEN = 'kk-welcome-seen';
 
 // A first-time visitor: no stored flag.
@@ -79,11 +79,12 @@ test.describe('on a desktop screen', () => {
     expect(size.shown).toBeGreaterThan(300 * 1.2);
     expect(size.drawn).toBeGreaterThanOrEqual(Math.floor(size.shown) - 1);
     await fingerAtRest(page);
+    // hover() waits for the finger to stand still, so the press lands on it even on a slow machine.
+    await tear(page).hover();
+    await page.mouse.down();
     const box = (await tear(page).boundingBox())!;
     const y = box.y + box.height / 2;
-    await page.mouse.move(box.x + box.width / 2, y);
-    await page.mouse.down();
-    for (let i = 1; i <= 12; i++) await page.mouse.move(box.x + box.width / 2 + i * 30, y);
+    for (let i = 1; i <= 14; i++) await page.mouse.move(box.x + box.width / 2 + i * 30, y);
     await page.mouse.up();
     await expectStage(page, 'done');
   });
@@ -343,10 +344,10 @@ test.describe('welcome popup', () => {
     await tearOpen(page);
     await expect(dialog(page).locator('[data-popup-resume]')).toHaveCount(0);
     const discord = dialog(page).locator('[data-popup-discord]');
-    await expect(discord).toContainText(site.popup.discordHandle);
+    await expect(discord).toContainText(popup.discordHandle);
     await discord.click();
     await expect(discord).toContainText('Copied!');
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(site.popup.discordHandle);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(popup.discordHandle);
     await expect(dialog(page).locator('[data-popup-mail]')).toHaveAttribute('href', `mailto:${site.email}`);
   });
 

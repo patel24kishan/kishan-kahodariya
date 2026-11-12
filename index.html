@@ -114,14 +114,17 @@
     <script>
       /*
        * Welcome-popup cover. Runs before first paint, after the managed head (which carries the
-       * kk-popup marker when the popup is switched on in the dashboard). Mirrors the rules in
+       * kk-popup marker listing the screens the popup shows on for this page: "phone desktop"). Mirrors the rules in
        * src/components/popup/WelcomePopup.tsx: the popup not seen yet (or ?popup=1).
        * Only the decision is made here (it must be before first paint); the loader below the
        * body tag shows the count, and the app hands over to it (popupCover.ts).
        */
       (function () {
         try {
-          if (!document.querySelector('meta[name="kk-popup"]')) return;
+          var marker = document.querySelector('meta[name="kk-popup"]');
+          if (!marker) return;
+          var screen = window.matchMedia('(max-width: 767px)').matches ? 'phone' : 'desktop';
+          if ((' ' + marker.getAttribute('content') + ' ').indexOf(' ' + screen + ' ') < 0) return;
           var forced = /(^|[?&])popup=1(&|$)/.test(window.location.search);
           var seen = true;
           try {

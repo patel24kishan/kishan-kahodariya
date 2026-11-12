@@ -606,4 +606,72 @@ if (CMS && html && CMS.React && typeof CMS.registerPreviewTemplate === 'function
   CMS.registerPreviewTemplate('education', EducationPreview);
   for (const page of PAGES) CMS.registerPreviewTemplate(page.id, makePagePreview(page));
   CMS.registerPreviewTemplate('site', SitePreview);
+
+  // ---------------------------------------------------------------------------------------
+  // Welcome popup (Pages › Welcome popup, content/popup.json)
+  // ---------------------------------------------------------------------------------------
+
+  /** Where the popup shows, in words, from the switches (the same rules as the site). */
+  const popupWhere = (data) => {
+    if (data.enabled !== true) return 'Nowhere: "Show the popup" is off.';
+    const pages = [data.onGamePage !== false && 'the game page', data.onSoftwarePage !== false && 'the software page'].filter(Boolean);
+    const screens = [data.onPhones !== false && 'phones', data.onDesktops !== false && 'laptops and desktops'].filter(Boolean);
+    if (pages.length === 0 || screens.length === 0) return 'Nowhere: every page or every screen size is switched off.';
+    return `Once per visitor, on ${pages.join(' and ')}, on ${screens.join(' and ')}.`;
+  };
+
+  /** The pack title as the pack prints it: the first word big, the rest small under it. */
+  const packTitle = (value) => {
+    const words = str(value).trim().split(/\s+/).filter(Boolean);
+    return { big: (words[0] ?? '').toUpperCase(), small: words.slice(1).join(' ').toUpperCase() };
+  };
+
+  const PopupPreview = ({ entry }) => {
+    const data = dataOf(entry);
+    const title = packTitle(data.packTitle);
+    const say = (value) => str(value).trim();
+    const pack = data.packEnabled === true;
+    const hint = say(data.packHint);
+    return html`<${Frame} data=${data} single=${true}>
+      <${Panel} title="Where it shows">
+        <p class="kk-where" data-key-path="enabled">${popupWhere(data)}</p>
+      <//>
+      ${pack
+        ? html`<${Panel} title="1 · The sealed pack">
+            ${say(data.packHeading) ? html`<p class="kk-pop-heading" data-key-path="packHeading">${say(data.packHeading)}</p>` : null}
+            <div class="kk-pop-pack">
+              <div class="kk-pop-pack__title" data-key-path="packTitle">
+                <b>${title.big || '(no title)'}</b>${title.small ? html`<span>${title.small}</span>` : null}
+              </div>
+              <div class="kk-pop-pack__emblem">The character in the Santa hat</div>
+              ${say(data.packEdition) ? html`<div class="kk-pop-pack__band" data-key-path="packEdition">${say(data.packEdition).toUpperCase()}</div>` : null}
+              ${say(data.packFooter) ? html`<div class="kk-pop-pack__footer" data-key-path="packFooter">${say(data.packFooter).toUpperCase()}</div>` : null}
+            </div>
+            <p class="kk-where" data-key-path="packHint">A finger slides along the dotted line. ${hint ? `Screen readers hear: ${hint}.` : 'No screen-reader hint.'}</p>
+          <//>`
+        : html`<${Panel} title="1 · The pack"><p class="kk-where" data-key-path="packEnabled">Off: the popup opens straight on the card.</p><//>`}
+      <${Panel} title=${pack ? '2 · After the tear: the card' : '2 · The card'}>
+        ${say(data.heading) ? html`<p class="kk-pop-heading" data-key-path="heading">${say(data.heading)}</p>` : null}
+        <div class="kk-pop-card">
+          ${say(data.bubble) ? html`<p class="kk-pop-bubble" data-key-path="bubble">${say(data.bubble)}</p>` : null}
+          ${say(data.message) ? html`<p class="kk-pop-message" data-key-path="message">${say(data.message)}</p>` : null}
+        </div>
+        <div class="kk-pop-actions">
+          ${say(data.gameLabel) ? html`<div class="kk-pop-action kk-pop-action--game" data-key-path="gameLabel"><b>${say(data.gameLabel)}</b>${say(data.tapHint) ? html`<span>${say(data.tapHint)}</span>` : null}</div>` : null}
+          ${say(data.softLabel) ? html`<div class="kk-pop-action kk-pop-action--soft" data-key-path="softLabel"><b>${say(data.softLabel)}</b>${say(data.tapHint) ? html`<span>${say(data.tapHint)}</span>` : null}</div>` : null}
+          <div class="kk-pop-utility">
+            ${say(data.discordHandle) ? html`<span data-key-path="discordHandle">Discord: ${say(data.discordHandle)}</span>` : null}
+            ${say(data.sayHiLabel) ? html`<span data-key-path="sayHiLabel">${say(data.sayHiLabel)}</span>` : null}
+          </div>
+        </div>
+        <div class="kk-pop-tag">
+          ${say(data.tagBand) ? html`<div class="kk-pop-tag__band" data-key-path="tagBand">${say(data.tagBand)}</div>` : null}
+          ${say(data.tagGreeting) ? html`<div class="kk-pop-tag__greeting" data-key-path="tagGreeting">${say(data.tagGreeting)}</div>` : null}
+          ${say(data.tagName) ? html`<div class="kk-pop-tag__name" data-key-path="tagName">${say(data.tagName)}</div>` : null}
+          ${say(data.tagRole) ? html`<div class="kk-pop-tag__role" data-key-path="tagRole">${say(data.tagRole)}</div>` : null}
+        </div>
+      <//>
+    <//>`;
+  };
+  CMS.registerPreviewTemplate('popup', PopupPreview);
 }

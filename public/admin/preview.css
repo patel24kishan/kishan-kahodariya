@@ -522,3 +522,29 @@ ul {
   color: var(--kk-accent);
   font-size: 13px;
 }
+
+/* ---- Welcome popup ------------------------------------------------------------------- */
+
+.kk-pop-heading { margin: 0 0 10px; color: #faff69; font-size: 14px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; }
+.kk-page .kk-pop-heading { background: #000000; padding: 8px 10px; }
+.kk-pop-pack { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 230px; max-width: 100%; margin: 0 auto; padding: 26px 0 18px; border-top: 18px solid #2b323b; border-bottom: 18px solid #2b323b; background: linear-gradient(180deg, #0e2a6b 0%, #0a1744 55%, #070d26 100%); color: #ffffff; text-align: center; }
+.kk-pop-pack__title b { display: block; font-size: 34px; line-height: 1; letter-spacing: 0.08em; }
+.kk-pop-pack__title span { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5em; }
+.kk-pop-pack__emblem { padding: 22px 10px; border: 1px dashed rgba(255, 255, 255, 0.4); color: #c9d6ff; font-size: 12px; }
+.kk-pop-pack__band { align-self: stretch; padding: 6px 0; background: #faff69; color: #0a1744; font-weight: 800; letter-spacing: 0.2em; transform: rotate(-4deg); }
+.kk-pop-pack__footer { color: #c9d6ff; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; }
+.kk-pop-card { padding: 12px; border: 3px solid #faff69; border-radius: 14px; background: #121212; color: #ffffff; }
+.kk-pop-bubble { display: inline-block; margin: 0 0 8px; padding: 6px 10px; border-radius: 10px; background: #ffffff; color: #000000; font-weight: 700; }
+.kk-pop-message { margin: 0; font-weight: 600; }
+.kk-pop-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.kk-pop-action { padding: 10px 12px; color: #000000; }
+.kk-pop-action b { display: block; font-size: 16px; text-transform: uppercase; }
+.kk-pop-action--game { background: #faff69; }
+.kk-pop-action--soft { background: #7cb2ff; }
+.kk-pop-utility { display: flex; gap: 8px; }
+.kk-pop-utility span { flex: 1; padding: 10px; border: 1px solid #5a5a5a; background: #0b0b0b; color: #ffffff; text-align: center; }
+.kk-pop-tag { width: 230px; max-width: 100%; margin: 14px auto 0; border: 4px solid #faff69; background: #ffffff; color: #000000; text-align: center; transform: rotate(-2deg); }
+.kk-pop-tag__band { padding: 8px; background: #faff69; font-weight: 800; text-transform: uppercase; }
+.kk-pop-tag__greeting { padding-top: 6px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; }
+.kk-pop-tag__name { font-size: 30px; font-weight: 800; }
+.kk-pop-tag__role { padding-bottom: 8px; font-size: 12px; }

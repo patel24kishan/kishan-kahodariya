@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 /**
@@ -101,4 +102,22 @@ test.describe('on a desktop screen', () => {
     await expect(page.getByTestId('welcome-popup')).toBeVisible({ timeout: 15_000 });
     await expect.poll(() => coverState(page).then((state) => state.display), { timeout: 8_000 }).toBe('none');
   });
+});
+
+test.describe('the dashboard switches reach the page before any script runs', () => {
+  const popup = JSON.parse(readFileSync('content/popup.json', 'utf8')) as Record<string, boolean>;
+  const screens = (onPage: boolean) =>
+    popup.enabled && onPage ? [popup.onPhones && 'phone', popup.onDesktops && 'desktop'].filter(Boolean).join(' ') : '';
+
+  for (const [path, onPage] of [
+    ['./', popup.onGamePage],
+    ['./gamedev', popup.onGamePage],
+    ['./softdev', popup.onSoftwarePage],
+  ] as const) {
+    test(`${path} carries the screens the popup shows on`, async ({ request }) => {
+      const html = await (await request.get(path)).text();
+      const marker = /<meta name="kk-popup" content="([^"]*)"/.exec(html)?.[1] ?? '';
+      expect(marker).toBe(screens(onPage !== false));
+    });
+  }
 });

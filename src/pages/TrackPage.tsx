@@ -14,8 +14,7 @@ import {
   getTabs,
   getTrack,
   type Project,
-  type TrackId,
-} from '@/content';
+  type TrackId, getPopup } from '@/content';
 import { SkipLink } from '@/components/ui';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteNav } from '@/components/layout/SiteNav';
@@ -117,7 +116,7 @@ export default function TrackPage({ track, tab }: TrackPageProps) {
         <Education education={education} certificates={certificates} certificatesFirst={profile.certificatesFirst} />
       </main>
       <SiteFooter links={footerLinks} credit={site.credit} contactLabel={site.contactLabel} />
-      <WelcomePopup popup={site.popup} email={site.email} />
+      <WelcomePopup popup={getPopup()} email={site.email} track={track} />
       {viewed && request && <MediaViewer project={viewed} item={request.item} opener={openerRef.current} onItemChange={moveViewer} onClose={closeViewer} />}
     </div>
   );

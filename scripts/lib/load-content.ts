@@ -109,6 +109,7 @@ export function publishedOnly(content: ContentBundle): ContentBundle {
     items.filter((item) => item.published);
   return {
     site: content.site,
+    popup: content.popup,
     tracks: [...content.tracks],
     projects: live(content.projects),
     experience: live(content.experience),

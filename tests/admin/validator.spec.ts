@@ -881,7 +881,7 @@ test.describe('validate:cms on the real project', () => {
     expect(result.status, result.output).toBe(0);
     expect(result.stdout).toMatch(new RegExp(`Sveltia CMS ${pinnedScript().version.replace(/\./g, '\\.')}, pinned with an integrity hash`));
     expect(result.stdout).toMatch(/saves go to "master", the branch \.github\/workflows\/deploy\.yml deploys/);
-    expect(result.stdout).toMatch(/9 kinds of content, \d+ fields match the schema/);
+    expect(result.stdout).toMatch(/10 kinds of content, \d+ fields match the schema/);
     expect(result.stdout).toMatch(/\d+ content files, each editable in exactly one place/);
     expect(result.stdout, 'no content value is refused by the form today').not.toContain('NOTE');
   });

@@ -6,6 +6,7 @@ import type {
   Certificate,
   Education,
   Experience,
+  PopupSettings,
   Project,
   SiteSettings,
   SkillGroup,
@@ -22,6 +23,8 @@ export interface ContentBundle {
   buildMonth?: string;
   /** content/site.json */
   site: SiteSettings;
+  /** content/popup.json (optional file: the popup is off without it). */
+  popup: PopupSettings;
   /** content/tracks/*.json, game first. */
   tracks: TrackProfile[];
   /** content/projects/*.json */

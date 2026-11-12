@@ -72,6 +72,32 @@ function bySlug<T extends { slug: string }>(items: readonly T[], slug: string): 
   return item;
 }
 
+test.describe('content schema — the welcome popup (popup.json)', () => {
+  test('popup.json is optional: without it the popup is off and every switch is on', () => {
+    const { content } = read(fixtureFiles().filter((file) => file.path !== 'popup.json'));
+    expect(content.popup.enabled).toBe(false);
+    expect([content.popup.onGamePage, content.popup.onSoftwarePage, content.popup.onPhones, content.popup.onDesktops]).toEqual([true, true, true, true]);
+  });
+
+  test('a page or screen switch left out of popup.json is on; one turned off stays off', () => {
+    const { content } = read(
+      withFile('popup.json', (data) => {
+        delete data.onPhones;
+        data.onSoftwarePage = false;
+      }),
+    );
+    expect(content.popup.onPhones).toBe(true);
+    expect(content.popup.onSoftwarePage).toBe(false);
+  });
+
+  test('a popup.json that is not valid fails the content, it is not silently replaced', () => {
+    const files = withFile('popup.json', (data) => {
+      data.onDesktops = 'yes please';
+    });
+    expect(validateContent(files).ok).toBe(false);
+  });
+});
+
 test.describe('content schema — valid content', () => {
   test('the fixture content passes', () => {
     const result = validateContent(fixtureFiles());
@@ -318,27 +344,6 @@ test.describe('content schema — field rules', () => {
       workLabel: '',
       contactLabel: '',
       stats: [],
-      popup: {
-        enabled: false,
-        heading: '',
-        bubble: '',
-        message: '',
-        gameLabel: '',
-        softLabel: '',
-        tapHint: '',
-        sayHiLabel: '',
-        discordHandle: '',
-        tagBand: '',
-        tagGreeting: '',
-        tagName: '',
-        tagRole: '',
-        packEnabled: false,
-        packHeading: '',
-        packHint: '',
-        packTitle: '',
-        packEdition: '',
-        packFooter: '',
-      },
       categories: [
         { id: 'unity', label: 'Unity3D', order: 0, hoverWithVideo: '', hoverWithoutVideo: '' },
         { id: 'webapps', label: 'Web Apps', order: 0, hoverWithVideo: '', hoverWithoutVideo: '' },

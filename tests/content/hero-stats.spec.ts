@@ -15,6 +15,7 @@ import {
   fixtureFiles,
   makeCertificate,
   makeExperience,
+  makePopup,
   makeProject,
   makeSite,
   makeTrack,
@@ -23,6 +24,7 @@ import {
 
 function bundle(overrides: Partial<ContentBundle> = {}, stats: HeroStat[] = [], buildMonth?: string): ContentBundle {
   return {
+    popup: makePopup(),
     site: makeSite({ stats }),
     tracks: [makeTrack('game'), makeTrack('softdev')],
     projects: [],

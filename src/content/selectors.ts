@@ -16,6 +16,7 @@ import type {
   Project,
   ResolvedExperience,
   ResolvedHeroStat,
+  PopupSettings,
   SiteSettings,
   SkillGroup,
   SocialLink,
@@ -37,6 +38,7 @@ export interface ResumeButton {
 
 export interface ContentApi {
   getSite(): SiteSettings;
+  getPopup(): PopupSettings;
   getTracks(): TrackProfile[];
   getTrack(id: TrackId): TrackProfile;
   getTrackByRoute(route: string): TrackProfile | undefined;
@@ -103,6 +105,10 @@ export function createContentApi(content: ContentBundle, options: ContentApiOpti
 
   function getSite(): SiteSettings {
     return content.site;
+  }
+
+  function getPopup(): PopupSettings {
+    return content.popup;
   }
 
   function getTracks(): TrackProfile[] {
@@ -267,6 +273,7 @@ export function createContentApi(content: ContentBundle, options: ContentApiOpti
 
   return {
     getSite,
+    getPopup,
     getTracks,
     getTrack,
     getTrackByRoute,

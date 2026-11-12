@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
-import type { PopupSettings } from '@/content';
+import type { PopupSettings, TrackId } from '@/content';
 import { liftPopupCover } from './popupCover';
 
 const PopupDialog = lazy(() => import('./PopupDialog'));
@@ -11,6 +11,8 @@ export interface WelcomePopupProps {
   popup: PopupSettings;
   /** The site's email address; empty hides the mail button. */
   email: string;
+  /** The page the visitor is on: the popup can be switched off per page. */
+  track: TrackId;
 }
 
 /**
@@ -20,6 +22,7 @@ export interface WelcomePopupProps {
  * history is read in an effect, so the prerendered HTML is the same for everyone. The popup
  * code (and the two display fonts it uses) is loaded only when it is about to be shown.
  * Every screen size: on a desktop it is the same popup, sized to the window (PopupDialog).
+ * The dashboard switches it per page (game, software) and per screen (phones, desktops).
  * The "seen" flag is set when the popup opens, so a reload does not show it again. Adding
  * ?popup=1 to the address shows it regardless, for the owner to look at it.
  *
@@ -27,11 +30,16 @@ export interface WelcomePopupProps {
  * the first paint (popupCover.ts) and the cover is lifted here when no popup is coming, or by
  * the dialog once it is open.
  */
-export function WelcomePopup({ popup, email }: WelcomePopupProps) {
+/** Phones: screens narrower than this see the popup only when it is switched on for phones. */
+export const PHONE_MEDIA = '(max-width: 767px)';
+
+export function WelcomePopup({ popup, email, track }: WelcomePopupProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!popup.enabled) {
+    const onPage = track === 'softdev' ? popup.onSoftwarePage : popup.onGamePage;
+    const onScreen = window.matchMedia(PHONE_MEDIA).matches ? popup.onPhones : popup.onDesktops;
+    if (!popup.enabled || !onPage || !onScreen) {
       liftPopupCover();
       return;
     }
@@ -53,7 +61,7 @@ export function WelcomePopup({ popup, email }: WelcomePopupProps) {
       // Ignored: see above.
     }
     setOpen(true);
-  }, [popup.enabled]);
+  }, [popup.enabled, popup.onGamePage, popup.onSoftwarePage, popup.onPhones, popup.onDesktops, track]);
 
   const close = useCallback(() => setOpen(false), []);
 

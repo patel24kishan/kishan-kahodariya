@@ -9,7 +9,7 @@ import { StrictMode, type ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import '@/styles/index.css';
-import { getAllRoutes, getSite, getTracks } from '@/content';
+import { getAllRoutes, getPopup, getSite, getTracks, type TrackId } from '@/content';
 import { renderHead } from '@/lib/head';
 import NotFound from '@/lib/not-found/NotFound';
 import { absoluteUrl, routeHref, routerBasename, trackPath } from '@/lib/paths';
@@ -28,6 +28,15 @@ function shell(routePath: string, children: ReactElement): ReactElement {
       </ThemeProvider>
     </StrictMode>
   );
+}
+
+/** The kk-popup marker for one page: "phone desktop", "phone", "desktop", or none. */
+function popupMarker(track: TrackId): string {
+  const popup = getPopup();
+  const onPage = track === 'softdev' ? popup.onSoftwarePage : popup.onGamePage;
+  if (!popup.enabled || !onPage) return '';
+  const screens = [popup.onPhones && 'phone', popup.onDesktops && 'desktop'].filter(Boolean).join(' ');
+  return screens === '' ? '' : `\n    <meta name="kk-popup" content="${screens}" />`;
 }
 
 export interface RenderedPage {
@@ -52,10 +61,11 @@ export function render(routePath: string): RenderedPage {
   }
   return {
     html: renderToString(shell(routePath, <App />)),
-    // The marker lets the inline script in index.html cover the page for a first-time phone
-    // visitor before the first paint (see src/components/popup/popupCover.ts). Outside the
-    // managed head tags, so a client navigation never touches it.
-    head: renderHead(route.head) + (getSite().popup.enabled ? '\n    <meta name="kk-popup" content="on" />' : ''),
+    // The marker lets the inline script in index.html cover the page for a first-time visitor
+    // before the first paint (see src/components/popup/popupCover.ts). It lists the screens the
+    // popup shows on for this page (dashboard switches). Outside the managed head tags, so a
+    // client navigation never touches it.
+    head: renderHead(route.head) + popupMarker(route.view.track.id),
   };
 }
 

@@ -15,6 +15,7 @@ import {
   makeEducation,
   makeExperience,
   makeLink,
+  makePopup,
   makeProject,
   makeSite,
   makeSkillGroup,
@@ -26,6 +27,7 @@ const slugs = (items: readonly { slug: string }[]): string[] => items.map((item)
 
 function bundle(overrides: Partial<ContentBundle> = {}): ContentBundle {
   return {
+    popup: makePopup(),
     site: makeSite(),
     tracks: [makeTrack('game'), makeTrack('softdev')],
     projects: [],
